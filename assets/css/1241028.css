@@ -1,0 +1,251 @@
+/* configurações gerais */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8fafc; /* Cinza claro de fundo para destacar os cartões */
+    color: #334155; /* Texto escuro, mas suave para os olhos */
+    line-height: 1.6;
+}
+
+/* barra de navegação*/
+.bng-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5%;
+    background-color: #1e1b4b; /* Roxo ultra-profundo institucional */
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Alinhamento da Logo com o H3 */
+.bng-navbar div {
+    display: flex;
+    align-items: center;
+}
+
+.bng-navbar img {
+    margin-right: 12px;
+    transition: transform 0.3s ease;
+}
+
+.bng-navbar img:hover {
+    transform: scale(1.05); /* Pequeno efeito ao passar o rato na logo */
+}
+
+.bng-navbar h3 {
+    font-size: 1.4em;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Links Centrais de Navegação */
+.container-navegacao a {
+    color: #cbd5e1; /* Cinza claro para link normal */
+    text-decoration: none;
+    margin: 0 20px;
+    font-weight: 500;
+    font-size: 1.05em;
+    transition: color 0.3s ease;
+}
+
+.container-navegacao a:hover {
+    color: #818cf8; /* Roxo brilhante no hover */
+}
+
+/* Botão da Área Cliente (Lado Direito) */
+.nav-cliente a {
+    background-color: #4f46e5; /* Botão Ultravioleta */
+    color: white;
+    padding: 10px 22px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.nav-cliente a:hover {
+    background-color: #4338ca; /* Roxo mais escuro no clique/hover */
+    transform: translateY(-1px);
+}
+
+/* secções de conteúdo*/
+.container-texto-generico {
+    padding: 80px 8%;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 30px;
+    flex-wrap: wrap; /* Permite que os cartões quebrem de linha em ecrãs pequenos */
+}
+
+/* Estilo para alternar a cor de fundo das secções e dar ritmo ao site */
+#solucoes {
+    background-color: #ffffff; /* Fundo totalmente branco para contrastar */
+}
+
+/* Os Cartões (Articles) */
+.container-texto-generico article {
+    background-color: #ffffff;
+    padding: 35px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    flex: 1;
+    min-width: 300px;
+    max-width: 380px;
+    border-top: 4px solid #4f46e5; /* Linha ultravioleta elegante no topo do cartão */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Efeito flutuante ao passar o rato nos cartões */
+.container-texto-generico article:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.container-texto-generico article h2 {
+    color: #1e1b4b;
+    font-size: 1.35em;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.container-texto-generico article p {
+    color: #475569;
+    font-size: 0.98em;
+    margin-bottom: 15px;
+}
+
+/* Estilização das listas internas das Soluções */
+.container-texto-generico article ul {
+    list-style: none;
+    margin-top: 15px;
+}
+
+.container-texto-generico article ul li {
+    font-size: 0.92em;
+    color: #64748b;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+/* Destaque para os vistos (✔) na lista */
+.container-texto-generico article ul li span, 
+.container-texto-generico article ul li::before {
+    color: #10b981; /* Verde esmeralda para os vistos de sucesso */
+    margin-right: 8px;
+    font-weight: bold;
+}
+
+/* formulário de contacto */
+#contacto {
+    background-color: #f1f5f9; /* Fundo ligeiramente diferente */
+    padding: 80px 5%;
+}
+
+#contacto h2 {
+    text-align: center;
+    color: #1e1b4b;
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+#contacto p {
+    text-align: center;
+    color: #64748b;
+    max-width: 600px;
+    margin: 0 auto 40px auto;
+}
+
+#contactForm {
+    max-width: 550px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+#contactForm label {
+    font-weight: 600;
+    color: #1e1b4b;
+    margin-bottom: 6px;
+    font-size: 0.95em;
+}
+
+#contactForm input, 
+#contactForm textarea {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 22px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.95em;
+    color: #334155;
+    font-family: inherit;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Foco interativo nos inputs */
+#contactForm input:focus, 
+#contactForm textarea:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+#contactForm button {
+    background-color: #4f46e5;
+    color: white;
+    padding: 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.05em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#contactForm button:hover {
+    background-color: #4338ca;
+}
+
+/* rodapé (foot-container) */
+.footer-container {
+    background-color: #0f172a; /* Fundo quase preto para fechar o site com força */
+    color: #94a3b8;
+    padding: 50px 8%;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+.footer-section {
+    flex: 1;
+    min-width: 220px;
+}
+
+.footer-section strong {
+    color: #ffffff;
+    display: block;
+    margin-bottom: 18px;
+    font-size: 1.1em;
+    letter-spacing: 0.5px;
+}
+
+.footer-section p {
+    font-size: 0.95em;
+    line-height: 1.7;
+}
