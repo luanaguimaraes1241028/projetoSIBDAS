@@ -17,8 +17,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 5%;
-    background-color: #1e1b4b; /* Roxo ultra-profundo institucional */
+    padding: 22px 5%; /* 22px em cima/baixo mantém a barra grossa */
+    background-color: #1e1b4b;
     color: white;
     position: sticky;
     top: 0;
@@ -33,6 +33,8 @@ body {
 }
 
 .bng-navbar img {
+    height: 40px; /* Deixa o logo mais pequeno e elegante */
+    width: auto;
     margin-right: 12px;
     transition: transform 0.3s ease;
 }
@@ -248,4 +250,12 @@ body {
 .footer-section p {
     font-size: 0.95em;
     line-height: 1.7;
+}
+
+/* fontes*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Nunito', Arial, Helvetica, sans-serif;
 }
