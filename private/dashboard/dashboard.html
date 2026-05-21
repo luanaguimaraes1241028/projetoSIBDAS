@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCore Inventory - Dashboard</title>
+    
+    <link rel="shortcut icon" href="../../assets/img/logo medcore.png" type="image/png">
+    
+    <link rel="stylesheet" href="../../assets/fontawesome/all.min.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../assets/css/1241028.css">
+</head>
+<body class="dash-body">
+
+    <nav class="dash-navbar">
+        <div class="dash-nav-logo">
+            <img src="../../assets/img/logo medcore.png" alt="Logo MedCore">
+            <span>MedCore Inventory</span>
+        </div>
+        <div class="dash-nav-links">
+            <a href="../public/index.html">Sair (Logout)</a>
+        </div>
+    </nav>
+
+    <div class="dash-layout">
+        
+        <aside class="dash-sidebar">
+            <ul>
+                <li><a href="#" class="active"><i class="fa-solid fa-chart-pie"></i> &ensp; Dashboard</a></li>
+                <li><a href="equipamentos.html"><i class="fa-solid fa-stethoscope"></i> &ensp; Equipamentos</a></li>
+                <li><a href="localizacoes.html"><i class="fa-solid fa-hospital"></i> &ensp; Localizações</a></li>
+                <li><a href="fornecedores.html"><i class="fa-solid fa-truck-field"></i> &ensp; Fornecedores</a></li>
+                <li><a href="documentacao.html"><i class="fa-solid fa-folder-open"></i> &ensp; Documentação</a></li>
+                <li><a href="garantias.html"><i class="fa-solid fa-file-contract"></i> &ensp; Garantias</a></li>
+            </ul>
+        </aside>
+
+        <main class="dash-content">
+            <header class="dash-header">
+                <h1>Gestão de Dispositivos Médicos</h1>
+                <p>Visão rápida e sintética para apoio à tomada de decisão técnica.</p>
+            </header>
+
+            <section class="dash-cards-grid">
+                <div class="dash-card">
+                    <h3>Total Equipamentos</h3>
+                    <p class="dash-number">142</p>
+                </div>
+                <div class="dash-card card-success">
+                    <h3>Equipamentos Ativos</h3>
+                    <p class="dash-number">131</p>
+                </div>
+                <div class="dash-card card-warning">
+                    <h3>Em Manutenção</h3>
+                    <p class="dash-number">8</p>
+                </div>
+                <div class="dash-card card-danger">
+                    <h3>Equipamentos Inativos</h3>
+                    <p class="dash-number">3</p>
+                </div>
+            </section>
+
+            <section class="dash-alerts-section">
+                <h2><i class="fa-solid fa-triangle-exclamation"></i> Alertas do Sistema</h2>
+                <div class="dash-alerts-grid">
+                    <div class="alert-box danger">
+                        <strong>Garantia Expirada:</strong> 4 equipamentos necessitam de revisão de contrato.
+                    </div>
+                    <div class="alert-box danger">
+                        <strong>Falta Documentação:</strong> 6 equipamentos sem manual técnico associado.
+                    </div>
+                    <div class="alert-box warning">
+                        <strong>Garantias a expirar (30 dias):</strong> 2 dispositivos médicos próximos do fim.
+                    </div>
+                </div>
+            </section>
+
+            <section class="dash-tables-grid">
+                
+                <div class="dash-table-container">
+                    <h3>Equipamentos por Serviço Clínico</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Serviço</th>
+                                <th>Total</th>
+                                <th>Suporte de Vida</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Bloco Operatório</td>
+                                <td>42</td>
+                                <td><span class="badge danger">12</span></td>
+                            </tr>
+                            <tr>
+                                <td>Cuidados Intensivos (UCIP)</td>
+                                <td>35</td>
+                                <td><span class="badge danger">18</span></td>
+                            </tr>
+                            <tr>
+                                <td>Radiologia / Imagiologia</td>
+                                <td>28</td>
+                                <td><span class="badge info">0</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="dash-table-container">
+                    <h3>Equipamentos de Criticidade Elevada</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Equipamento</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#EQ-0042</td>
+                                <td>Ventilador Volumétrico</td>
+                                <td><span class="badge success">Ativo</span></td>
+                            </tr>
+                            <tr>
+                                <td>#EQ-0089</td>
+                                <td>Desfibrilhador Bifásico</td>
+                                <td><span class="badge warning">Em Calibração</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+</body>
+</html>

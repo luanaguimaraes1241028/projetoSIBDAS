@@ -349,3 +349,17 @@ body {
 .login-back-link:hover {
     text-decoration: underline;
 }
+
+/* dashboard */
+
+/* Garante que o corpo do Dashboard usa a fonte Nunito das aulas */
+.dash-body {
+    font-family: 'Nunito', sans-serif;
+}
+
+/* Força os ícones do Font Awesome a alinhar perfeitamente no menu Bootstrap */
+.dash-sidebar li a i {
+    color: inherit; 
+    width: 20px;    
+    text-align: center;
+}
