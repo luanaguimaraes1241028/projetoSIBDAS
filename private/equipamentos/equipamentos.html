@@ -4,135 +4,147 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MedCore Inventory - Equipamentos</title>
+    
+    <link rel="shortcut icon" href="../../assets/img/logo medcore.png" type="image/jpeg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/fontawesome/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/1241028.css">
 </head>
-<body>
+<body style="font-family: 'Nunito', sans-serif; background-color: #f8fafc;">
 
-    <nav>
-        <div>
-            <img src="../../assets/img/logo medcore.png" alt="Logo">
-            <span>MedCore Inventory</span>
+    <nav class="navbar navbar-dark sticky-top px-4" style="background-color: #1e1b4b; height: 60px;">
+        <div class="d-flex align-items-center gap-2">
+            <img src="../../assets/img/logo medcore.png" alt="Logo" class="" style="height: 40px;">
+            <span class="navbar-brand mb-0 h1 fw-bold">MedCore Inventory</span>
         </div>
-        <div>
-            <a href="../public/index.html">Sair (Logout)</a>
+        <div class="navbar-nav">
+            <a class="nav-link text-white-50" href="../public/index.html">Sair (Logout)</a>
         </div>
     </nav>
 
-    <div>
-        <div>
+    <div class="container-fluid">
+        <div class="row">
             
-            <nav>
-                <ul>
-                    <li>
-                        <a href="../dashboard/dashboard.html">
-                            Dashboard
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            Equipamentos
-                        </a>
-                    </li>
-                    <li>
-                        <a href="../localizacoes/localizacoes.html">
-                            Localizações
-                        </a>
-                    </li>
-                    <li>
-                        <a href="../fornecedores/fornecedores.html">
-                            Fornecedores
-                        </a>
-                    </li>
-                    <li>
-                        <a href="../documentacao/documentacao.html">
-                            Documentação
-                        </a>
-                    </li>
-                    <li>
-                        <a href="../garantias/garantias.html">
-                            Garantias
-                        </a>
-                    </li>
-                </ul>
+            <nav class="col-md-3 col-lg-2 d-md-block bg-white sidebar vh-100 border-end p-0">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../dashboard/dashboard.html">
+                                <i class="fa-solid fa-chart-pie"></i> &ensp; Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active py-3 px-4 fw-bold text-primary bg-light border-start border-4 border-primary" href="#">
+                                <i class="fa-solid fa-stethoscope"></i> &ensp; Equipamentos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../localizacoes/localizacoes.html">
+                                <i class="fa-solid fa-hospital"></i> &ensp; Localizações
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../fornecedores/fornecedores.html">
+                                <i class="fa-solid fa-truck-field"></i> &ensp; Fornecedores
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../documentacao/documentacao.html">
+                                <i class="fa-solid fa-folder-open"></i> &ensp; Documentação
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../garantias/garantias.html">
+                                <i class="fa-solid fa-file-contract"></i> &ensp; Garantias
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </nav>
 
-            <main>
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-4">
                 
-                <div>
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <div>
-                        <h1>Inventário de Dispositivos Médicos</h1>
-                        <p>Inserção, listagem, consulta e atualização do parque tecnológico hospitalar.</p>
+                        <h1 class="h2 fw-bold" style="color: #1e1b4b;">Inventário de Dispositivos Médicos</h1>
+                        <p class="text-muted">Inserção, listagem, consulta e atualização do parque tecnológico hospitalar.</p>
                     </div>
                     <div>
-                        <button>
-                            Inserir Equipamento
+                        <button class="btn text-white fw-bold shadow-sm" style="background-color: #1e1b4b;" data-bs-toggle="modal" data-bs-target="#modalEquipamento">
+                            <i class="fa-solid fa-plus"></i> &ensp;Inserir Equipamento
                         </button>
                     </div>
                 </div>
 
-                <div>
-                    <div>
-                        <div>
-                            <div>
-                                <h6>Total Equipamentos</h6>
-                                <h2>142</h2>
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card p-3 shadow-sm h-100 border-start border-0 border-4 border-secondary">
+                            <div class="card-body p-0">
+                                <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small tracking-wider">Total Equipamentos</h6>
+                                <h2 class="card-title mb-0 fw-bold">142</h2>
                             </div>
                         </div>
                     </div>
-                    <div>
-                        <div>
-                            <div>
-                                <h6>Equipamentos Ativos</h6>
-                                <h2>131</h2>
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card p-3 shadow-sm h-100 border-start border-0 border-4 border-success">
+                            <div class="card-body p-0">
+                                <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small tracking-wider">Equipamentos Ativos</h6>
+                                <h2 class="card-title mb-0 fw-bold text-success">131</h2>
                             </div>
                         </div>
                     </div>
-                    <div>
-                        <div>
-                            <div>
-                                <h6>Em Manutenção</h6>
-                                <h2>8</h2>
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card p-3 shadow-sm h-100 border-start border-0 border-4 border-warning">
+                            <div class="card-body p-0">
+                                <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small tracking-wider">Em Manutenção</h6>
+                                <h2 class="card-title mb-0 fw-bold text-warning">8</h2>
                             </div>
                         </div>
                     </div>
-                    <div>
-                        <div>
-                            <div>
-                                <h6>Equipamentos Inativos</h6>
-                                <h2>3</h2>
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card p-3 shadow-sm h-100 border-start border-0 border-4 border-danger">
+                            <div class="card-body p-0">
+                                <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small tracking-wider">Equipamentos Inativos</h6>
+                                <h2 class="card-title mb-0 fw-bold text-danger">3</h2>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div>
-                    <div>
-                        <div>
-                            <span></span>
-                            <input type="text" placeholder="Pesquisar por designação, marca ou número de série...">
+                <div class="card p-3 border rounded shadow-sm mb-4">
+                    <div class="row g-2">
+                        <div class="col-12 col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" class="form-control" placeholder="Pesquisar por designação, marca ou número de série...">
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <select>
-                            <option selected>Filtrar por Categoria</option>
-                            <option>Bloco Operatório</option>
-                            <option>Cuidados Intensivos (UCIP)</option>
-                            <option>Radiologia / Imagiologia</option>
-                        </select>
-                    </div>
-                    <div>
-                        <select>
-                            <option selected>Filtrar por Estado</option>
-                            <option>Ativo</option>
-                            <option>Em Manutenção</option>
-                            <option>Inativo</option>
-                        </select>
+                        <div class="col-6 col-md-3">
+                            <select class="form-select text-muted">
+                                <option selected>Filtrar por Categoria</option>
+                                <option>Bloco Operatório</option>
+                                <option>Cuidados Intensivos (UCIP)</option>
+                                <option>Radiologia / Imagiologia</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <select class="form-select text-muted">
+                                <option selected>Filtrar por Estado</option>
+                                <option>Ativo</option>
+                                <option>Em Manutenção</option>
+                                <option>Inativo</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
-                <div>
-                    <div>
-                        <table>
-                            <thead>
+                <div class="p-3 bg-white border rounded shadow-sm mb-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-muted small uppercase">
                                 <tr>
                                     <th>Cód. Inventário / Designação</th>
                                     <th>Marca / Modelo</th>
@@ -140,49 +152,49 @@
                                     <th>Serviço Clínico</th>
                                     <th>Estado Atual</th>
                                     <th>Criticidade</th>
-                                    <th>Ações</th>
+                                    <th class="text-center">Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>
-                                        <span>#EQ-0042</span>
-                                        <div>Ventilador Volumétrico Hospitalar</div>
+                                        <span class="badge bg-dark text-white font-monospace mb-1">#EQ-0042</span>
+                                        <div class="fw-bold text-dark">Ventilador Volumétrico Hospitalar</div>
                                     </td>
                                     <td>
-                                        <div>Dräger</div>
-                                        <div>Evita V500</div>
+                                        <div class="small fw-semibold">Dräger</div>
+                                        <div class="text-muted small">Evita V500</div>
                                     </td>
-                                    <td><code>SN-DRG-88321-X</code></td>
+                                    <td><code class="text-secondary small fw-bold">SN-DRG-88321-X</code></td>
                                     <td>Cuidados Intensivos (UCIP)</td>
-                                    <td><span>Ativo</span></td>
-                                    <td><span>Elevada</span></td>
-                                    <td>
-                                        <div>
-                                            <button title="Consultar Ficha Detalhada">Consultar</button>
-                                            <button title="Editar dados do equipamento">Editar</button>
-                                            <button title="Remover ou arquivar">Remover</button>
+                                    <td><span class="badge bg-success-subtle text-success border border-success-subtle px-2">Ativo</span></td>
+                                    <td><span class="badge bg-danger rounded-pill">Elevada</span></td>
+                                    <td class="text-center">
+                                        <div class="btn-group shadow-sm">
+                                            <button class="btn btn-sm btn-outline-secondary" title="Consultar Ficha Detalhada"><i class="fa-solid fa-eye text-primary"></i></button>
+                                            <button class="btn btn-sm btn-outline-secondary" title="Editar dados do equipamento"><i class="fa-solid fa-pen-to-square text-secondary"></i></button>
+                                            <button class="btn btn-sm btn-outline-secondary" title="Remover ou arquivar"><i class="fa-solid fa-box-archive text-danger"></i></button>
                                         </div>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <span>#EQ-0089</span>
-                                        <div>Desfibrilhador Bifásico Pro</div>
+                                        <span class="badge bg-dark text-white font-monospace mb-1">#EQ-0089</span>
+                                        <div class="fw-bold text-dark">Desfibrilhador Bifásico Pro</div>
                                     </td>
                                     <td>
-                                        <div>Zoll Medical</div>
-                                        <div>R Series</div>
+                                        <div class="small fw-semibold">Zoll Medical</div>
+                                        <div class="text-muted small">R Series</div>
                                     </td>
-                                    <td><code>SN-ZOL-11029-M</code></td>
+                                    <td><code class="text-secondary small fw-bold">SN-ZOL-11029-M</code></td>
                                     <td>Bloco Operatório</td>
-                                    <td><span>Em Calibração</span></td>
-                                    <td><span>Elevada</span></td>
-                                    <td>
-                                        <div>
-                                            <button title="Consultar Ficha Detalhada">Consultar</button>
-                                            <button title="Editar dados do equipamento">Editar</button>
-                                            <button title="Remover ou arquivar">Remover</button>
+                                    <td><span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2">Em Calibração</span></td>
+                                    <td><span class="badge bg-danger rounded-pill">Elevada</span></td>
+                                    <td class="text-center">
+                                        <div class="btn-group shadow-sm">
+                                            <button class="btn btn-sm btn-outline-secondary" title="Consultar Ficha Detalhada"><i class="fa-solid fa-eye text-primary"></i></button>
+                                            <button class="btn btn-sm btn-outline-secondary" title="Editar dados do equipamento"><i class="fa-solid fa-pen-to-square text-secondary"></i></button>
+                                            <button class="btn btn-sm btn-outline-secondary" title="Remover ou arquivar"><i class="fa-solid fa-box-archive text-danger"></i></button>
                                         </div>
                                     </td>
                                 </tr>
@@ -194,5 +206,6 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
