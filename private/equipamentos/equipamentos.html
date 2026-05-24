@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCore Inventory - Equipamentos</title>
+</head>
+<body>
+
+    <nav>
+        <div>
+            <img src="../../assets/img/logo medcore.png" alt="Logo">
+            <span>MedCore Inventory</span>
+        </div>
+        <div>
+            <a href="../public/index.html">Sair (Logout)</a>
+        </div>
+    </nav>
+
+    <div>
+        <div>
+            
+            <nav>
+                <ul>
+                    <li>
+                        <a href="../dashboard/dashboard.html">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            Equipamentos
+                        </a>
+                    </li>
+                    <li>
+                        <a href="../localizacoes/localizacoes.html">
+                            Localizações
+                        </a>
+                    </li>
+                    <li>
+                        <a href="../fornecedores/fornecedores.html">
+                            Fornecedores
+                        </a>
+                    </li>
+                    <li>
+                        <a href="../documentacao/documentacao.html">
+                            Documentação
+                        </a>
+                    </li>
+                    <li>
+                        <a href="../garantias/garantias.html">
+                            Garantias
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <main>
+                
+                <div>
+                    <div>
+                        <h1>Inventário de Dispositivos Médicos</h1>
+                        <p>Inserção, listagem, consulta e atualização do parque tecnológico hospitalar.</p>
+                    </div>
+                    <div>
+                        <button>
+                            Inserir Equipamento
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <div>
+                        <div>
+                            <div>
+                                <h6>Total Equipamentos</h6>
+                                <h2>142</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            <div>
+                                <h6>Equipamentos Ativos</h6>
+                                <h2>131</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            <div>
+                                <h6>Em Manutenção</h6>
+                                <h2>8</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            <div>
+                                <h6>Equipamentos Inativos</h6>
+                                <h2>3</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div>
+                        <div>
+                            <span></span>
+                            <input type="text" placeholder="Pesquisar por designação, marca ou número de série...">
+                        </div>
+                    </div>
+                    <div>
+                        <select>
+                            <option selected>Filtrar por Categoria</option>
+                            <option>Bloco Operatório</option>
+                            <option>Cuidados Intensivos (UCIP)</option>
+                            <option>Radiologia / Imagiologia</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select>
+                            <option selected>Filtrar por Estado</option>
+                            <option>Ativo</option>
+                            <option>Em Manutenção</option>
+                            <option>Inativo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Cód. Inventário / Designação</th>
+                                    <th>Marca / Modelo</th>
+                                    <th>Número de Série</th>
+                                    <th>Serviço Clínico</th>
+                                    <th>Estado Atual</th>
+                                    <th>Criticidade</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <span>#EQ-0042</span>
+                                        <div>Ventilador Volumétrico Hospitalar</div>
+                                    </td>
+                                    <td>
+                                        <div>Dräger</div>
+                                        <div>Evita V500</div>
+                                    </td>
+                                    <td><code>SN-DRG-88321-X</code></td>
+                                    <td>Cuidados Intensivos (UCIP)</td>
+                                    <td><span>Ativo</span></td>
+                                    <td><span>Elevada</span></td>
+                                    <td>
+                                        <div>
+                                            <button title="Consultar Ficha Detalhada">Consultar</button>
+                                            <button title="Editar dados do equipamento">Editar</button>
+                                            <button title="Remover ou arquivar">Remover</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span>#EQ-0089</span>
+                                        <div>Desfibrilhador Bifásico Pro</div>
+                                    </td>
+                                    <td>
+                                        <div>Zoll Medical</div>
+                                        <div>R Series</div>
+                                    </td>
+                                    <td><code>SN-ZOL-11029-M</code></td>
+                                    <td>Bloco Operatório</td>
+                                    <td><span>Em Calibração</span></td>
+                                    <td><span>Elevada</span></td>
+                                    <td>
+                                        <div>
+                                            <button title="Consultar Ficha Detalhada">Consultar</button>
+                                            <button title="Editar dados do equipamento">Editar</button>
+                                            <button title="Remover ou arquivar">Remover</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+</body>
+</html>
