@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedCore Inventory - Localização de Equipamentos</title>
-    <link class="shortcut icon" href="../../assets/img/logo medcore.png" type="image/png">
+    <title>MedCore Inventory - Documentação</title>
+    <link rel="shortcut icon" href="../../assets/img/logo medcore.png" type="image/png">
     <link rel="stylesheet" href="../../assets/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="../../assets/fontawesome/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,6 +12,7 @@
 </head>
 <body style="font-family: 'Nunito', sans-serif; background-color: #f8fafc;">
 
+    <!-- NAVBAR SUPERIOR -->
     <nav class="navbar navbar-dark sticky-top px-4" style="background-color: #1e1b4b; height: 60px;">
         <div class="d-flex align-items-center gap-2">
             <img src="../../assets/img/logo medcore.png" alt="Logo" style="height: 40px;">
@@ -25,28 +26,30 @@
     <div class="container-fluid">
         <div class="row">
             
+            <!-- SIDEBAR LATERAL -->
             <nav class="col-md-3 col-lg-2 d-md-block bg-white sidebar vh-100 border-end p-0">
                 <div class="position-sticky pt-3">
                     <ul class="nav flex-column">
                         <li class="nav-item"><a class="nav-link py-3 px-4 fw-bold text-secondary" href="../dashboard/dashboard.html"><i class="fa-solid fa-chart-pie"></i> &ensp; Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link py-3 px-4 fw-bold text-secondary" href="../equipamentos/lista.html"><i class="fa-solid fa-stethoscope"></i> &ensp; Equipamentos</a></li>
-                        <li class="nav-item"><a class="nav-link active py-3 px-4 fw-bold text-primary bg-light border-start border-4 border-primary" href="#"><i class="fa-solid fa-hospital"></i> &ensp; Localizações</a></li>
+                        <li class="nav-item"><a class="nav-link py-3 px-4 fw-bold text-secondary" href="../localizacoes/lista.html"><i class="fa-solid fa-hospital"></i> &ensp; Localizações</a></li>
                         <li class="nav-item"><a class="nav-link py-3 px-4 fw-bold text-secondary" href="../fornecedores/lista.html"><i class="fa-solid fa-truck-field"></i> &ensp; Fornecedores</a></li>
-                        <li class="nav-item"><a class="nav-link py-3 px-4 fw-bold text-secondary" href="../documentacao/lista.html"><i class="fa-solid fa-folder-open"></i> &ensp; Documentação</a></li>
-                        <li class="nav-item"><a class="nav-link py-3 px-4 fw-bold text-secondary" href="../garantias/garantias.html"><i class="fa-solid fa-file-contract"></i> &ensp; Garantias</a></li>
+                        <li class="nav-item"><a class="nav-link active py-3 px-4 fw-bold text-primary bg-light border-start border-4 border-primary" href="#"><i class="fa-solid fa-folder-open"></i> &ensp; Documentação</a></li>
+                        <li class="nav-item"><a class="nav-link py-3 px-4 fw-bold text-secondary" href="../garantias/lista.html"><i class="fa-solid fa-file-contract"></i> &ensp; Garantias</a></li>
                     </ul>
                 </div>
             </nav>
 
+            <!-- CONTEÚDO PRINCIPAL -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <div>
-                        <h1 class="h2 fw-bold" style="color: #1e1b4b;">Localização do Inventário Biomédico</h1>
-                        <p class="text-muted">Consulta e controlo em tempo real de onde se encontra cada dispositivo médico.</p>
+                        <h1 class="h2 fw-bold" style="color: #1e1b4b;">Módulo de Documentação</h1>
+                        <p class="text-muted">Associação de manuais técnicos, certificados e apólices aos ativos biomédicos.</p>
                     </div>
                     <div>
                         <a href="novo.html" class="btn text-white fw-bold shadow-sm" style="background-color: #1e1b4b;">
-                            <i class="fa-solid fa-link"></i> &ensp;Associar Equipamento
+                            <i class="fa-solid fa-plus"></i> &ensp;Associar Documento
                         </a>
                     </div>
                 </div>
@@ -56,29 +59,30 @@
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light text-muted small uppercase">
                                 <tr>
-                                    <th>Equipamento (Cód / Nome)</th>
-                                    <th>Edifício</th>
-                                    <th>Piso</th>
-                                    <th>Serviço / Departamento</th>
-                                    <th>Sala / Gabinete</th>
+                                    <th>Nome do Documento / Tipo</th>
+                                    <th>Ficheiro</th>
+                                    <th>Equipamento Associado</th>
+                                    <th>Fornecedor</th>
                                     <th class="text-center">Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>
-                                        <span class="badge bg-dark mb-1">#EQ-0042</span>
-                                        <div class="fw-bold text-dark">Ventilador Volumétrico Hospitalar</div>
+                                        <div class="fw-bold text-dark">Manual Técnico de Operação Dräger</div>
+                                        <span class="badge bg-secondary-subtle text-secondary small">Manual Técnico</span>
                                     </td>
-                                    <td>Edifício Central (A)</td>
-                                    <td><span class="badge bg-secondary">Piso 2</span></td>
-                                    <td>Cuidados Intensivos (UCIP)</td>
-                                    <td><code class="text-primary small fw-bold">Sala UCIP-04</code></td>
+                                    <td><code class="text-danger small fw-semibold"><i class="fa-regular fa-file-pdf"></i> manual_ventilador_v1.pdf</code></td>
+                                    <td>
+                                        <span class="badge bg-dark">#EQ-0042</span>
+                                        <div class="small fw-bold text-muted">Ventilador Volumétrico</div>
+                                    </td>
+                                    <td><div class="small text-dark fw-semibold">Dräger Portugal Lda.</div></td>
                                     <td class="text-center">
                                         <div class="btn-group shadow-sm">
-                                            <a href="detalhes.html" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Consultar Alocação"><i class="fa-solid fa-eye text-primary"></i></a>
-                                            <a href="editar.html" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Mover Equipamento"><i class="fa-solid fa-pen-to-square text-secondary"></i></a>
-                                            <a href="apagar.html" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Desassociar"><i class="fa-solid fa-box-archive text-danger"></i></a>
+                                            <a href="detalhes.html" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Consultar"><i class="fa-solid fa-eye text-primary"></i></a>
+                                            <a href="editar.html" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Editar"><i class="fa-solid fa-pen-to-square text-secondary"></i></a>
+                                            <a href="apagar.html" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Remover"><i class="fa-solid fa-box-archive text-danger"></i></a>
                                         </div>
                                     </td>
                                 </tr>

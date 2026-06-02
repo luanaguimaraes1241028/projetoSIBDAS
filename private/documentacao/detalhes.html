@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCore Inventory - Ficha do Documento</title>
+    <link rel="shortcut icon" href="../../assets/img/logo medcore.png" type="image/png">
+    <link rel="stylesheet" href="../../assets/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../assets/fontawesome/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/1241028.css">
+</head>
+<body style="font-family: 'Nunito', sans-serif; background-color: #f8fafc;">
+
+    <nav class="navbar navbar-dark sticky-top px-4" style="background-color: #1e1b4b; height: 60px;">
+        <div class="d-flex align-items-center gap-2">
+            <img src="../../assets/img/logo medcore.png" alt="Logo" style="height: 40px;">
+            <span class="navbar-brand mb-0 h1 fw-bold">MedCore Inventory</span>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-3 col-lg-2 d-md-block bg-white sidebar vh-100 border-end p-0">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link py-3 px-4 fw-bold text-secondary" href="../dashboard/dashboard.html"><i class="fa-solid fa-chart-pie"></i> &ensp; Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link py-3 px-4 fw-bold text-secondary" href="../equipamentos/lista.html"><i class="fa-solid fa-stethoscope"></i> &ensp; Equipamentos</a></li>
+                        <li class="nav-item"><a class="nav-link py-3 px-4 fw-bold text-secondary" href="../localizacoes/lista.html"><i class="fa-solid fa-hospital"></i> &ensp; Localizações</a></li>
+                        <li class="nav-item"><a class="nav-link py-3 px-4 fw-bold text-secondary" href="../fornecedores/lista.html"><i class="fa-solid fa-truck-field"></i> &ensp; Fornecedores</a></li>
+                        <li class="nav-item"><a class="nav-link active py-3 px-4 fw-bold text-primary bg-light border-start border-4 border-primary" href="lista.html"><i class="fa-solid fa-folder-open"></i> &ensp; Documentação</a></li>
+                        <li class="nav-item"><a class="nav-link py-3 px-4 fw-bold text-secondary" href="../garantias/lista.html"><i class="fa-solid fa-file-contract"></i> &ensp; Garantias</a></li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-4">
+                <div class="card shadow-sm border p-4 mx-auto my-4" style="max-width: 800px;">
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                        <h2 class="fw-bold mb-0" style="color: #1e1b4b;"><i class="fa-solid fa-file-lines"></i> Detalhes do Documento</h2>
+                        <span class="badge bg-primary px-3 py-2">Manual Técnico</span>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-12">
+                            <label class="text-muted small text-uppercase d-block">Nome do Documento</label>
+                            <span class="fs-5 fw-bold text-dark">Manual Técnico de Operação Dräger</span>
+                        </div>
+                        <div class="col-md-6 border-bottom pb-2">
+                            <label class="text-muted small text-uppercase d-block">Data do Documento</label>
+                            <span class="text-dark fw-bold">15/05/2026</span>
+                        </div>
+                        <div class="col-md-6 border-bottom pb-2">
+                            <label class="text-muted small text-uppercase d-block">Data de Validade</label>
+                            <span class="text-muted fw-bold">Vitalício / Não Aplicável</span>
+                        </div>
+                        <div class="col-md-6 border-bottom pb-2">
+                            <label class="text-muted small text-uppercase d-block">Equipamento Associado</label>
+                            <span class="text-dark fw-bold">#EQ-0042 - Ventilador Volumétrico Hospitalar</span>
+                        </div>
+                        <div class="col-md-6 border-bottom pb-2">
+                            <label class="text-muted small text-uppercase d-block">Fornecedor Associado</label>
+                            <span class="text-dark">Dräger Portugal Lda.</span>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="text-muted small text-uppercase d-block">Localização Física do Ficheiro / Link</label>
+                            <div class="p-2 bg-light rounded border text-primary small">
+                                <i class="fa-solid fa-file-pdf text-danger"></i> <code>/uploads/documentacao/manual_ventilador_v1.pdf</code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <a href="lista.html" class="btn btn-secondary px-4"><i class="fa-solid fa-arrow-left"></i> &ensp;Voltar</a>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="../../assets/bootstrap/bootstrap.bundle.min.js"></script>
+</body>
+</html>
