@@ -53,11 +53,7 @@
                                 <i class="fa-solid fa-folder-open"></i> &ensp; Documentação
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../garantias/garantias.html">
-                                <i class="fa-solid fa-file-contract"></i> &ensp; Garantias
-                            </a>
-                        </li>
+                        
                     </ul>
                 </div>
             </nav>
@@ -103,6 +99,63 @@
                                 <option value="manutencao">Em Manutenção</option>
                                 <option value="inativo">Inativo</option>
                             </select>
+                        </div>
+
+                        <!-- SECÇÃO DE GARANTIAS E CONTRATOS (INTEGRADA) -->
+                        <h5 class="fw-bold mt-4 pt-2 mb-3" style="color: #1e1b4b;"><i class="fa-solid fa-file-signature"></i> Garantia e Contrato de Manutenção</h5>
+                        <div class="row g-3 p-3 bg-light rounded border">
+                            
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Data de Início da Garantia</label>
+                                <input type="date" class="form-control" required>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Data de Fim da Garantia</label>
+                                <input type="date" class="form-control" required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Contrato de Manutenção?</label>
+                                <select class="form-select" required>
+                                    <option value="nao">Não, apenas garantia base</option>
+                                    <option value="sim" selected>Sim, contrato ativo</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Tipo de Contrato</label>
+                                <select class="form-select">
+                                    <option selected disabled value="">Escolha uma opção...</option>
+                                    <option>Manutenção Preventiva e Corretiva (Full Risk)</option>
+                                    <option>Apenas Manutenção Preventiva</option>
+                                    <option>Suporte Técnico Remoto / Calibração</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Entidade Responsável (Fornecedor)</label>
+                                <select class="form-select">
+                                    <option selected disabled value="">Selecione o parceiro...</option>
+                                    <option>Dräger Portugal Lda.</option>
+                                    <option>Empresa de Assistência Técnica Externa</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Periodicidade das Visitas</label>
+                                <select class="form-select">
+                                    <option selected disabled value="">Selecione o intervalo...</option>
+                                    <option>Trimestral</option>
+                                    <option>Semestral</option>
+                                    <option>Anual</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Observações do Contrato</label>
+                                <textarea class="form-control" rows="2" placeholder="Ex: Inclui substituição de kits de juntas e calibração anual pneumática."></textarea>
+                            </div>
                         </div>
 
                         <div class="col-12 d-flex gap-2 mt-4">
