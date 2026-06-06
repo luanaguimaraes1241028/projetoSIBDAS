@@ -363,3 +363,32 @@ body {
     width: 20px;    
     text-align: center;
 }
+
+/* --- ESTILIZAÇÃO DOS GRÁFICOS DOM --- */
+.barra-grafico-content {
+    background-color: #e2e8f0; /* Fundo cinza claro da calha */
+    border-radius: 6px;
+    overflow: hidden;
+    height: 25px;
+    width: 100%;
+}
+
+.barra-dinamica {
+    height: 100%;
+    width: 0%; /* Começa a zero para o JS injetar o crescimento */
+    transition: width 0.8s ease-in-out; /* Transição de animação exigida */
+}
+
+/* Identidade visual das barras do parque clínico */
+.bg-bloco-operatorio { background-color: #4f46e5 !important; }
+.bg-ucip { background-color: #06b6d4 !important; }
+.bg-radiologia { background-color: #f59e0b !important; }
+
+.bg-criticidade-elevada { background-color: #ef4444 !important; }
+.bg-criticidade-media { background-color: #f97316 !important; }
+.bg-criticidade-baixa { background-color: #10b981 !important; }
+
+/* Efeito hover dinâmico ao passar o rato */
+.grafico-linha:hover .barra-dinamica {
+    filter: brightness(92%);
+}

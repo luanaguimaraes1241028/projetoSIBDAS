@@ -5,26 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MedCore Inventory - Dashboard Bootstrap</title>
     <link rel="shortcut icon" href="../../assets/img/logo medcore.png" type="image/png">
-    <link href="../../assets/bootstrap/bootstrap.min.css">
-    <link href="../assets/css/1241028.css">
+    <link rel="stylesheet" href="../../assets/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="../../assets/fontawesome/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="../../assets/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="../assets/css/1241028.css">
+    <link rel="stylesheet" href="../../assets/css/1241028.css">
 </head>
 <body style="font-family: 'Nunito', sans-serif; background-color: #f8fafc;">
+    
     <nav class="navbar navbar-dark sticky-top px-4" style="background-color: #1e1b4b; height: 60px;">
         <div class="d-flex align-items-center gap-2">
-            <img src="../../assets/img/logo medcore.png" alt="Logo" class="" style="height: 40px;">
+            <img src="../../assets/img/logo medcore.png" alt="Logo" style="height: 40px;">
             <span class="navbar-brand mb-0 h1 fw-bold">MedCore Inventory</span>
         </div>
         <div class="navbar-nav">
             <a class="nav-link text-white-50" href="../public/index.html">Sair (Logout)</a>
         </div>
     </nav>
+
     <div class="container-fluid">
         <div class="row">
             <nav class="col-md-3 col-lg-2 d-md-block bg-white sidebar vh-100 border-end p-0">
@@ -56,13 +55,14 @@
                             </a>
                         </li>
                         <li class="nav-item">
-    <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../gestao-public.html">
-        <i class="fa-solid fa-globe"></i> &ensp; Gestão de Conteúdos
-    </a>
-</li>
+                            <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../gestao-public.html">
+                                <i class="fa-solid fa-globe"></i> &ensp; Gestão de Conteúdos
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>
+
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <div>
@@ -70,11 +70,12 @@
                         <p class="text-muted">Visão rápida e sintética para apoio à tomada de decisão técnica.</p>
                     </div>
                 </div>
+
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-sm-6 col-xl-3">
                         <div class="card p-3 shadow-sm h-100 border-start border-0 border-4 border-secondary">
                             <div class="card-body p-0">
-                                <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small tracking-wider">Total Equipamentos</h6>
+                                <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small">Total Equipamentos</h6>
                                 <h2 class="card-title mb-0 fw-bold">142</h2>
                             </div>
                         </div>
@@ -82,7 +83,7 @@
                     <div class="col-12 col-sm-6 col-xl-3">
                         <div class="card p-3 shadow-sm h-100 border-start border-0 border-4 border-success">
                             <div class="card-body p-0">
-                                <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small tracking-wider">Equipamentos Ativos</h6>
+                                <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small">Equipamentos Ativos</h6>
                                 <h2 class="card-title mb-0 fw-bold text-success">131</h2>
                             </div>
                         </div>
@@ -90,7 +91,7 @@
                     <div class="col-12 col-sm-6 col-xl-3">
                         <div class="card p-3 shadow-sm h-100 border-start border-0 border-4 border-warning">
                             <div class="card-body p-0">
-                                <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small tracking-wider">Em Manutenção</h6>
+                                <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small">Em Manutenção</h6>
                                 <h2 class="card-title mb-0 fw-bold text-warning">8</h2>
                             </div>
                         </div>
@@ -98,12 +99,13 @@
                     <div class="col-12 col-sm-6 col-xl-3">
                         <div class="card p-3 shadow-sm h-100 border-start border-0 border-4 border-danger">
                             <div class="card-body p-0">
-                                <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small tracking-wider">Equipamentos Inativos</h6>
+                                <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small">Equipamentos Inativos</h6>
                                 <h2 class="card-title mb-0 fw-bold text-danger">3</h2>
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <div class="mb-4">
                     <h5 class="fw-bold mb-3"><i class="fa-solid fa-triangle-exclamation text-warning"></i> Alertas do Sistema</h5>
                     <div class="alert alert-danger shadow-sm py-2 px-3 mb-2" role="alert">
@@ -116,72 +118,45 @@
                         <strong>Garantias a expirar (30 dias):</strong> 2 dispositivos médicos próximos do fim.
                     </div>
                 </div>
+
                 <div class="row g-4">
+                    
                     <div class="col-12 col-lg-6">
-                        <div class="p-3 bg-white border rounded shadow-sm">
-                            <h5 class="fw-bold mb-3">Equipamentos por Serviço Clínico</h5>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-light text-muted small uppercase">
-                                        <tr>
-                                            <th>Serviço</th>
-                                            <th>Total</th>
-                                            <th>Suporte de Vida</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Bloco Operatório</td>
-                                            <td>42</td>
-                                            <td><span class="badge bg-danger rounded-pill">12</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Cuidados Intensivos (UCIP)</td>
-                                            <td>35</td>
-                                            <td><span class="badge bg-danger rounded-pill">18</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Radiologia / Imagiologia</td>
-                                            <td>28</td>
-                                            <td><span class="badge bg-info rounded-pill text-dark">0</span></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                        <div class="p-4 bg-white border rounded shadow-sm">
+                            <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-chart-bar"></i> Equipamentos por Serviço Clínico</h5>
+                            <p class="text-muted small">Distribuição volumétrica por blocos hospitalares.</p>
+                            <hr>
+                            <div style="position: relative; height:250px;">
+                                <canvas id="chartServicos"></canvas>
                             </div>
                         </div>
                     </div>
+
                     <div class="col-12 col-lg-6">
-                        <div class="p-3 bg-white border rounded shadow-sm">
-                            <h5 class="fw-bold mb-3">Equipamentos de Criticidade Elevada</h5>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-light text-muted small uppercase">
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Equipamento</th>
-                                            <th>Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>#EQ-0042</td>
-                                            <td>Ventilador Volumétrico</td>
-                                            <td><span class="badge bg-success-subtle text-success">Ativo</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>#EQ-0089</td>
-                                            <td>Desfibrilhador Bifásico</td>
-                                            <td><span class="badge bg-warning-subtle text-warning">Em Calibração</span></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                        <div class="p-4 bg-white border rounded shadow-sm">
+                            <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-chart-pie"></i> Proporção de Criticidade</h5>
+                            <p class="text-muted small">Análise de risco clínico e suporte de vida.</p>
+                            <hr>
+                            <div style="position: relative; height:250px;">
+                                <canvas id="chartCriticidade"></canvas>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </main>
         </div>
     </div>
+
+    <script src="../../includes/chart.js"></script>
+
+    <script src="../../includes/funcoes.js"></script>
     <script src="../../assets/bootstrap/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            inicializarGraficos();
+        });
+    </script>
 </body>
 </html>
