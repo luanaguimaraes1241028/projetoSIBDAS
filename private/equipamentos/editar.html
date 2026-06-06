@@ -53,17 +53,18 @@
                                 <i class="fa-solid fa-folder-open"></i> &ensp; Documentação
                             </a>
                         </li>
-                        
                     </ul>
                 </div>
             </nav>
 
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-4">
-                <div class="card shadow-sm border p-4 mx-auto my-4" style="max-width: 800px;">
+                <div class="card shadow-sm border p-4 mx-auto my-4" style="max-width: 850px; background-color: #fff;">
                     <h2 class="fw-bold mb-3" style="color: #1e1b4b;"><i class="fa-solid fa-pen-to-square"></i> Atualização de Dados</h2>
                     <hr>
                     
                     <form action="lista.html" method="post" class="row g-3">
+                        
+                        <!-- Dados de Identificação Obrigatórios -->
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Código Interno de Inventário</label>
                             <input type="text" class="form-control bg-light" value="#EQ-0042" readonly>
@@ -73,6 +74,14 @@
                             <input type="text" class="form-control" value="Ventilador Volumétrico Hospitalar" required>
                         </div>
                         <div class="col-md-4">
+                            <label class="form-label fw-bold">Categoria / Grupo</label>
+                            <select class="form-select" required>
+                                <option>Bloco Operatório</option>
+                                <option selected>Cuidados Intensivos (UCIP)</option>
+                                <option>Radiologia / Imagiologia</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
                             <label class="form-label fw-bold">Marca</label>
                             <input type="text" class="form-control" value="Dräger" required>
                         </div>
@@ -80,41 +89,74 @@
                             <label class="form-label fw-bold">Modelo</label>
                             <input type="text" class="form-control" value="Evita V500" required>
                         </div>
+
+                        <!-- Dados do Fabricante -->
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Número de Série</label>
                             <input type="text" class="form-control" value="SN-DRG-88321-X" required>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Categoria / Grupo</label>
-                            <select class="form-select">
-                                <option>Bloco Operatório</option>
-                                <option selected>Cuidados Intensivos (UCIP)</option>
-                                <option>Radiologia / Imagiologia</option>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Fabricante</label>
+                            <input type="text" class="form-control" value="Dräger Medical GmbH" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Ano de Fabrico</label>
+                            <input type="number" class="form-control" value="2025" min="1900" max="2099" required>
+                        </div>
+
+                        <!-- Financeiro e Logística -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Data de Aquisição</label>
+                            <input type="date" class="form-control" value="2026-01-10" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Custo de Aquisição (€)</label>
+                            <input type="number" step="0.01" class="form-control" value="24500.00" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Tipo de Entrada</label>
+                            <select class="form-select" required>
+                                <option value="compra" selected>Compra</option>
+                                <option value="doacao">Doação</option>
+                                <option value="aluguer">Aluguer</option>
+                                <option value="emprestimo">Empréstimo</option>
                             </select>
                         </div>
+
+                        <!-- Operacionalidade -->
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Estado Atual</label>
-                            <select class="form-select">
-                                <option value="ativo" selected>Ativo</option>
+                            <select class="form-select" required>
+                                <option value="ativo" selected>Ativo / Operacional</option>
                                 <option value="manutencao">Em Manutenção</option>
                                 <option value="inativo">Inativo</option>
                             </select>
                         </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Criticidade</label>
+                            <select class="form-select" required>
+                                <option value="baixa">Baixa</option>
+                                <option value="media">Média</option>
+                                <option value="elevada" selected>Elevada (Risco de Vida)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Observações Gerais</label>
+                            <textarea class="form-control" rows="2">Equipamento calibrado à entrada no parque tecnológico. Unidade principal destinada exclusivamente ao Bloco de Cuidados Intensivos Pediátricos.</textarea>
+                        </div>
 
                         <!-- SECÇÃO DE GARANTIAS E CONTRATOS (INTEGRADA) -->
                         <h5 class="fw-bold mt-4 pt-2 mb-3" style="color: #1e1b4b;"><i class="fa-solid fa-file-signature"></i> Garantia e Contrato de Manutenção</h5>
-                        <div class="row g-3 p-3 bg-light rounded border">
-                            
+                        <div class="row g-3 p-3 bg-light rounded border mx-0">
                             <div class="col-md-4">
                                 <label class="form-label fw-bold">Data de Início da Garantia</label>
-                                <input type="date" class="form-control" required>
+                                <input type="date" class="form-control" value="2026-05-15" required>
                             </div>
-                            
                             <div class="col-md-4">
                                 <label class="form-label fw-bold">Data de Fim da Garantia</label>
-                                <input type="date" class="form-control" required>
+                                <input type="date" class="form-control" value="2028-05-15" required>
                             </div>
-
                             <div class="col-md-4">
                                 <label class="form-label fw-bold">Contrato de Manutenção?</label>
                                 <select class="form-select" required>
@@ -122,39 +164,32 @@
                                     <option value="sim" selected>Sim, contrato ativo</option>
                                 </select>
                             </div>
-
                             <div class="col-md-4">
                                 <label class="form-label fw-bold">Tipo de Contrato</label>
                                 <select class="form-select">
-                                    <option selected disabled value="">Escolha uma opção...</option>
-                                    <option>Manutenção Preventiva e Corretiva (Full Risk)</option>
+                                    <option selected>Manutenção Preventiva e Corretiva (Full Risk)</option>
                                     <option>Apenas Manutenção Preventiva</option>
                                     <option>Suporte Técnico Remoto / Calibração</option>
                                 </select>
                             </div>
-
                             <div class="col-md-4">
                                 <label class="form-label fw-bold">Entidade Responsável (Fornecedor)</label>
                                 <select class="form-select">
-                                    <option selected disabled value="">Selecione o parceiro...</option>
-                                    <option>Dräger Portugal Lda.</option>
-                                    <option>Empresa de Assistência Técnica Externa</option>
+                                    <option selected>Dräger Portugal Lda.</option>
+                                    <option>Empresa de Assistência Técnico Externa</option>
                                 </select>
                             </div>
-
                             <div class="col-md-4">
                                 <label class="form-label fw-bold">Periodicidade das Visitas</label>
                                 <select class="form-select">
-                                    <option selected disabled value="">Selecione o intervalo...</option>
                                     <option>Trimestral</option>
-                                    <option>Semestral</option>
+                                    <option selected>Semestral</option>
                                     <option>Anual</option>
                                 </select>
                             </div>
-
                             <div class="col-md-12">
                                 <label class="form-label fw-bold">Observações do Contrato</label>
-                                <textarea class="form-control" rows="2" placeholder="Ex: Inclui substituição de kits de juntas e calibração anual pneumática."></textarea>
+                                <textarea class="form-control" rows="2">Inclui todas as peças de desgaste rápido, calibrações de sensores de O2 e atualizações de firmware oficiais sem custos adicionais.</textarea>
                             </div>
                         </div>
 
@@ -168,7 +203,6 @@
             
         </div>
     </div>
-
     <script src="../../assets/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>
