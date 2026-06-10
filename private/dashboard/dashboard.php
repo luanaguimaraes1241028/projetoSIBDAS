@@ -3,44 +3,7 @@
     <div class="container-fluid">
         <div class="row">
             
-            <aside class="col-md-3 col-lg-2 bg-white sidebar vh-100 border-end p-0">
-                <div class="position-sticky pt-3">
-                    <nav>
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link active py-3 px-4 fw-bold text-primary bg-light border-start border-4 border-primary" href="#">
-                                    <i class="fa-solid fa-chart-pie"></i> &ensp; Dashboard
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../equipamentos/lista.html">
-                                    <i class="fa-solid fa-stethoscope"></i> &ensp; Equipamentos
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../localizacoes/lista.html">
-                                    <i class="fa-solid fa-hospital"></i> &ensp; Localizações
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../fornecedores/lista.html">
-                                    <i class="fa-solid fa-truck-field"></i> &ensp; Fornecedores
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../documentacao/lista.html">
-                                    <i class="fa-solid fa-folder-open"></i> &ensp; Documentação
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../gestao-public.html">
-                                    <i class="fa-solid fa-globe"></i> &ensp; Gestão de Conteúdos
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            </aside>
+    
 
             <main class="col-md-9 col-lg-10 px-md-4 pt-4">
                 
