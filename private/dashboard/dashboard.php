@@ -90,14 +90,4 @@
         </div>
     </div>
 
-    <script src="../../assets/js/chart.js"></script>
-    <script src="../../assets/js/funcoes.js"></script>
-    <script src="../../assets/bootstrap/bootstrap.bundle.min.js"></script>
     
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            inicializarGraficos();
-        });
-    </script>
-</body>
-</html>
