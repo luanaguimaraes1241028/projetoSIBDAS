@@ -13,87 +13,90 @@
 <body style="font-family: 'Nunito', sans-serif; background-color: #f8fafc;">
 
     <header class="container-fluid text-white" style="background-color: #1e1b4b; height: 60px;">
-    <div class="row align-items-center h-100"> <div class="col-6 d-flex align-items-center px-4">
-            <a href="../dashboard/dashboard.html">
-                <img src="../../assets/img/logo medcore.png" alt="Logo MedCore" style="height: 40px;" class="me-3">
-            </a>
-            <span class="mb-0 h1 fw-bold h5">MedCore Inventory</span>
-        </div>
-
-        <div class="col-6 text-end px-4">
-            <div class="dropdown d-inline-block">
-                <button class="btn btn-secondary dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: rgba(255, 255, 255, 0.15); border: none; padding: 6px 12px;">
-                    <i class="fa-regular fa-user me-2"></i> Utilizador
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow">
-                    <li>
-                        <a class="dropdown-item" href="#">
-                            <i class="fa-solid fa-key me-2"></i> Alterar password
-                        </a>
-                    </li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li>
-                        <a class="dropdown-item text-danger" href="../public/index.html">
-                            <i class="fa-solid fa-right-from-bracket me-2"></i> Sair (Logout)
-                        </a>
-                    </li>
-                </ul>
+        <div class="row align-items-center h-100">
+            
+            <div class="col-6 d-flex align-items-center px-4">
+                <a href="../dashboard/dashboard.html">
+                    <img src="../../assets/img/logo medcore.png" alt="Logo MedCore" style="height: 40px;" class="me-3">
+                </a>
+                <span class="mb-0 h1 fw-bold h5">MedCore Inventory</span>
             </div>
-        </div>
 
-    </div>
-</header>
+            <div class="col-6 text-end px-4">
+                <div class="dropdown d-inline-block">
+                    <button class="btn btn-secondary dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: rgba(255, 255, 255, 0.15); border: none; padding: 6px 12px;">
+                        <i class="fa-regular fa-user me-2"></i> Utilizador
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="fa-solid fa-key me-2"></i> Alterar password
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="../public/index.html">
+                                <i class="fa-solid fa-right-from-bracket me-2"></i> Sair (Logout)
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </header>
 
     <div class="container-fluid">
         <div class="row">
             
-            <nav class="col-md-3 col-lg-2 d-md-block bg-white sidebar vh-100 border-end p-0">
+            <aside class="col-md-3 col-lg-2 bg-white sidebar vh-100 border-end p-0">
                 <div class="position-sticky pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../dashboard/dashboard.html">
-                                <i class="fa-solid fa-chart-pie"></i> &ensp; Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active py-3 px-4 fw-bold text-primary bg-light border-start border-4 border-primary" href="lista.html">
-                                <i class="fa-solid fa-stethoscope"></i> &ensp; Equipamentos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../localizacoes/lista.html">
-                                <i class="fa-solid fa-hospital"></i> &ensp; Localizações
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../fornecedores/lista.html">
-                                <i class="fa-solid fa-truck-field"></i> &ensp; Fornecedores
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../documentacao/lista.html">
-                                <i class="fa-solid fa-folder-open"></i> &ensp; Documentação
-                            </a>
-                        </li>
-                        <li class="nav-item">
-    <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../gestao-public.html">
-        <i class="fa-solid fa-globe"></i> &ensp; Gestão de Conteúdos
-    </a>
-</li>
-                    </ul>
+                    <nav>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../dashboard/dashboard.html">
+                                    <i class="fa-solid fa-chart-pie"></i> &ensp; Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active py-3 px-4 fw-bold text-primary bg-light border-start border-4 border-primary" href="lista.html">
+                                    <i class="fa-solid fa-stethoscope"></i> &ensp; Equipamentos
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../localizacoes/lista.html">
+                                    <i class="fa-solid fa-hospital"></i> &ensp; Localizações
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../fornecedores/lista.html">
+                                    <i class="fa-solid fa-truck-field"></i> &ensp; Fornecedores
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../documentacao/lista.html">
+                                    <i class="fa-solid fa-folder-open"></i> &ensp; Documentação
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../gestao-public.html">
+                                    <i class="fa-solid fa-globe"></i> &ensp; Gestão de Conteúdos
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
-            </nav>
+            </aside>
 
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-4">
+            <main class="col-md-9 col-lg-10 px-md-4 pt-4">
                 <div class="card shadow-sm border p-4 mx-auto my-4" style="max-width: 850px; background-color: #fff;">
                     <h2 class="fw-bold mb-3" style="color: #1e1b4b;"><i class="fa-solid fa-pen-to-square"></i> Atualização de Dados</h2>
                     <hr>
                     
                     <form action="lista.html" method="post" class="row g-3">
                         
-                        <!-- Dados de Identificação Obrigatórios -->
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Código Interno de Inventário</label>
                             <input type="text" class="form-control bg-light" value="#EQ-0042" readonly>
@@ -119,7 +122,6 @@
                             <input type="text" class="form-control" value="Evita V500" required>
                         </div>
 
-                        <!-- Dados do Fabricante -->
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Número de Série</label>
                             <input type="text" class="form-control" value="SN-DRG-88321-X" required>
@@ -133,7 +135,6 @@
                             <input type="number" class="form-control" value="2025" min="1900" max="2099" required>
                         </div>
 
-                        <!-- Financeiro e Logística -->
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Data de Aquisição</label>
                             <input type="date" class="form-control" value="2026-01-10" required>
@@ -152,7 +153,6 @@
                             </select>
                         </div>
 
-                        <!-- Operacionalidade -->
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Estado Atual</label>
                             <select class="form-select" required>
@@ -175,7 +175,6 @@
                             <textarea class="form-control" rows="2">Equipamento calibrado à entrada no parque tecnológico. Unidade principal destinada exclusivamente ao Bloco de Cuidados Intensivos Pediátricos.</textarea>
                         </div>
 
-                        <!-- SECÇÃO DE GARANTIAS E CONTRATOS (INTEGRADA) -->
                         <h5 class="fw-bold mt-4 pt-2 mb-3" style="color: #1e1b4b;"><i class="fa-solid fa-file-signature"></i> Garantia e Contrato de Manutenção</h5>
                         <div class="row g-3 p-3 bg-light rounded border mx-0">
                             <div class="col-md-4">
@@ -205,7 +204,7 @@
                                 <label class="form-label fw-bold">Entidade Responsável (Fornecedor)</label>
                                 <select class="form-select">
                                     <option selected>Dräger Portugal Lda.</option>
-                                    <option>Empresa de Assistência Técnico Externa</option>
+                                    <option>Empresa de Assistência Técnica Externa</option>
                                 </select>
                             </div>
                             <div class="col-md-4">

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MedCore Inventory - Gestão do Front-Office</title>
-    <link rel="shortcut icon" href="../assets/img/logo medcore.png" type="image/png">
+    <link class="shortcut icon" href="../assets/img/logo medcore.png" type="image/png">
     <link rel="stylesheet" href="../assets/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/fontawesome/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -13,80 +13,84 @@
 <body style="font-family: 'Nunito', sans-serif; background-color: #f8fafc;">
 
     <header class="container-fluid text-white" style="background-color: #1e1b4b; height: 60px;">
-    <div class="row align-items-center h-100"> <div class="col-6 d-flex align-items-center px-4">
-            <a href="../dashboard/dashboard.html">
-                <img src="../assets/img/logo medcore.png" alt="Logo MedCore" style="height: 40px;" class="me-3">
-            </a>
-            <span class="mb-0 h1 fw-bold h5">MedCore Inventory</span>
-        </div>
-
-        <div class="col-6 text-end px-4">
-            <div class="dropdown d-inline-block">
-                <button class="btn btn-secondary dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: rgba(255, 255, 255, 0.15); border: none; padding: 6px 12px;">
-                    <i class="fa-regular fa-user me-2"></i> Utilizador
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow">
-                    <li>
-                        <a class="dropdown-item" href="#">
-                            <i class="fa-solid fa-key me-2"></i> Alterar password
-                        </a>
-                    </li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li>
-                        <a class="dropdown-item text-danger" href="../public/index.html">
-                            <i class="fa-solid fa-right-from-bracket me-2"></i> Sair (Logout)
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-    </div>
-</header>
-
-    <div class="container-fluid">
-        <div class="row">
+        <div class="row align-items-center h-100">
             
-            <nav class="col-md-3 col-lg-2 d-md-block bg-white sidebar vh-100 border-end p-0">
-                <div class="position-sticky pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link py-3 px-4 fw-bold text-secondary" href="dashboard/dashboard.html">
-                                <i class="fa-solid fa-chart-pie"></i> &ensp; Dashboard
+            <div class="col-6 d-flex align-items-center px-4">
+                <a href="dashboard/dashboard.html">
+                    <img src="../assets/img/logo medcore.png" alt="Logo MedCore" style="height: 40px;" class="me-3">
+                </a>
+                <span class="mb-0 h1 fw-bold h5">MedCore Inventory</span>
+            </div>
+
+            <div class="col-6 text-end px-4">
+                <div class="dropdown d-inline-block">
+                    <button class="btn btn-secondary dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: rgba(255, 255, 255, 0.15); border: none; padding: 6px 12px;">
+                        <i class="fa-regular fa-user me-2"></i> Utilizador
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="fa-solid fa-key me-2"></i> Alterar password
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link py-3 px-4 fw-bold text-secondary" href="equipamentos/lista.html">
-                                <i class="fa-solid fa-stethoscope"></i> &ensp; Equipamentos
-                            </a>
+                        <li>
+                            <hr class="dropdown-divider">
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link py-3 px-4 fw-bold text-secondary" href="localizacoes/lista.html">
-                                <i class="fa-solid fa-hospital"></i> &ensp; Localizações
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link py-3 px-4 fw-bold text-secondary" href="fornecedores/lista.html">
-                                <i class="fa-solid fa-truck-field"></i> &ensp; Fornecedores
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link py-3 px-4 fw-bold text-secondary" href="documentacao/lista.html">
-                                <i class="fa-solid fa-folder-open"></i> &ensp; Documentação
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active py-3 px-4 fw-bold text-primary bg-light border-start border-4 border-primary" href="#">
-                                <i class="fa-solid fa-globe"></i> &ensp; Gestão de Conteúdos
+                        <li>
+                            <a class="dropdown-item text-danger" href="../public/index.html">
+                                <i class="fa-solid fa-right-from-bracket me-2"></i> Sair (Logout)
                             </a>
                         </li>
                     </ul>
                 </div>
-            </nav>
+            </div>
 
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-4">
+        </div>
+    </header>
+
+    <div class="container-fluid">
+        <div class="row">
+            
+            <aside class="col-md-3 col-lg-2 bg-white sidebar vh-100 border-end p-0">
+                <div class="position-sticky pt-3">
+                    <nav>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="dashboard/dashboard.html">
+                                    <i class="fa-solid fa-chart-pie"></i> &ensp; Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="equipamentos/lista.html">
+                                    <i class="fa-solid fa-stethoscope"></i> &ensp; Equipamentos
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="localizacoes/lista.html">
+                                    <i class="fa-solid fa-hospital"></i> &ensp; Localizações
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="fornecedores/lista.html">
+                                    <i class="fa-solid fa-truck-field"></i> &ensp; Fornecedores
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="documentacao/lista.html">
+                                    <i class="fa-solid fa-folder-open"></i> &ensp; Documentação
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active py-3 px-4 fw-bold text-primary bg-light border-start border-4 border-primary" href="#">
+                                    <i class="fa-solid fa-globe"></i> &ensp; Gestão de Conteúdos
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <main class="col-md-9 col-lg-10 px-md-4 pt-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <div>
                         <h1 class="h2 fw-bold" style="color: #1e1b4b;">Gestão da Área Pública</h1>
@@ -131,18 +135,17 @@
                             <label class="form-label fw-bold">Título 2</label>
                             <input type="text" class="form-control" value="Ciclo de Vida Clínico" required>
                             <label class="form-label fw-bold mt-2 text-muted small">Conteúdo</label>
-                            <textarea class="form-control" rows="4" required>Alinhado com as diretrizes da OMS, o sistema controla os dispositivos desde a aquisição até ao seu abate técnico, servindo de base para o planeamento, segurança e análise de risco hospitalar.</textarea>
+                            <textarea class="form-control" rows="4" required>Alinhado com as diretrizes da OMS, o system controla os dispositivos desde a aquisição até ao seu abate técnico, servindo de base para o planeamento, segurança e análise de risco hospitalar.</textarea>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Título 3</label>
                             <input type="text" class="form-control" value="Rastreabilidade e Futuro" required>
                             <label class="form-label fw-bold mt-2 text-muted small">Conteúdo</label>
-                            <textarea class="form-control" rows="4" required>Garanta total controlo sobre a localização de ativos, fornecedores e contratos. Tudo assente numa estrutura de dados robusta, pronta para evoluuir para um sistema CMMS/GMAO completo.</textarea>
+                            <textarea class="form-control" rows="4" required>Garanta total controlo sobre a localização de ativos, fornecedores e contratos. Tudo assente numa estrutura de dados robusta, pronta para evoluuir para um system CMMS/GMAO completo.</textarea>
                         </div>
 
                         <div class="col-12 mt-5">
-                            <h5 class="fw-bold text-primary border-bottom pb-2"><i class="fa-solid fa-address-book"></i> Informações de Contacto e Suporte 
-                        </h5>
+                            <h5 class="fw-bold text-primary border-bottom pb-2"><i class="fa-solid fa-address-book"></i> Informações de Contacto e Suporte</h5>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Endereço Hospitalar / Sede</label>
@@ -168,6 +171,7 @@
                     </form>
                 </div>
             </main>
+            
         </div>
     </div>
 
