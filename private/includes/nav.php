@@ -2,7 +2,7 @@
         <div class="row align-items-center h-100">
             
             <div class="col-6 d-flex align-items-center px-4">
-                <a href="../dashboard/dashboard.html">
+                <a href="../dashboard/dashboard.php">
                     <img src="/projeto-sibdas/assets/img/logo medcore.png" alt="Logo MedCore" style="height: 40px;" class="me-3">
                 </a>
                 <span class="mb-0 h1 fw-bold h5"><?php echo APP_NAME; ?></span>
@@ -23,7 +23,7 @@
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            <a class="dropdown-item text-danger" href="../public/index.html">
+                            <a class="dropdown-item text-danger" href="../public/index.php">
                                 <i class="fa-solid fa-right-from-bracket me-2"></i> Sair (Logout)
                             </a>
                         </li>
