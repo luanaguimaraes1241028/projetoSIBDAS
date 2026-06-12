@@ -1,94 +1,10 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedCore Inventory - Documentação</title>
-    <link rel="shortcut icon" href="../../assets/img/logo medcore.png" type="image/png">
-    <link rel="stylesheet" href="../../assets/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="../../assets/fontawesome/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/1241028.css">
-</head>
-<body style="font-family: 'Nunito', sans-serif; background-color: #f8fafc;">
-
-    <header class="container-fluid text-white" style="background-color: #1e1b4b; height: 60px;">
-        <div class="row align-items-center h-100">
-            
-            <div class="col-6 d-flex align-items-center px-4">
-                <a href="../dashboard/dashboard.html">
-                    <img src="../../assets/img/logo medcore.png" alt="Logo MedCore" style="height: 40px;" class="me-3">
-                </a>
-                <span class="mb-0 h1 fw-bold h5">MedCore Inventory</span>
-            </div>
-
-            <div class="col-6 text-end px-4">
-                <div class="dropdown d-inline-block">
-                    <button class="btn btn-secondary dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: rgba(255, 255, 255, 0.15); border: none; padding: 6px 12px;">
-                        <i class="fa-regular fa-user me-2"></i> Utilizador
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow">
-                        <li>
-                            <a class="dropdown-item" href="#">
-                                <i class="fa-solid fa-key me-2"></i> Alterar password
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li>
-                            <a class="dropdown-item text-danger" href="../public/index.html">
-                                <i class="fa-solid fa-right-from-bracket me-2"></i> Sair (Logout)
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-        </div>
-    </header>
+<?php include '../includes/header.php'; ?>
+<?php include '../includes/nav.php'; ?>
 
     <div class="container-fluid">
         <div class="row">
             
-            <aside class="col-md-3 col-lg-2 bg-white sidebar vh-100 border-end p-0">
-                <div class="position-sticky pt-3">
-                    <nav>
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../dashboard/dashboard.html">
-                                    <i class="fa-solid fa-chart-pie"></i> &ensp; Dashboard
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../equipamentos/lista.html">
-                                    <i class="fa-solid fa-stethoscope"></i> &ensp; Equipamentos
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../localizacoes/lista.html">
-                                    <i class="fa-solid fa-hospital"></i> &ensp; Localizações
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../fornecedores/lista.html">
-                                    <i class="fa-solid fa-truck-field"></i> &ensp; Fornecedores
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link active py-3 px-4 fw-bold text-primary bg-light border-start border-4 border-primary" href="#">
-                                    <i class="fa-solid fa-folder-open"></i> &ensp; Documentação
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link py-3 px-4 fw-bold text-secondary" href="../gestao-public.html">
-                                    <i class="fa-solid fa-globe"></i> &ensp; Gestão de Conteúdos
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            </aside>
+            <?php include '../includes/sidebar.php'; ?>
 
             <main class="col-md-9 col-lg-10 px-md-4 pt-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -97,7 +13,7 @@
                         <p class="text-muted">Associação de manuais técnicos, certificados e apólices aos ativos biomédicos.</p>
                     </div>
                     <div>
-                        <a href="novo.html" class="btn text-white fw-bold shadow-sm" style="background-color: #1e1b4b;">
+                        <a href="novo.php" class="btn text-white fw-bold shadow-sm" style="background-color: #1e1b4b;">
                             <i class="fa-solid fa-plus"></i> &ensp;Associar Documento
                         </a>
                     </div>
@@ -135,13 +51,13 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group shadow-sm">
-                                            <a href="detalhes.html" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Consultar">
+                                            <a href="detalhes.php" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Consultar">
                                                 <i class="fa-solid fa-eye text-primary"></i>
                                             </a>
-                                            <a href="editar.html" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Editar">
+                                            <a href="editar.php" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Editar">
                                                 <i class="fa-solid fa-pen-to-square text-secondary"></i>
                                             </a>
-                                            <a href="apagar.html" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Remover">
+                                            <a href="apagar.php" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Remover">
                                                 <i class="fa-solid fa-box-archive text-danger"></i>
                                             </a>
                                         </div>
@@ -155,6 +71,5 @@
 
         </div>
     </div>
-    <script src="../../assets/bootstrap/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    
+<?php include '../includes/footer.php'; ?>
