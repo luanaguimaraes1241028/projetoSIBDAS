@@ -13,7 +13,7 @@
 
     <link rel="stylesheet" href="/projeto-sibdas/assets/fontawesome/all.min.css">
 
-</head>
+</head> 
 <body>
 
     <nav class="bng-navbar">

@@ -1,3 +1,5 @@
+<?php require_once __DIR__ . '/funcoes.php'; redirect_if_not_logged(); ?>
+
 <header class="container-fluid text-white" style="background-color: #1e1b4b; height: 60px;">
         <div class="row align-items-center h-100">
             
@@ -11,7 +13,7 @@
             <div class="col-6 text-end px-4">
                 <div class="dropdown d-inline-block">
                     <button class="btn btn-secondary dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: rgba(255, 255, 255, 0.15); border: none; padding: 6px 12px;">
-                        <i class="fa-regular fa-user me-2"></i> Utilizador
+                        <i class="fa-regular fa-user me-2"></i> <?php echo get_username(); ?>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow">
                         <li>
@@ -23,7 +25,7 @@
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            <a class="dropdown-item text-danger" href="../public/index.php">
+                            <a class="dropdown-item text-danger" href="/projeto-sibdas/public/logout.php">
                                 <i class="fa-solid fa-right-from-bracket me-2"></i> Sair (Logout)
                             </a>
                         </li>

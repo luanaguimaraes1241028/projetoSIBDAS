@@ -1,3 +1,10 @@
+<?php
+session_start();
+$erros = isset($_SESSION['form_errors']) ? $_SESSION['form_errors'] : [];
+$server_error = isset($_SESSION['server_error']) ? $_SESSION['server_error'] : '';
+unset($_SESSION['form_errors'], $_SESSION['server_error']);
+?>
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -31,7 +38,7 @@
                     
                     <hr class="text-muted mb-4">
 
-                    <form id="loginForm" action="/projeto-sibdas/private/dashboard/dashboard.php" method="POST">
+                    <form id="loginForm" action="../private/processa_login.php" method="POST">
                         
                         <div class="mb-3">
                             <label for="username" class="form-label fw-bold small text-secondary">Utilizador / Email:</label>
@@ -42,6 +49,17 @@
                             <label for="password" class="form-label fw-bold small text-secondary">Palavra-passe:</label>
                             <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
                         </div>
+
+                        <?php if ($server_error): ?>
+                            <div class="alert alert-danger py-2 small"><?php echo htmlspecialchars($server_error); ?></div>
+                        <?php endif; ?>
+                        <?php if (!empty($erros)): ?>
+                            <div class="alert alert-warning py-2 small">
+                                <?php foreach ($erros as $erro): ?>
+                                    <div><?php echo htmlspecialchars($erro); ?></div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
 
                         <div class="mb-3 text-center">
                             <button type="submit" class="btn btn-primary px-4 w-100 fw-bold" style="background-color: #1e1b4b; border: none; padding: 10px;">
