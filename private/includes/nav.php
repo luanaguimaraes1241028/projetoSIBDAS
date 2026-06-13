@@ -13,7 +13,7 @@
             <div class="col-6 text-end px-4">
                 <div class="dropdown d-inline-block">
                     <button class="btn btn-secondary dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: rgba(255, 255, 255, 0.15); border: none; padding: 6px 12px;">
-                        <i class="fa-regular fa-user me-2"></i> <?php echo get_username(); ?>
+                        <i class="fa-regular fa-user me-2"></i> <?= htmlspecialchars($_SESSION['utilizador']) ?>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow">
                         <li>

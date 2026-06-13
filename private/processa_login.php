@@ -1,42 +1,43 @@
 <?php
-session_start();
+require_once 'includes/funcoes.php';
+start_session();
 
-$username = isset($_POST['username']) ? trim($_POST['username']) : '';
-$password = isset($_POST['password']) ? trim($_POST['password']) : '';
-
-$erros = [];
-
-if (empty($username)) {
-    $erros[] = 'O campo utilizador é obrigatório.';
-} elseif (!filter_var($username, FILTER_VALIDATE_EMAIL)) {
-    $erros[] = 'Introduza um endereço de email válido.';
+if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+    header('Location: ../public/login.php');
+    return;
 }
 
-if (empty($password)) {
-    $erros[] = 'O campo palavra-passe é obrigatório.';
-} elseif (strlen($password) < 6) {
-    $erros[] = 'A palavra-passe deve ter pelo menos 6 caracteres.';
+$username = isset($_POST['text_username']) ? $_POST['text_username'] : '';
+$password = isset($_POST['text_password']) ? $_POST['text_password'] : '';
+
+$validation_errors = [];
+
+if (!filter_var($username, FILTER_VALIDATE_EMAIL)) {
+    $validation_errors[] = 'O username tem que ser um email válido.';
 }
 
-if (!empty($erros)) {
-    $_SESSION['form_errors'] = $erros;
-    header('Location: /projeto-sibdas/public/login.php');
-    exit;
+if (strlen($username) < 5 || strlen($username) > 50) {
+    $validation_errors[] = 'O username deve ter entre 5 e 50 caracteres.';
 }
 
-// Credenciais simuladas (substituir por BD no futuro)
-$utilizadores = [
-    'admin@medcore.pt'       => 'admin123',
-    'engenheiro@medcore.pt'  => 'medcore2025',
-];
-
-if (isset($utilizadores[$username]) && $utilizadores[$username] === $password) {
-    $_SESSION['utilizador'] = $username;
-    $_SESSION['logged_in'] = true;
-    header('Location: /projeto-sibdas/private/dashboard/dashboard.php');
-    exit;
-} else {
-    $_SESSION['server_error'] = 'Email ou palavra-passe incorretos.';
-    header('Location: /projeto-sibdas/public/login.php');
-    exit;
+if (strlen($password) < 6 || strlen($password) > 12) {
+    $validation_errors[] = 'A password deve ter entre 6 e 12 caracteres.';
 }
+
+if (!empty($validation_errors)) {
+    $_SESSION['validation_errors'] = $validation_errors;
+    header('Location: ../public/login.php');
+    return;
+}
+
+$result['status'] = 1;
+
+if (!$result['status']) {
+    $_SESSION['server_error'] = 'Login inválido';
+    header('Location: ../public/login.php');
+    return;
+}
+
+$_SESSION['utilizador'] = $username;
+header('Location: dashboard/dashboard.php');
+exit;

@@ -1,28 +1,18 @@
 <?php
 session_start();
-$erros = isset($_SESSION['form_errors']) ? $_SESSION['form_errors'] : [];
-$server_error = isset($_SESSION['server_error']) ? $_SESSION['server_error'] : '';
-unset($_SESSION['form_errors'], $_SESSION['server_error']);
+$validation_errors = [];
+if (!empty($_SESSION['validation_errors'])) {
+    $validation_errors = $_SESSION['validation_errors'];
+    unset($_SESSION['validation_errors']);
+}
+$server_error = [];
+if (!empty($_SESSION['server_error'])) {
+    $server_error = $_SESSION['server_error'];
+    unset($_SESSION['server_error']);
+}
 ?>
 
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedCore Inventory - Acesso Restrito</title>
-    
-    <link rel="shortcut icon" href="/projeto-sibdas/assets/img/logo medcore.png" type="image/jpeg">
-
-    <link rel="stylesheet" href="/projeto-sibdas/assets/bootstrap/bootstrap.min.css">
-
-    <link rel="stylesheet" href="/projeto-sibdas/assets/fontawesome/all.min.css">
-
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="/projeto-sibdas/assets/css/1241028.css">
-</head>
-<body style="font-family: 'Nunito', sans-serif; background-color: #f8fafc;">
+<?php include '../private/includes/header.php'; ?>
 
     <div class="container-fluid mt-5">
         <div class="row justify-content-center">
@@ -32,7 +22,7 @@ unset($_SESSION['form_errors'], $_SESSION['server_error']);
                     
                     <div class="text-center my-3">
                         <img src="/projeto-sibdas/assets/img/logo medcore.png" alt="Logo MedCore" style="height: 50px;" class="mb-2">
-                        <h2 class="fw-bold h4 text-dark mb-1">Área Cliente</h2>
+                        <h2 class="fw-bold h4 text-dark mb-1"><?php echo APP_NAME; ?></h2>
                         <p class="text-muted small">Faça login para aceder ao sistema.</p>
                     </div>
                     
@@ -42,22 +32,24 @@ unset($_SESSION['form_errors'], $_SESSION['server_error']);
                         
                         <div class="mb-3">
                             <label for="username" class="form-label fw-bold small text-secondary">Utilizador / Email:</label>
-                            <input type="text" id="username" name="username" class="form-control" placeholder="Ex: engenheiro@medcore.pt" required>
+                            <input type="text" id="username" name="text_username" class="form-control" placeholder="Ex: engenheiro@medcore.pt" required>
                         </div>
 
                         <div class="mb-4">
                             <label for="password" class="form-label fw-bold small text-secondary">Palavra-passe:</label>
-                            <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+                            <input type="password" id="password" name="text_password" class="form-control" placeholder="••••••••" required>
                         </div>
 
-                        <?php if ($server_error): ?>
-                            <div class="alert alert-danger py-2 small"><?php echo htmlspecialchars($server_error); ?></div>
-                        <?php endif; ?>
-                        <?php if (!empty($erros)): ?>
-                            <div class="alert alert-warning py-2 small">
-                                <?php foreach ($erros as $erro): ?>
-                                    <div><?php echo htmlspecialchars($erro); ?></div>
+                        <?php if (!empty($validation_errors)) : ?>
+                            <div class="alert alert-danger p-2 text-center">
+                                <?php foreach ($validation_errors as $error) : ?>
+                                    <div><?= htmlspecialchars($error) ?></div>
                                 <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                        <?php if (!empty($server_error)) : ?>
+                            <div class="alert alert-danger p-2 text-center">
+                                <div><?= htmlspecialchars($server_error) ?></div>
                             </div>
                         <?php endif; ?>
 
@@ -78,6 +70,4 @@ unset($_SESSION['form_errors'], $_SESSION['server_error']);
         </div>
     </div>
 
-    <script src="/projeto-sibdas/assets/bootstrap/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php include '../private/includes/footer.php'; ?>
