@@ -1,0 +1,147 @@
+Table Utilizador {
+  codigo int [not null, increment]
+  nome varchar(100) [not null]
+  email varchar(100) [not null]
+  password varchar(255) [not null]
+  perfil varchar(20) [not null, default: 'tecnico', check: `LOWER(perfil) IN ('admin', 'tecnico')`]
+
+  indexes {
+    (codigo) [pk, name: 'pkUtilizadorcodigo']
+    (email) [unique, name: 'uqUtilizadoremail']
+  }
+}
+
+Table Categoria {
+  codigo int [not null, increment]
+  nome varchar(50) [not null]
+  descricao text
+
+  indexes {
+    (codigo) [pk, name: 'pkCategoriacodigo']
+    (nome) [unique, name: 'uqCategorianome']
+  }
+}
+
+Table Localizacao {
+  codigo int [not null, increment]
+  edificio varchar(100) [not null]
+  piso varchar(10)
+  servico varchar(100) [not null]
+  sala varchar(50)
+
+  indexes {
+    (codigo) [pk, name: 'pkLocalizacaocodigo']
+  }
+}
+
+Table Fornecedor {
+  codigo int [not null, increment]
+  nome varchar(100) [not null]
+  nif varchar(20)
+  telefone varchar(20)
+  email varchar(100)
+  morada varchar(200)
+  website varchar(100)
+  pessoaContacto varchar(100)
+  telefonePessoa varchar(20)
+  tipoFornecedor varchar(30) [not null, check: `LOWER(tipoFornecedor) IN ('fabricante', 'distribuidor', 'assistencia tecnica', 'consumiveis')`]
+  observacoes text
+
+  indexes {
+    (codigo) [pk, name: 'pkFornecedorcodigo']
+  }
+}
+
+Table Equipamento {
+  codigo int [not null, increment]
+  codigoInterno varchar(20) [not null]
+  designacao varchar(100) [not null]
+  marca varchar(50) [not null]
+  modelo varchar(50) [not null]
+  fabricante varchar(100)
+  numeroSerie varchar(50)
+  anoFabrico int
+  dataAquisicao date
+  custoAquisicao decimal(10,2)
+  tipoEntrada varchar(20) [not null, check: `LOWER(tipoEntrada) IN ('compra', 'doacao', 'aluguer', 'emprestimo')`]
+  estado varchar(20) [not null, check: `LOWER(estado) IN ('ativo', 'em manutencao', 'inativo', 'em calibracao', 'em quarentena', 'abatido')`]
+  criticidade varchar(20) [not null, check: `LOWER(criticidade) IN ('baixa', 'media', 'alta', 'suporte de vida')`]
+  observacoes text
+  codigoCategoria int [not null]
+  codigoLocalizacao int [not null]
+
+  indexes {
+    (codigo) [pk, name: 'pkEquipamentocodigo']
+    (codigoInterno) [unique, name: 'uqEquipamentocodigoInterno']
+    (numeroSerie, fabricante, modelo) [unique, name: 'uqEquipamentoserieFabricanteModelo']
+  }
+}
+
+Table EquipamentoFornecedor {
+  codigoEquipamento int [not null]
+  codigoFornecedor int [not null]
+
+  indexes {
+    (codigoEquipamento, codigoFornecedor) [pk, name: 'pkEquipamentoFornecedoredificiocodigoEquipamentocodigoFornecedor']
+  }
+}
+
+Table Documentacao {
+  codigo int [not null, increment]
+  nome varchar(100) [not null]
+  tipo varchar(60) [not null, check: `LOWER(tipo) IN ('manual de utilizador', 'manual de servico', 'certificado de calibracao', 'contrato de manutencao', 'fatura ou guia de aquisicao', 'declaracao de conformidade', 'relatorio tecnico')`]
+  dataDocumento date [not null]
+  dataValidade date
+  ficheiro varchar(255)
+  codigoEquipamento int [not null]
+  codigoFornecedor int
+
+  indexes {
+    (codigo) [pk, name: 'pkDocumentacaocodigo']
+  }
+}
+
+Table Garantia {
+  codigo int [not null, increment]
+  dataInicio date [not null]
+  dataFim date [not null]
+  temContrato boolean [not null, default: false]
+  tipoContrato varchar(50)
+  entidadeResponsavel varchar(100)
+  periodicidade varchar(30)
+  observacoes text
+  codigoEquipamento int [not null]
+  codigoFornecedor int
+
+  indexes {
+    (codigo) [pk, name: 'pkGarantiacodigo']
+  }
+}
+
+Table ConteudoPublico {
+  codigo int [not null, increment]
+  chave varchar(100) [not null]
+  valor text [not null]
+  dataAtualizacao date [not null]
+  codigoUtilizador int [not null]
+
+  indexes {
+    (codigo) [pk, name: 'pkConteudoPublicocodigo']
+    (chave) [unique, name: 'uqConteudoPublicochave']
+  }
+}
+
+// Definição das Relações (Foreign Keys out-of-line)
+Ref fkEquipamentoCategoria_Categoria: Equipamento.codigoCategoria > Categoria.codigo
+Ref fkEquipamentoLocalizacao_Localizacao: Equipamento.codigoLocalizacao > Localizacao.codigo
+
+Ref fkEqFornEquipamento_Equipamento: EquipamentoFornecedor.codigoEquipamento > Equipamento.codigo
+Ref fkEqFornFornecedor_Fornecedor: EquipamentoFornecedor.codigoFornecedor > Fornecedor.codigo
+
+Ref fkDocumentacaoEquipamento_Equipamento: Documentacao.codigoEquipamento > Equipamento.codigo
+Ref fkDocumentacaoFornecedor_Fornecedor: Documentacao.codigoFornecedor > Fornecedor.codigo
+
+Ref fkGarantiaEquipamento_Equipamento: Garantia.codigoEquipamento > Equipamento.codigo
+Ref fkGarantiaFornecedor_Fornecedor: Garantia.codigoFornecedor > Fornecedor.codigo
+
+Ref fkConteudoUtilizador_Utilizador: ConteudoPublico.codigoUtilizador > Utilizador.codigo
