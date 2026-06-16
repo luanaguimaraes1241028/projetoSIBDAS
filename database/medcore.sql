@@ -179,11 +179,6 @@ TRUNCATE TABLE `Categoria`;
 TRUNCATE TABLE `Utilizador`;
 SET FOREIGN_KEY_CHECKS = 1;
 
-INSERT IGNORE INTO `Utilizador` (`nome`, `email`, `password`, `perfil`) VALUES
-('Administrador Sistema', 'admin@medcore.pt',        '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uye29tblrm', 'admin'),
-('João Silva',            'joao.silva@medcore.pt',   '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uye29tblrm', 'tecnico'),
-('Ana Ferreira',          'ana.ferreira@medcore.pt', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uye29tblrm', 'tecnico');
-
 INSERT IGNORE INTO `Categoria` (`nome`, `descricao`) VALUES
 ('Ventilação Mecânica',    'Equipamentos de suporte ventilatório e respiratório'),
 ('Monitorização Cardíaca', 'Monitores de sinais vitais, ECG e desfibrilhadores'),
@@ -199,20 +194,31 @@ INSERT IGNORE INTO `Localizacao` (`edificio`, `piso`, `servico`, `sala`) VALUES
 ('Edifício Urgências',  '0', 'Urgência Geral',   'Sala U01');
 
 INSERT IGNORE INTO `Fornecedor` (`nome`, `nif`, `telefone`, `email`, `morada`, `pessoaContacto`, `tipoFornecedor`) VALUES
-('Dräger Medical Portugal, Lda.', '501234567', '210 000 100', 'contacto@draeger.pt',   'Av. da Liberdade 110, Lisboa', 'Carlos Mendes',   'fabricante'),
-('Philips Healthcare Portugal',   '508765432', '210 000 200', 'healthcare@philips.pt', 'Rua das Flores 45, Porto',      'Maria Costa',     'fabricante'),
-('MedTech Services, Unipessoal',  '512345678', '220 000 300', 'servicos@medtech.pt',   'Rua do Comércio 22, Coimbra',  'Paulo Rodrigues', 'assistencia tecnica');
+('Dräger Medical Portugal, Lda.', '501234567', '210 000 100', 'contacto@draeger.pt',    'Av. da Liberdade 110, Lisboa',   'Carlos Mendes',   'fabricante'),
+('Philips Healthcare Portugal',   '508765432', '210 000 200', 'healthcare@philips.pt',  'Rua das Flores 45, Porto',        'Maria Costa',     'fabricante'),
+('MedTech Services, Unipessoal',  '512345678', '220 000 300', 'servicos@medtech.pt',    'Rua do Comércio 22, Coimbra',    'Paulo Rodrigues', 'assistencia tecnica'),
+('MedEquip Distribuição, Lda.',   '509876543', '230 000 400', 'comercial@medequip.pt',  'Rua da Industria 5, Braga',       'Rita Sousa',      'distribuidor');
 
 INSERT IGNORE INTO `Equipamento` (`codigoInterno`, `designacao`, `marca`, `modelo`, `fabricante`, `numeroSerie`, `anoFabrico`, `dataAquisicao`, `custoAquisicao`, `tipoEntrada`, `estado`, `criticidade`, `codigoCategoria`, `codigoLocalizacao`) VALUES
-('EQ-0001', 'Ventilador Volumétrico Hospitalar', 'Dräger',       'Evita V500',       'Dräger Medical GmbH',      'SN-DRG-88321-X', 2020, '2021-03-15',  45000.00, 'compra', 'ativo',         'suporte de vida', 1, 1),
-('EQ-0002', 'Desfibrilhador Bifásico Pro',       'Zoll Medical', 'R Series',         'Zoll Medical Corporation', 'SN-ZOL-11029-M', 2019, '2020-07-20',  18500.00, 'compra', 'ativo',         'alta',            2, 5),
-('EQ-0003', 'Monitor de Sinais Vitais',          'Philips',      'IntelliVue MX700', 'Philips Healthcare',        'SN-PHI-55432-A', 2021, '2022-01-10',  32000.00, 'compra', 'ativo',         'alta',            2, 4),
-('EQ-0004', 'Arco Cirúrgico (C-Arm)',            'Siemens',      'Cios Flow',        'Siemens Healthineers',      'SN-SIE-74210-B', 2018, '2019-05-02', 120000.00, 'compra', 'em manutencao', 'alta',            3, 2),
-('EQ-0005', 'Bisturi Elétrico Monopolar',        'Valleylab',    'FT10',             'Medtronic',                 'SN-VAL-30021-C', 2022, '2022-11-30',   9800.00, 'compra', 'ativo',         'media',           4, 2);
+('EQ-0001', 'Ventilador Volumétrico Hospitalar', 'Dräger',       'Evita V500',       'Dräger Medical GmbH',      'SN-DRG-88321-X', 2020, '2021-03-15',  45000.00, 'compra',    'ativo',         'suporte de vida', 1, 1),
+('EQ-0002', 'Desfibrilhador Bifásico Pro',       'Zoll Medical', 'R Series',         'Zoll Medical Corporation', 'SN-ZOL-11029-M', 2019, '2020-07-20',  18500.00, 'compra',    'ativo',         'alta',            2, 5),
+('EQ-0003', 'Monitor de Sinais Vitais',          'Philips',      'IntelliVue MX700', 'Philips Healthcare',        'SN-PHI-55432-A', 2021, '2022-01-10',  32000.00, 'compra',    'ativo',         'alta',            2, 4),
+('EQ-0004', 'Arco Cirúrgico (C-Arm)',            'Siemens',      'Cios Flow',        'Siemens Healthineers',      'SN-SIE-74210-B', 2018, '2019-05-02', 120000.00, 'compra',    'em manutencao', 'alta',            3, 2),
+('EQ-0005', 'Bisturi Elétrico Monopolar',        'Valleylab',    'FT10',             'Medtronic',                 'SN-VAL-30021-C', 2022, '2022-11-30',   9800.00, 'compra',    'ativo',         'media',           4, 2),
+('EQ-0006', 'Bomba de Infusão Volumétrica',      'B. Braun',     'Infusomat Space',  'B. Braun Melsungen AG',     'SN-BBR-44102-D', 2017, '2018-04-10',   6500.00, 'compra',    'inativo',       'media',           4, 3),
+('EQ-0007', 'Oxímetro de Pulso Portátil',        'Nonin',        'Model 9590',       'Nonin Medical Inc.',        'SN-NON-77231-E', 2023, '2023-09-01',   1200.00, 'doacao',    'em calibracao', 'alta',            2, 1);
 
+-- EQ-0001 tem 2 fornecedores (fabricante + distribuidor) — demonstra relação N:M
 INSERT IGNORE INTO `EquipamentoFornecedor` (`codigoEquipamento`, `codigoFornecedor`) VALUES
-(1, 1), (2, 3), (3, 2), (4, 3), (5, 3);
+(1, 1), (1, 4),
+(2, 3),
+(3, 2),
+(4, 3),
+(5, 3),
+(6, 4),
+(7, 2);
 
+-- EQ-0006 e EQ-0007 sem documentação → testa métrica "equipamentos sem documentação"
 INSERT IGNORE INTO `Documentacao` (`nome`, `tipo`, `dataDocumento`, `dataValidade`, `codigoEquipamento`, `codigoFornecedor`) VALUES
 ('Manual de Utilizador - Evita V500',                'manual de utilizador',        '2021-03-15', NULL,         1, 1),
 ('Contrato de Manutenção - Desfibrilhador R Series', 'contrato de manutencao',      '2023-01-01', '2025-12-31', 2, 3),
@@ -220,10 +226,13 @@ INSERT IGNORE INTO `Documentacao` (`nome`, `tipo`, `dataDocumento`, `dataValidad
 ('Manual de Serviço - Cios Flow',                    'manual de servico',           '2019-05-02', NULL,         4, NULL),
 ('Fatura de Aquisição - Bisturi FT10',               'fatura ou guia de aquisicao', '2022-11-30', NULL,         5, 3);
 
+-- Garantias variadas: 3 expiradas, 1 ativa, 1 a expirar em 30 dias
 INSERT IGNORE INTO `Garantia` (`dataInicio`, `dataFim`, `temContrato`, `tipoContrato`, `entidadeResponsavel`, `periodicidade`, `codigoEquipamento`, `codigoFornecedor`) VALUES
 ('2021-03-15', '2024-03-15', TRUE,  'Garantia de Fábrica',    'Dräger Medical Portugal', 'Anual',     1, 1),
 ('2022-01-10', '2025-01-10', TRUE,  'Contrato de Manutenção', 'Philips Healthcare',       'Semestral', 3, 2),
-('2022-11-30', '2025-11-30', FALSE, NULL,                      'MedTech Services',         NULL,        5, 3);
+('2022-11-30', '2025-11-30', FALSE, NULL,                      'MedTech Services',         NULL,        5, 3),
+('2020-07-20', '2027-07-20', TRUE,  'Contrato Plurianual',    'MedTech Services',         'Anual',     2, 3),
+('2023-09-01', '2026-07-10', FALSE, NULL,                      'Philips Healthcare',        NULL,        7, 2);
 
 INSERT IGNORE INTO `ConteudoPublico` (`chave`, `valor`, `dataAtualizacao`, `codigoUtilizador`) VALUES
 ('inicio_titulo',     'Gestão Tecnológica Hospitalar Integrada',                                                                                                                                                                '2025-06-01', 1),

@@ -5,20 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MedCore Inventory - Sistemas de Informação Hospitalar</title> 
 
-    <link rel="shortcut icon" href="/projeto-sibdas/assets/img/logo medcore.png" type="image/png">
+    <link rel="shortcut icon" href="/sibdas/1241028/medcore/assets/img/logo medcore.png" type="image/png">
 
-    <link rel="stylesheet" href="/projeto-sibdas/assets/css/1241028.css">
+    <link rel="stylesheet" href="/sibdas/1241028/medcore/assets/css/1241028.css">
 
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="/projeto-sibdas/assets/fontawesome/all.min.css">
+    <link rel="stylesheet" href="/sibdas/1241028/medcore/assets/fontawesome/all.min.css">
 
 </head> 
 <body>
 
     <nav class="bng-navbar">
         <div>
-            <img src="/projeto-sibdas/assets/img/logo medcore.png" alt="Logo MedCore Inventory">
+            <img src="/sibdas/1241028/medcore/assets/img/logo medcore.png" alt="Logo MedCore Inventory">
             <h3>MedCore Inventory</h3>
         </div> 
         <div class="container-navegacao">
@@ -27,7 +27,7 @@
             <a href="#contacto">Suporte e Contactos</a>
         </div>
         <div class="nav-cliente">
-            <a href="/projeto-sibdas/public/login.php" target="_blank">Área Cliente</a>
+            <a href="/sibdas/1241028/medcore/public/login.php" target="_blank">Área Cliente</a>
         </div>
     </nav>
 
@@ -37,7 +37,7 @@
             <h1 style="font-size: 3em; color: #1e1b4b; margin-bottom: 20px;">Gestão Tecnológica Hospitalar Integrada</h1>
             <p style="font-size: 1.2em; color: #64748b; max-width: 800px; margin: 0 auto 30px auto;">A plataforma definitiva para Engenharia Clínica e controlo absoluto de ativos médicos.</p>
             
-            <img src="/projeto-sibdas/assets/img/foto front office.jpg" alt="Monitorização Hospitalar" style="width: 100%; max-width: 800px; height: 250px; object-fit: cover; border-radius: 8px; margin: 20px auto; display: block;">
+            <img src="/sibdas/1241028/medcore/assets/img/foto front office.jpg" alt="Monitorização Hospitalar" style="width: 100%; max-width: 800px; height: 250px; object-fit: cover; border-radius: 8px; margin: 20px auto; display: block;">
             
             <a href="#contacto" class="button" style="display: inline-block; background-color: #4f46e5; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: 600; margin-top: 10px;">Solicitar Demonstração</a>
         </div>

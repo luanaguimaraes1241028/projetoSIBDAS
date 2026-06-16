@@ -21,7 +21,7 @@ if (!empty($_SESSION['server_error'])) {
                 <div class="card p-4 shadow-sm border-0" style="border-radius: 12px;">
                     
                     <div class="text-center my-3">
-                        <img src="/projeto-sibdas/assets/img/logo medcore.png" alt="Logo MedCore" style="height: 50px;" class="mb-2">
+                        <img src="/sibdas/1241028/medcore/assets/img/logo medcore.png" alt="Logo MedCore" style="height: 50px;" class="mb-2">
                         <h2 class="fw-bold h4 text-dark mb-1"><?php echo APP_NAME; ?></h2>
                         <p class="text-muted small">Faça login para aceder ao sistema.</p>
                     </div>
@@ -61,7 +61,7 @@ if (!empty($_SESSION['server_error'])) {
                     </form>
 
                     <p class="text-center mb-0 mt-2 small">
-                        <a href="/projeto-sibdas/public/index.php" class="text-decoration-none text-muted">
+                        <a href="/sibdas/1241028/medcore/public/index.php" class="text-decoration-none text-muted">
                             <i class="fa-solid fa-arrow-left small"></i> Voltar ao site principal
                         </a>
                     </p>
