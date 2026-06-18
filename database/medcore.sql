@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS `Equipamento` (
   `criticidade`       VARCHAR(20)    NOT NULL,
   `observacoes`       TEXT,
   `codigoCategoria`   INT            NOT NULL,
-  `codigoLocalizacao` INT            NOT NULL,
+  `codigoLocalizacao` INT,
   CONSTRAINT `pkEquipamentocodigo`               PRIMARY KEY (`codigo`),
   CONSTRAINT `uqEquipamentocodigoInterno`         UNIQUE (`codigoInterno`),
   CONSTRAINT `uqEquipamentoserieFabricanteModelo` UNIQUE (`numeroSerie`, `fabricante`, `modelo`),
@@ -180,11 +180,13 @@ TRUNCATE TABLE `Utilizador`;
 SET FOREIGN_KEY_CHECKS = 1;
 
 INSERT IGNORE INTO `Categoria` (`nome`, `descricao`) VALUES
-('Ventilação Mecânica',    'Equipamentos de suporte ventilatório e respiratório'),
-('Monitorização Cardíaca', 'Monitores de sinais vitais, ECG e desfibrilhadores'),
-('Imagiologia',            'Equipamentos de diagnóstico por imagem (Rx, TAC, RM, Ecografia)'),
-('Bloco Operatório',       'Equipamentos cirúrgicos, anestésicos e de controlo térmico'),
-('Reanimação',             'Equipamentos de emergência e suporte de vida imediato');
+('Monitorização',   'Equipamentos utilizados para monitorizar sinais fisiológicos do doente'),
+('Suporte de vida', 'Equipamentos essenciais para manter funções vitais'),
+('Terapia',         'Equipamentos utilizados para tratamento'),
+('Diagnóstico',     'Equipamentos utilizados para avaliação clínica ou imagiologia'),
+('Laboratório',     'Equipamentos usados em análises clínicas'),
+('Esterilização',   'Equipamentos utilizados no processamento de dispositivos médicos'),
+('Reabilitação',    'Equipamentos usados em fisioterapia ou recuperação funcional');
 
 INSERT IGNORE INTO `Localizacao` (`edificio`, `piso`, `servico`, `sala`) VALUES
 ('Edifício Principal',  '2', 'UCIP',             'Sala 201'),
@@ -200,13 +202,13 @@ INSERT IGNORE INTO `Fornecedor` (`nome`, `nif`, `telefone`, `email`, `morada`, `
 ('MedEquip Distribuição, Lda.',   '509876543', '230 000 400', 'comercial@medequip.pt',  'Rua da Industria 5, Braga',       'Rita Sousa',      'distribuidor');
 
 INSERT IGNORE INTO `Equipamento` (`codigoInterno`, `designacao`, `marca`, `modelo`, `fabricante`, `numeroSerie`, `anoFabrico`, `dataAquisicao`, `custoAquisicao`, `tipoEntrada`, `estado`, `criticidade`, `codigoCategoria`, `codigoLocalizacao`) VALUES
-('EQ-0001', 'Ventilador Volumétrico Hospitalar', 'Dräger',       'Evita V500',       'Dräger Medical GmbH',      'SN-DRG-88321-X', 2020, '2021-03-15',  45000.00, 'compra',    'ativo',         'suporte de vida', 1, 1),
+('EQ-0001', 'Ventilador Volumétrico Hospitalar', 'Dräger',       'Evita V500',       'Dräger Medical GmbH',      'SN-DRG-88321-X', 2020, '2021-03-15',  45000.00, 'compra',    'ativo',         'suporte de vida', 2, 1),
 ('EQ-0002', 'Desfibrilhador Bifásico Pro',       'Zoll Medical', 'R Series',         'Zoll Medical Corporation', 'SN-ZOL-11029-M', 2019, '2020-07-20',  18500.00, 'compra',    'ativo',         'alta',            2, 5),
-('EQ-0003', 'Monitor de Sinais Vitais',          'Philips',      'IntelliVue MX700', 'Philips Healthcare',        'SN-PHI-55432-A', 2021, '2022-01-10',  32000.00, 'compra',    'ativo',         'alta',            2, 4),
-('EQ-0004', 'Arco Cirúrgico (C-Arm)',            'Siemens',      'Cios Flow',        'Siemens Healthineers',      'SN-SIE-74210-B', 2018, '2019-05-02', 120000.00, 'compra',    'em manutencao', 'alta',            3, 2),
-('EQ-0005', 'Bisturi Elétrico Monopolar',        'Valleylab',    'FT10',             'Medtronic',                 'SN-VAL-30021-C', 2022, '2022-11-30',   9800.00, 'compra',    'ativo',         'media',           4, 2),
-('EQ-0006', 'Bomba de Infusão Volumétrica',      'B. Braun',     'Infusomat Space',  'B. Braun Melsungen AG',     'SN-BBR-44102-D', 2017, '2018-04-10',   6500.00, 'compra',    'inativo',       'media',           4, 3),
-('EQ-0007', 'Oxímetro de Pulso Portátil',        'Nonin',        'Model 9590',       'Nonin Medical Inc.',        'SN-NON-77231-E', 2023, '2023-09-01',   1200.00, 'doacao',    'em calibracao', 'alta',            2, 1);
+('EQ-0003', 'Monitor de Sinais Vitais',          'Philips',      'IntelliVue MX700', 'Philips Healthcare',        'SN-PHI-55432-A', 2021, '2022-01-10',  32000.00, 'compra',    'ativo',         'alta',            1, 4),
+('EQ-0004', 'Arco Cirúrgico (C-Arm)',            'Siemens',      'Cios Flow',        'Siemens Healthineers',      'SN-SIE-74210-B', 2018, '2019-05-02', 120000.00, 'compra',    'em manutencao', 'alta',            4, 2),
+('EQ-0005', 'Bisturi Elétrico Monopolar',        'Valleylab',    'FT10',             'Medtronic',                 'SN-VAL-30021-C', 2022, '2022-11-30',   9800.00, 'compra',    'ativo',         'media',           3, 2),
+('EQ-0006', 'Bomba de Infusão Volumétrica',      'B. Braun',     'Infusomat Space',  'B. Braun Melsungen AG',     'SN-BBR-44102-D', 2017, '2018-04-10',   6500.00, 'compra',    'inativo',       'media',           3, 3),
+('EQ-0007', 'Oxímetro de Pulso Portátil',        'Nonin',        'Model 9590',       'Nonin Medical Inc.',        'SN-NON-77231-E', 2023, '2023-09-01',   1200.00, 'doacao',    'em calibracao', 'alta',            1, 1);
 
 -- EQ-0001 tem 2 fornecedores (fabricante + distribuidor) — demonstra relação N:M
 INSERT IGNORE INTO `EquipamentoFornecedor` (`codigoEquipamento`, `codigoFornecedor`) VALUES

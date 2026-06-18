@@ -26,6 +26,11 @@ try {
     $categorias = [];
 }
 $ligacao = null;
+
+$total      = count($resultados);
+$ativos     = count(array_filter($resultados, fn($eq) => $eq->estado === 'ativo'));
+$manutencao = count(array_filter($resultados, fn($eq) => $eq->estado === 'em manutencao'));
+$inativos   = count(array_filter($resultados, fn($eq) => $eq->estado === 'inativo'));
 ?>
 
 
@@ -53,7 +58,7 @@ $ligacao = null;
                         <div class="card p-3 shadow-sm h-100 border-start border-0 border-4 border-secondary">
                             <div class="card-body p-0">
                                 <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small tracking-wider">Total Equipamentos</h6>
-                                <h2 class="card-title mb-0 fw-bold">142</h2>
+                                <h2 class="card-title mb-0 fw-bold"><?= $total ?></h2>
                             </div>
                         </div>
                     </div>
@@ -61,7 +66,7 @@ $ligacao = null;
                         <div class="card p-3 shadow-sm h-100 border-start border-0 border-4 border-success">
                             <div class="card-body p-0">
                                 <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small tracking-wider">Equipamentos Ativos</h6>
-                                <h2 class="card-title mb-0 fw-bold text-success">131</h2>
+                                <h2 class="card-title mb-0 fw-bold text-success"><?= $ativos ?></h2>
                             </div>
                         </div>
                     </div>
@@ -69,7 +74,7 @@ $ligacao = null;
                         <div class="card p-3 shadow-sm h-100 border-start border-0 border-4 border-warning">
                             <div class="card-body p-0">
                                 <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small tracking-wider">Em Manutenção</h6>
-                                <h2 class="card-title mb-0 fw-bold text-warning">8</h2>
+                                <h2 class="card-title mb-0 fw-bold text-warning"><?= $manutencao ?></h2>
                             </div>
                         </div>
                     </div>
@@ -77,7 +82,7 @@ $ligacao = null;
                         <div class="card p-3 shadow-sm h-100 border-start border-0 border-4 border-danger">
                             <div class="card-body p-0">
                                 <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small tracking-wider">Equipamentos Inativos</h6>
-                                <h2 class="card-title mb-0 fw-bold text-danger">3</h2>
+                                <h2 class="card-title mb-0 fw-bold text-danger"><?= $inativos ?></h2>
                             </div>
                         </div>
                     </div>

@@ -1,6 +1,25 @@
 <?php
 require_once '../includes/funcoes.php';
 redirect_if_not_logged();
+
+try {
+    $ligacao = new PDO(
+        "mysql:host=" . MYSQL_HOST . ";port=" . MYSQL_PORT . ";dbname=" . MYSQL_DATABASE . ";charset=utf8",
+        MYSQL_USERNAME, MYSQL_PASSWORD
+    );
+    $ligacao->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $counts = $ligacao->query(
+        "SELECT
+            COUNT(*)                              AS total,
+            SUM(estado = 'ativo')                 AS ativos,
+            SUM(estado = 'em manutencao')         AS manutencao,
+            SUM(estado = 'inativo')               AS inativos
+         FROM Equipamento"
+    )->fetch(PDO::FETCH_OBJ);
+} catch (PDOException) {
+    $counts = (object)['total' => 0, 'ativos' => 0, 'manutencao' => 0, 'inativos' => 0];
+}
+$ligacao = null;
 ?>
 
 <?php include '../includes/header.php'; ?>
@@ -25,7 +44,7 @@ redirect_if_not_logged();
                         <div class="card p-3 shadow-sm h-100 border-start border-0 border-4 border-secondary">
                             <div class="card-body p-0">
                                 <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small">Total Equipamentos</h6>
-                                <h2 class="card-title mb-0 fw-bold">142</h2>
+                                <h2 class="card-title mb-0 fw-bold"><?= $counts->total ?></h2>
                             </div>
                         </div>
                     </div>
@@ -33,7 +52,7 @@ redirect_if_not_logged();
                         <div class="card p-3 shadow-sm h-100 border-start border-0 border-4 border-success">
                             <div class="card-body p-0">
                                 <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small">Equipamentos Ativos</h6>
-                                <h2 class="card-title mb-0 fw-bold text-success">131</h2>
+                                <h2 class="card-title mb-0 fw-bold text-success"><?= $counts->ativos ?></h2>
                             </div>
                         </div>
                     </div>
@@ -41,7 +60,7 @@ redirect_if_not_logged();
                         <div class="card p-3 shadow-sm h-100 border-start border-0 border-4 border-warning">
                             <div class="card-body p-0">
                                 <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small">Em Manutenção</h6>
-                                <h2 class="card-title mb-0 fw-bold text-warning">8</h2>
+                                <h2 class="card-title mb-0 fw-bold text-warning"><?= $counts->manutencao ?></h2>
                             </div>
                         </div>
                     </div>
@@ -49,7 +68,7 @@ redirect_if_not_logged();
                         <div class="card p-3 shadow-sm h-100 border-start border-0 border-4 border-danger">
                             <div class="card-body p-0">
                                 <h6 class="card-subtitle mb-2 text-muted text-uppercase fw-bold small">Equipamentos Inativos</h6>
-                                <h2 class="card-title mb-0 fw-bold text-danger">3</h2>
+                                <h2 class="card-title mb-0 fw-bold text-danger"><?= $counts->inativos ?></h2>
                             </div>
                         </div>
                     </div>

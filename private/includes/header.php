@@ -18,5 +18,7 @@ require_once __DIR__ . '/../../config/config.php';
     <!-- DataTables CSS + JS -->
     <link rel="stylesheet" href="/sibdas/1241028/medcore/assets/datatables/DataTables-1.13.1/css/jquery.dataTables.min.css">
     <script src="/sibdas/1241028/medcore/assets/datatables/DataTables-1.13.1/js/jquery.dataTables.min.js"></script>
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="/sibdas/1241028/medcore/assets/flatpickr/flatpickr.min.css">
 </head>
 <body style="font-family: 'Nunito', sans-serif; background-color: #f8fafc;">
