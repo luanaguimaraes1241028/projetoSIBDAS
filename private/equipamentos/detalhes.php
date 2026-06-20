@@ -1,22 +1,86 @@
+<?php
+require_once __DIR__ . '/../includes/funcoes.php';
+redirect_if_not_logged();
+
+$id_cifrado = $_GET['id_equipamento'] ?? '';
+$id = aes_decrypt($id_cifrado);
+if ($id === false || !ctype_digit((string) $id)) {
+    header('Location: lista.php');
+    exit;
+}
+
+try {
+    $ligacao = new PDO(
+        "mysql:host=" . MYSQL_HOST . ";port=" . MYSQL_PORT . ";dbname=" . MYSQL_DATABASE . ";charset=utf8",
+        MYSQL_USERNAME,
+        MYSQL_PASSWORD
+    );
+    $ligacao->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $stmt = $ligacao->prepare(
+        "SELECT e.*,
+                c.nome AS nomeCategoria,
+                l.servico AS nomeLocalizacao,
+                g.codigo AS codigoGarantia, g.dataInicio, g.dataFim,
+                g.tipoContrato, g.entidadeResponsavel, g.periodicidade,
+                g.proximaIntervencao, g.observacoes AS observacoesGarantia
+         FROM Equipamento e
+         LEFT JOIN Categoria c ON e.codigoCategoria = c.codigo
+         LEFT JOIN Localizacao l ON e.codigoLocalizacao = l.codigo
+         LEFT JOIN Garantia g ON g.codigoEquipamento = e.codigo
+         WHERE e.codigo = :id
+         LIMIT 1"
+    );
+    $stmt->execute([':id' => $id]);
+    $equipamento = $stmt->fetch(PDO::FETCH_OBJ);
+} catch (PDOException $err) {
+    header('Location: lista.php');
+    exit;
+}
+
+if (!$equipamento) {
+    header('Location: lista.php');
+    exit;
+}
+$ligacao = null;
+
+$corEstado = match($equipamento->estado) {
+    'ativo'         => 'success',
+    'em manutencao' => 'warning',
+    'inativo'       => 'danger',
+    'em calibracao' => 'info',
+    'em quarentena' => 'secondary',
+    'abatido'       => 'dark',
+    default         => 'secondary'
+};
+
+$corCriticidade = match($equipamento->criticidade) {
+    'baixa'           => 'success',
+    'media'           => 'warning',
+    'alta'            => 'danger',
+    'suporte de vida' => 'dark',
+    default           => 'secondary'
+};
+?>
 <?php include '../includes/header.php'; ?>
 <?php include '../includes/nav.php'; ?>
 
     <div class="container-fluid">
         <div class="row">
-            
+
             <?php include '../includes/sidebar.php'; ?>
 
             <main class="col-md-9 col-lg-10 px-md-4 pt-4">
                 <div class="card shadow-sm border p-4 mx-auto my-4" style="max-width: 850px; background-color: #fff;">
-                    
+
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2 class="fw-bold mb-0" style="color: #1e1b4b;">
                             <i class="fa-solid fa-circle-info"></i> Ficha do Equipamento
                         </h2>
-                        <span class="badge bg-dark fs-6">#EQ-0042</span>
+                        <span class="badge bg-dark fs-6"><?= htmlspecialchars($equipamento->codigoInterno) ?></span>
                     </div>
                     <hr class="mt-1 mb-4">
-                    
+
                     <ul class="nav nav-tabs mb-4" id="equipamentoTab" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active fw-bold py-2 px-3" id="geral-tab" data-bs-toggle="tab" data-bs-target="#geral" type="button" role="tab">
@@ -33,84 +97,74 @@
                                 <i class="fa-solid fa-location-dot"></i> Localização
                             </button>
                         </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link fw-bold py-2 px-3" id="fornecedor-tab" data-bs-toggle="tab" data-bs-target="#fornecedor" type="button" role="tab">
-                                <i class="fa-solid fa-building"></i> Fornecedor
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link fw-bold py-2 px-3" id="documentacao-tab" data-bs-toggle="tab" data-bs-target="#documentacao" type="button" role="tab">
-                                <i class="fa-solid fa-file-pdf"></i> Documentação
-                            </button>
-                        </li>
                     </ul>
 
                     <div class="tab-content p-2" id="equipamentoTabContent">
-                        
+
                         <div class="tab-pane show active" id="geral" role="tabpanel">
                             <div class="row g-4 text-dark">
                                 <div class="col-md-6 border-bottom pb-3">
                                     <small class="text-muted small text-uppercase fw-bold d-block">Código Interno de Inventário</small>
-                                    <div class="fs-5 fw-bold text-dark">#EQ-0042</div>
+                                    <div class="fs-5 fw-bold text-dark"><?= htmlspecialchars($equipamento->codigoInterno) ?></div>
                                 </div>
                                 <div class="col-md-6 border-bottom pb-3">
                                     <small class="text-muted small text-uppercase fw-bold d-block">Designação do Equipamento</small>
-                                    <div class="fs-5 text-dark fw-semibold">Ventilador Volumétrico Hospitalar</div>
+                                    <div class="fs-5 text-dark fw-semibold"><?= htmlspecialchars($equipamento->designacao) ?></div>
                                 </div>
                                 <div class="col-md-4 border-bottom pb-3">
                                     <small class="text-muted small text-uppercase fw-bold d-block">Categoria / Grupo</small>
-                                    <div class="fs-6 text-dark fw-semibold">Cuidados Intensivos (UCIP)</div>
+                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->nomeCategoria ?? '—') ?></div>
                                 </div>
                                 <div class="col-md-4 border-bottom pb-3">
                                     <small class="text-muted small text-uppercase fw-bold d-block">Marca</small>
-                                    <div class="fs-6 text-dark fw-semibold">Dräger</div>
+                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->marca) ?></div>
                                 </div>
                                 <div class="col-md-4 border-bottom pb-3">
                                     <small class="text-muted small text-uppercase fw-bold d-block">Modelo</small>
-                                    <div class="fs-6 text-dark fw-semibold">Evita V500</div>
+                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->modelo) ?></div>
                                 </div>
                                 <div class="col-md-4 border-bottom pb-3">
                                     <small class="text-muted small text-uppercase fw-bold d-block">Número de Série</small>
-                                    <div class="fs-6 font-monospace text-dark fw-semibold">SN-DRG-88321-X</div>
+                                    <div class="fs-6 font-monospace text-dark fw-semibold"><?= htmlspecialchars($equipamento->numeroSerie) ?></div>
                                 </div>
                                 <div class="col-md-4 border-bottom pb-3">
                                     <small class="text-muted small text-uppercase fw-bold d-block">Fabricante</small>
-                                    <div class="fs-6 text-dark fw-semibold">Dräger Medical GmbH</div>
+                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->fabricante) ?></div>
                                 </div>
                                 <div class="col-md-4 border-bottom pb-3">
                                     <small class="text-muted small text-uppercase fw-bold d-block">Ano de Fabrico</small>
-                                    <div class="fs-6 text-dark fw-semibold">2025</div>
+                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->anoFabrico) ?></div>
                                 </div>
                                 <div class="col-md-4 border-bottom pb-3">
                                     <small class="text-muted small text-uppercase fw-bold d-block">Data de Aquisição</small>
-                                    <div class="fs-6 text-dark fw-semibold">10/01/2026</div>
+                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->dataAquisicao) ?></div>
                                 </div>
                                 <div class="col-md-4 border-bottom pb-3">
                                     <small class="text-muted small text-uppercase fw-bold d-block">Custo de Aquisição</small>
-                                    <div class="fs-6 text-dark fw-semibold">24.500,00 €</div>
+                                    <div class="fs-6 text-dark fw-semibold"><?= number_format((float)$equipamento->custoAquisicao, 2, ',', '.') ?> €</div>
                                 </div>
                                 <div class="col-md-4 border-bottom pb-3">
                                     <small class="text-muted small text-uppercase fw-bold d-block">Tipo de Entrada</small>
                                     <div class="mt-1">
-                                        <span class="badge bg-dark px-2 py-1 fs-7">Compra</span>
+                                        <span class="badge bg-dark px-2 py-1"><?= htmlspecialchars($equipamento->tipoEntrada) ?></span>
                                     </div>
                                 </div>
                                 <div class="col-md-6 border-bottom pb-3">
                                     <small class="text-muted small text-uppercase fw-bold d-block">Estado Atual</small>
                                     <div class="mt-1">
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2">Ativo / Operacional</span>
+                                        <span class="badge bg-<?= $corEstado ?> px-2"><?= htmlspecialchars($equipamento->estado) ?></span>
                                     </div>
                                 </div>
                                 <div class="col-md-6 border-bottom pb-3">
                                     <small class="text-muted small text-uppercase fw-bold d-block">Criticidade</small>
                                     <div class="mt-1">
-                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2">Elevada (Risco de Vida)</span>
+                                        <span class="badge bg-<?= $corCriticidade ?> rounded-pill"><?= htmlspecialchars($equipamento->criticidade) ?></span>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <small class="text-muted small text-uppercase fw-bold d-block">Observações Gerais</small>
                                     <p class="mb-0 small text-muted bg-light p-2 rounded border mt-1">
-                                        Equipamento calibrado à entrada no parque tecnológico. Unidade principal destinada exclusivamente ao Bloco de Cuidados Intensivos Pediátricos.
+                                        <?= htmlspecialchars($equipamento->observacoes ?? '—') ?>
                                     </p>
                                 </div>
                             </div>
@@ -118,146 +172,68 @@
 
                         <div class="tab-pane" id="localizacao" role="tabpanel">
                             <div class="row g-4 text-dark">
-                                <div class="col-md-6 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Edifício / Bloco</small>
-                                    <div class="fs-6 text-dark fw-semibold">Edifício Central (Bloco A)</div>
-                                </div>
-                                <div class="col-md-6 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Piso</small>
-                                    <div class="fs-6 text-dark fw-semibold">Piso 2</div>
-                                </div>
-                                <div class="col-md-6 border-bottom pb-3">
+                                <div class="col-md-12 border-bottom pb-3">
                                     <small class="text-muted small text-uppercase fw-bold d-block">Serviço / Departamento</small>
-                                    <div class="fs-6 text-dark">Unidade de Cuidados Intensivos (UCIP)</div>
-                                </div>
-                                <div class="col-md-6 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Sala / Gabinete / Dependência</small>
-                                    <div class="mt-1"><span class="badge bg-primary fs-6 px-2">Sala UCIP-04</span></div>
+                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->nomeLocalizacao ?? '—') ?></div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="tab-pane" id="garantia" role="tabpanel">
+                            <?php if ($equipamento->codigoGarantia): ?>
                             <div class="card shadow-sm border border-success-subtle mb-2">
-                                <div class="card-header bg-success-subtle text-success fw-bold d-flex justify-content-between align-items-center">
-                                    <span><i class="fa-solid fa-circle-check"></i> Contrato de Manutenção Ativo</span>
-                                    <span class="badge bg-success">Garantia Válida</span>
+                                <div class="card-header bg-success-subtle text-success fw-bold">
+                                    <i class="fa-solid fa-circle-check"></i> Informação de Garantia
                                 </div>
                                 <div class="card-body row g-3 text-dark">
                                     <div class="col-md-4 border-bottom pb-2">
                                         <small class="text-muted d-block text-uppercase small fw-bold">Início da Garantia</small>
-                                        <span>15/05/2026</span>
+                                        <span><?= htmlspecialchars($equipamento->dataInicio ?? '—') ?></span>
                                     </div>
                                     <div class="col-md-4 border-bottom pb-2">
                                         <small class="text-muted d-block text-uppercase small fw-bold">Fim da Garantia</small>
-                                        <span class="text-danger fw-bold">15/05/2028</span>
+                                        <span><?= htmlspecialchars($equipamento->dataFim ?? '—') ?></span>
                                     </div>
                                     <div class="col-md-4 border-bottom pb-2">
                                         <small class="text-muted d-block text-uppercase small fw-bold">Tipo de Contrato</small>
-                                        <span>Preventiva e Corretiva (Full Risk)</span>
+                                        <span><?= htmlspecialchars($equipamento->tipoContrato ?? '—') ?></span>
                                     </div>
                                     <div class="col-md-4 border-bottom pb-2">
                                         <small class="text-muted d-block text-uppercase small fw-bold">Entidade Responsável</small>
-                                        <span class="fw-semibold">Dräger Portugal Lda.</span>
+                                        <span class="fw-semibold"><?= htmlspecialchars($equipamento->entidadeResponsavel ?? '—') ?></span>
                                     </div>
                                     <div class="col-md-4 border-bottom pb-2">
                                         <small class="text-muted d-block text-uppercase small fw-bold">Periodicidade de Revisão</small>
-                                        <span>Semestral</span>
+                                        <span><?= htmlspecialchars($equipamento->periodicidade ?? '—') ?></span>
                                     </div>
                                     <div class="col-md-4 border-bottom pb-2">
                                         <small class="text-muted d-block text-uppercase small fw-bold">Próxima Intervenção</small>
-                                        <span class="text-primary fw-bold">Novembro de 2026</span>
+                                        <span><?= htmlspecialchars($equipamento->proximaIntervencao ?? '—') ?></span>
                                     </div>
                                     <div class="col-md-12">
                                         <small class="text-muted d-block text-uppercase small fw-bold">Observações</small>
-                                        <p class="mb-0 small text-muted bg-light p-2 rounded border mt-1">Inclui todas as peças de desgaste rápido, calibrações de sensores de O2 e atualizações de firmware oficiais sem custos adicionais.</p>
+                                        <p class="mb-0 small text-muted bg-light p-2 rounded border mt-1"><?= htmlspecialchars($equipamento->observacoesGarantia ?? '—') ?></p>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="tab-pane" id="documentacao" role="tabpanel">
-                            <div class="row g-4 text-dark mb-3">
-                                <div class="col-md-6 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Nome do Documento / Título</small>
-                                    <div class="fs-6 fw-bold">Manual Técnico de Operação Dräger</div>
-                                </div>
-                                <div class="col-md-6 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Tipo de Documento</small>
-                                    <span class="badge bg-secondary-subtle text-secondary fs-6 mt-1">Manual Técnico</span>
-                                </div>
-                                <div class="col-md-6 border-bottom pb-2">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Data do Documento</small>
-                                    <span>15/05/2026</span>
-                                </div>
-                                <div class="col-md-6 border-bottom pb-2">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Data de Validade</small>
-                                    <span class="text-muted">Vitalício / Não Aplicável</span>
-                                </div>
-                                <div class="col-md-12">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Localização Física do Ficheiro / Link</small>
-                                    <div class="p-2 bg-light rounded border text-primary small mt-1">
-                                        <i class="fa-solid fa-file-pdf text-danger"></i> <code>/uploads/documentacao/manual_ventilador_v1.pdf</code>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tab-pane" id="fornecedor" role="tabpanel">
-                            <div class="row g-4 text-dark">
-                                <div class="col-md-6 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Nome da Empresa / Entidade</small>
-                                    <div class="fs-6 fw-bold text-dark">Dräger Portugal Lda.</div>
-                                </div>
-                                <div class="col-md-6 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Tipo de Fornecedor</small>
-                                    <div class="mt-1">
-                                        <span class="badge bg-info text-dark fs-7 fw-bold">Fabricante / Representante Oficial</span>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">NIF (Identificação Fiscal)</small>
-                                    <div class="fs-6 font-monospace text-dark fw-semibold">501234567</div>
-                                </div>
-                                <div class="col-md-4 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Contacto Telefónico Geral</small>
-                                    <div class="fs-6 text-secondary"><i class="fa-solid fa-phone"></i> 210 000 000</div>
-                                </div>
-                                <div class="col-md-4 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Email Institucional</small>
-                                    <div class="fs-6 text-secondary"><i class="fa-solid fa-envelope"></i> info@draeger.com</div>
-                                </div>
-                                <div class="col-md-6 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Pessoa de Contacto Técnico</small>
-                                    <div class="fs-6 text-dark fw-semibold">Eng. Carlos Mendes</div>
-                                </div>
-                                <div class="col-md-6 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Telefone Direto / Telemóvel</small>
-                                    <div class="fs-6 text-primary fw-bold">912 345 678</div>
-                                </div>
-                                <div class="col-md-12 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Morada Fiscal</small>
-                                    <div class="fs-6 text-dark">Rua da Tecnologia Biomédica, N.º 42, Lisboa</div>
-                                </div>
-                                <div class="col-md-12">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Observações do Fornecedor</small>
-                                    <p class="mb-0 small text-muted bg-light p-2 rounded border mt-1">
-                                        Fornecedor de criticidade nível A. Tempo de resposta contratual para avarias críticas é de até 4 horas. Canal direto para encomendas de consumíveis originais ativo no departamento de compras.
-                                    </p>
-                                </div>
-                            </div>
+                            <?php else: ?>
+                            <p class="text-muted">Sem informação de garantia registada.</p>
+                            <?php endif; ?>
                         </div>
 
                     </div>
 
-                    <div class="mt-4 pt-2 border-top">
+                    <div class="mt-4 pt-2 border-top d-flex gap-2">
                         <a href="lista.php" class="btn btn-secondary px-4">
                             <i class="fa-solid fa-arrow-left"></i> &ensp;Voltar à Lista
+                        </a>
+                        <a href="editar.php?id_equipamento=<?= urlencode($id_cifrado) ?>" class="btn btn-outline-primary px-4">
+                            <i class="fa-solid fa-pen-to-square"></i> &ensp;Editar
                         </a>
                     </div>
                 </div>
             </main>
-            
+
         </div>
     </div>
     <?php include '../includes/footer.php'; ?>
