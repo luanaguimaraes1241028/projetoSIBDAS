@@ -10,3 +10,7 @@ define('MYSQL_PORT',     10464);
 define('MYSQL_DATABASE', 'db1241028');
 define('MYSQL_USERNAME', '1241028');
 define('MYSQL_PASSWORD', 'guimarães_028');
+
+define('OPENSSL_METHOD', 'AES-256-CBC');
+define('OPENSSL_KEY',    'H0SDRQzIGqclX2kbYBk9xspdn9U5f3Wa');
+define('OPENSSL_IV',     'BzKAbjuREsHgnw56');

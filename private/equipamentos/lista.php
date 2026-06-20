@@ -172,7 +172,7 @@ $inativos   = count(array_filter($resultados, fn($eq) => $eq->estado === 'inativ
                                         <td class="text-center">
                                             <div class="btn-group shadow-sm">
                                                 <a href="detalhes.php" class="btn btn-sm btn-outline-secondary" title="Consultar Ficha Detalhada"><i class="fa-solid fa-eye text-primary"></i></a>
-                                                <a href="editar.php" class="btn btn-sm btn-outline-secondary" title="Editar dados do equipamento"><i class="fa-solid fa-pen-to-square text-secondary"></i></a>
+                                                <a href="editar.php?id_equipamento=<?= aes_encrypt($eq->codigo) ?>" class="btn btn-sm btn-outline-secondary" title="Editar dados do equipamento"><i class="fa-solid fa-pen-to-square text-secondary"></i></a>
                                                 <a href="apagar.php" class="btn btn-sm btn-outline-secondary" title="Remover ou arquivar"><i class="fa-solid fa-box-archive text-danger"></i></a>
                                             </div>
                                         </td>
