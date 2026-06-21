@@ -37,6 +37,15 @@ function redirect_if_not_logged()
     }
 }
 
+function redirect_if_not_admin()
+{
+    redirect_if_not_logged();
+    if (($_SESSION['perfil'] ?? '') !== 'admin') {
+        header("Location: " . BASE_URL . "/private/dashboard/dashboard.php");
+        exit;
+    }
+}
+
 function aes_encrypt($value) {
     return bin2hex(openssl_encrypt(
         $value,

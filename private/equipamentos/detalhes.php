@@ -23,7 +23,7 @@ try {
                 l.servico AS nomeLocalizacao,
                 g.codigo AS codigoGarantia, g.dataInicio, g.dataFim,
                 g.tipoContrato, g.entidadeResponsavel, g.periodicidade,
-                g.proximaIntervencao, g.observacoes AS observacoesGarantia
+                g.observacoes AS observacoesGarantia
          FROM Equipamento e
          LEFT JOIN Categoria c ON e.codigoCategoria = c.codigo
          LEFT JOIN Localizacao l ON e.codigoLocalizacao = l.codigo
@@ -205,10 +205,6 @@ $corCriticidade = match($equipamento->criticidade) {
                                     <div class="col-md-4 border-bottom pb-2">
                                         <small class="text-muted d-block text-uppercase small fw-bold">Periodicidade de Revisão</small>
                                         <span><?= htmlspecialchars($equipamento->periodicidade ?? '—') ?></span>
-                                    </div>
-                                    <div class="col-md-4 border-bottom pb-2">
-                                        <small class="text-muted d-block text-uppercase small fw-bold">Próxima Intervenção</small>
-                                        <span><?= htmlspecialchars($equipamento->proximaIntervencao ?? '—') ?></span>
                                     </div>
                                     <div class="col-md-12">
                                         <small class="text-muted d-block text-uppercase small fw-bold">Observações</small>

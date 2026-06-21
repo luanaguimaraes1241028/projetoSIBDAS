@@ -173,7 +173,9 @@ $inativos   = count(array_filter($resultados, fn($eq) => $eq->estado === 'inativ
                                             <div class="btn-group shadow-sm">
                                                 <a href="detalhes.php?id_equipamento=<?= aes_encrypt($eq->codigo) ?>" class="btn btn-sm btn-outline-secondary" title="Consultar Ficha Detalhada"><i class="fa-solid fa-eye text-primary"></i></a>
                                                 <a href="editar.php?id_equipamento=<?= aes_encrypt($eq->codigo) ?>" class="btn btn-sm btn-outline-secondary" title="Editar dados do equipamento"><i class="fa-solid fa-pen-to-square text-secondary"></i></a>
+                                                <?php if (($_SESSION['perfil'] ?? '') === 'admin'): ?>
                                                 <a href="apagar.php?id_equipamento=<?= aes_encrypt($eq->codigo) ?>" class="btn btn-sm btn-outline-secondary" title="Remover ou arquivar"><i class="fa-solid fa-box-archive text-danger"></i></a>
+                                                <?php endif; ?>
                                             </div>
                                         </td>
                                         <td class="d-none"><?= $eq->nomeCategoria ?></td>

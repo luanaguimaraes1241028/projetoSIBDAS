@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/funcoes.php';
-redirect_if_not_logged();
+redirect_if_not_admin();
 
 $id_cifrado = $_GET['id_equipamento'] ?? '';
 $id = aes_decrypt($id_cifrado);

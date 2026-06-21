@@ -30,14 +30,25 @@ if (!empty($validation_errors)) {
     return;
 }
 
-$result['status'] = 1;
+$ligacao = ligar_bd();
+if (!$ligacao) {
+    $_SESSION['server_error'] = 'Erro ao ligar à base de dados.';
+    header('Location: ../public/login.php');
+    exit;
+}
 
-if (!$result['status']) {
+$stmt = $ligacao->prepare("SELECT password, perfil FROM Utilizador WHERE email = :email LIMIT 1");
+$stmt->execute([':email' => $username]);
+$utilizador = $stmt->fetch(PDO::FETCH_OBJ);
+$ligacao = null;
+
+if (!$utilizador || !password_verify($password, $utilizador->password)) {
     $_SESSION['server_error'] = 'Login inválido';
     header('Location: ../public/login.php');
-    return;
+    exit;
 }
 
 $_SESSION['utilizador'] = $username;
+$_SESSION['perfil'] = $utilizador->perfil;
 header('Location: dashboard/dashboard.php');
 exit;

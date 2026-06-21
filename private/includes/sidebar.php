@@ -29,11 +29,13 @@
                                     <i class="fa-solid fa-folder-open"></i> &ensp; Documentação
                                 </a>
                             </li>
+                            <?php if (($_SESSION['perfil'] ?? '') === 'admin'): ?>
                             <li class="nav-item">
                                 <a class="nav-link py-3 px-4 fw-bold <?php echo strpos($uri, '/gestao-public') !== false ? 'active text-primary bg-light border-start border-4 border-primary' : 'text-secondary'; ?>" href="/sibdas/1241028/medcore/private/gestao-public.php">
                                     <i class="fa-solid fa-globe"></i> &ensp; Gestão de Conteúdos
                                 </a>
                             </li>
+                            <?php endif; ?>
                         </ul>
                     </nav>
                 </div>
