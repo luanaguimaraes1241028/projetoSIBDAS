@@ -1,67 +1,174 @@
+<?php require_once __DIR__ . '/../includes/funcoes.php';
+redirect_if_not_logged(); ?>
 <?php include '../includes/header.php'; ?>
 <?php include '../includes/nav.php'; ?>
 
-    <div class="container-fluid">
-        <div class="row">
-            
-            <?php include '../includes/sidebar.php'; ?>
+<?php
+$ligacao = ligar_bd();
+$erro = '';
+$ativas = [];
+$arquivadas = [];
 
-            <main class="col-md-9 col-lg-10 px-md-4 pt-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <div>
-                        <h1 class="h2 fw-bold" style="color: #1e1b4b;">Localização do Inventário Biomédico</h1>
-                        <p class="text-muted">Consulta e controlo em tempo real de onde se encontra cada dispositivo médico.</p>
-                    </div>
-                    <div>
-                        <a href="novo.php" class="btn text-white fw-bold shadow-sm" style="background-color: #1e1b4b;">
-                            <i class="fa-solid fa-link"></i> &ensp;Associar Equipamento
-                        </a>
-                    </div>
+if (!$ligacao) {
+    $erro = "Erro na ligação à base de dados.";
+} else {
+    try {
+        $todos = $ligacao->query(
+            "SELECT l.*, COUNT(e.codigo) AS totalEquipamentos
+             FROM Localizacao l
+             LEFT JOIN Equipamento e ON e.codigoLocalizacao = l.codigo
+             GROUP BY l.codigo
+             ORDER BY l.edificio, l.piso, l.servico"
+        )->fetchAll(PDO::FETCH_OBJ);
+
+        foreach ($todos as $l) {
+            if ($l->ativo) $ativas[] = $l;
+            else           $arquivadas[] = $l;
+        }
+    } catch (PDOException $err) {
+        $erro = "Erro ao carregar localizações.";
+    }
+    $ligacao = null;
+}
+?>
+
+<div class="container-fluid">
+    <div class="row">
+        <?php include '../includes/sidebar.php'; ?>
+
+        <main class="col-md-9 col-lg-10 px-md-4 pt-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <div>
+                    <h1 class="h2 fw-bold" style="color: #1e1b4b;">Localizações do Hospital</h1>
+                    <p class="text-muted">Registo dos locais físicos onde os equipamentos médicos podem ser alocados.</p>
                 </div>
-
-                <div class="p-3 bg-white border rounded shadow-sm mb-4">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped table-hover align-middle mb-0">
-                            <thead class="table-dark small uppercase">
-                                <tr>
-                                    <th>Equipamento (Cód / Nome)</th>
-                                    <th>Edifício</th>
-                                    <th>Piso</th>
-                                    <th>Serviço / Departamento</th>
-                                    <th>Sala / Gabinete</th>
-                                    <th class="text-center">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <span class="badge bg-dark mb-1">#EQ-0042</span>
-                                        <div class="fw-bold text-dark">Ventilador Volumétrico Hospitalar</div>
-                                    </td>
-                                    <td>Edifício Central (A)</td>
-                                    <td><span class="badge bg-secondary">Piso 2</span></td>
-                                    <td>Cuidados Intensivos (UCIP)</td>
-                                    <td><code class="text-primary small fw-bold">Sala UCIP-04</code></td>
-                                    <td class="text-center">
-                                        <div class="btn-group shadow-sm">
-                                            <a href="detalhes.php" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Consultar Alocação">
-                                                <i class="fa-solid fa-eye text-primary"></i>
-                                            </a>
-                                            <a href="editar.php" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Mover Equipamento">
-                                                <i class="fa-solid fa-pen-to-square text-secondary"></i>
-                                            </a>
-                                            <a href="apagar.php" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Desassociar">
-                                                <i class="fa-solid fa-box-archive text-danger"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <?php if (($_SESSION['perfil'] ?? '') !== 'profissional de saude'): ?>
+                <div>
+                    <a href="novo.php" class="btn text-white fw-bold shadow-sm d-inline-flex align-items-center" style="background-color: #1e1b4b;">
+                        <i class="fa-solid fa-plus"></i> &ensp;Nova Localização
+                    </a>
                 </div>
-            </main>
+                <?php endif; ?>
+            </div>
 
+            <?php if (!empty($erro)): ?>
+                <div class="alert alert-danger mb-3"><i class="fa-solid fa-circle-exclamation me-2"></i><?= htmlspecialchars($erro) ?></div>
+            <?php endif; ?>
+
+            <div class="p-3 bg-white border rounded shadow-sm mb-4">
+                <div class="table-responsive">
+                    <table id="tabela-localizacoes" class="table table-bordered table-striped table-hover align-middle mb-0">
+                        <thead class="table-dark small">
+                            <tr>
+                                <th>Edifício</th>
+                                <th>Piso</th>
+                                <th>Serviço / Departamento</th>
+                                <th>Sala / Gabinete</th>
+                                <th class="text-center">Equipamentos</th>
+                                <th class="text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($ativas as $l): ?>
+                            <tr>
+                                <td class="fw-semibold"><?= htmlspecialchars($l->edificio) ?></td>
+                                <td><?= $l->piso ? '<span class="badge bg-secondary">' . htmlspecialchars($l->piso) . '</span>' : '—' ?></td>
+                                <td><?= htmlspecialchars($l->servico) ?></td>
+                                <td><?= $l->sala ? '<code class="text-primary small fw-bold">' . htmlspecialchars($l->sala) . '</code>' : '—' ?></td>
+                                <td class="text-center">
+                                    <span class="badge bg-<?= $l->totalEquipamentos > 0 ? 'primary' : 'light text-muted border' ?>">
+                                        <?= $l->totalEquipamentos ?>
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group shadow-sm">
+                                        <a href="detalhes.php?id=<?= aes_encrypt($l->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalhes"><i class="fa-solid fa-eye text-primary"></i></a>
+                                        <?php if (($_SESSION['perfil'] ?? '') !== 'profissional de saude'): ?>
+                                        <a href="editar.php?id=<?= aes_encrypt($l->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar"><i class="fa-solid fa-pen-to-square text-secondary"></i></a>
+                                        <?php endif; ?>
+                                        <?php if (($_SESSION['perfil'] ?? '') === 'admin'): ?>
+                                        <a href="apagar.php?id=<?= aes_encrypt($l->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Arquivar"><i class="fa-solid fa-box-archive text-danger"></i></a>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <?php if (!empty($arquivadas)): ?>
+            <h5 class="fw-bold text-muted mt-2 mb-3"><i class="fa-solid fa-box-archive me-2"></i>Localizações Arquivadas</h5>
+            <div class="p-3 border rounded mb-4" style="background-color: #f8f9fa; opacity: 0.8;">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle mb-0 small">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Edifício</th>
+                                <th>Piso</th>
+                                <th>Serviço / Departamento</th>
+                                <th>Sala / Gabinete</th>
+                                <th class="text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($arquivadas as $l): ?>
+                            <tr class="text-muted">
+                                <td class="fw-semibold text-decoration-line-through"><?= htmlspecialchars($l->edificio) ?></td>
+                                <td><?= $l->piso ? htmlspecialchars($l->piso) : '—' ?></td>
+                                <td><?= htmlspecialchars($l->servico) ?></td>
+                                <td><?= $l->sala ? htmlspecialchars($l->sala) : '—' ?></td>
+                                <td class="text-center"><span class="badge bg-secondary">Arquivada</span></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <?php endif; ?>
+
+        </main>
+    </div>
+</div>
+
+<?php if (!empty($_SESSION['toast'])): ?>
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+    <div id="toastMensagem" class="toast align-items-center text-bg-<?= $_SESSION['toast']['tipo'] ?> border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body fw-semibold">
+                <i class="fa-solid fa-circle-check me-2"></i> <?= htmlspecialchars($_SESSION['toast']['mensagem']) ?>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
         </div>
     </div>
-    <?php include '../includes/footer.php'; ?>
+</div>
+<?php unset($_SESSION['toast']); ?>
+<?php endif; ?>
+
+<script>
+$(document).ready(function() {
+    $('#tabela-localizacoes').DataTable({
+        dom: 'lrtip',
+        pageLength: 10,
+        pagingType: "full_numbers",
+        language: {
+            emptyTable: "Não existem localizações registadas.",
+            info: "Mostrando _START_ até _END_ de _TOTAL_ registos",
+            infoEmpty: "Mostrando 0 até 0 de 0 registos",
+            infoFiltered: "(Filtrando _MAX_ total de registos)",
+            lengthMenu: "Mostrando _MENU_ registos por página.",
+            zeroRecords: "Nenhum registo encontrado.",
+            paginate: { first: "Primeira", last: "Última", next: "Seguinte", previous: "Anterior" }
+        }
+    });
+
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) {
+        new bootstrap.Tooltip(el);
+    });
+
+    var toastEl = document.getElementById('toastMensagem');
+    if (toastEl) new bootstrap.Toast(toastEl, { delay: 4000 }).show();
+});
+</script>
+<?php include '../includes/footer.php'; ?>

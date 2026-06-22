@@ -50,6 +50,7 @@ CREATE TABLE Localizacao (
     piso     VARCHAR(10),
     servico  VARCHAR(100) NOT NULL,
     sala     VARCHAR(50),
+    ativo    TINYINT(1)   NOT NULL DEFAULT 1,
     CONSTRAINT pkLocalizacaocodigo PRIMARY KEY (codigo)
 );
 

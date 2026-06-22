@@ -32,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $estado              = trim($_POST['estado']              ?? '');
     $criticidade         = trim($_POST['criticidade']         ?? '');
     $observacoes         = trim($_POST['observacoes']         ?? '');
+    $codigoLocalizacao   = trim($_POST['codigoLocalizacao']   ?? '') ?: null;
     $garantiaInicio      = trim($_POST['garantiaInicio']      ?? '');
     $garantiaFim         = trim($_POST['garantiaFim']         ?? '');
     $contratoManutencao  = trim($_POST['contratoManutencao']  ?? '');
@@ -78,7 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                      modelo = :modelo, fabricante = :fabricante, numeroSerie = :numeroSerie,
                      anoFabrico = :anoFabrico, dataAquisicao = :dataAquisicao,
                      custoAquisicao = :custoAquisicao, tipoEntrada = :tipoEntrada,
-                     estado = :estado, criticidade = :criticidade, observacoes = :observacoes
+                     estado = :estado, criticidade = :criticidade, observacoes = :observacoes,
+                     codigoLocalizacao = :codigoLocalizacao
                  WHERE codigo = :id"
             );
             $stmt->execute([
@@ -94,8 +96,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':tipoEntrada'     => $tipoEntrada,
                 ':estado'          => $estado,
                 ':criticidade'     => $criticidade,
-                ':observacoes'     => $observacoes ?: null,
-                ':id'              => (int)$idEquipamento,
+                ':observacoes'       => $observacoes ?: null,
+                ':codigoLocalizacao' => $codigoLocalizacao ? (int)$codigoLocalizacao : null,
+                ':id'                => (int)$idEquipamento,
             ]);
 
             if ($codigoGarantia) {
@@ -160,11 +163,13 @@ try {
         exit;
     }
 
-    $categorias = $ligacao->query("SELECT codigo, nome FROM Categoria ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
+    $categorias   = $ligacao->query("SELECT codigo, nome FROM Categoria ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
+    $localizacoes = $ligacao->query("SELECT codigo, edificio, piso, servico, sala FROM Localizacao WHERE ativo = 1 ORDER BY edificio, piso, servico")->fetchAll(PDO::FETCH_OBJ);
 } catch (PDOException) {
     $erros[] = 'Erro na ligação à base de dados.';
-    $equipamento = null;
-    $categorias  = [];
+    $equipamento  = null;
+    $categorias   = [];
+    $localizacoes = [];
 }
 $ligacao = null;
 ?>
@@ -283,6 +288,20 @@ $ligacao = null;
                         <div class="col-md-12">
                             <label class="form-label fw-bold">Observações Gerais</label>
                             <textarea name="observacoes" class="form-control" rows="2"><?= htmlspecialchars($equipamento->observacoes ?? '') ?></textarea>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Localização</label>
+                            <select name="codigoLocalizacao" class="form-select">
+                                <option value="">— Sem localização atribuída —</option>
+                                <?php
+                                $locAtual = $_POST['codigoLocalizacao'] ?? $equipamento->codigoLocalizacao;
+                                foreach ($localizacoes as $loc): ?>
+                                <option value="<?= $loc->codigo ?>" <?= $locAtual == $loc->codigo ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($loc->edificio) ?><?= $loc->piso ? ' · ' . htmlspecialchars($loc->piso) : '' ?> — <?= htmlspecialchars($loc->servico) ?><?= $loc->sala ? ' · ' . htmlspecialchars($loc->sala) : '' ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
 
                         <h5 class="fw-bold mt-4 pt-2 mb-3" style="color: #1e1b4b;"><i class="fa-solid fa-file-signature"></i> Garantia e Contrato de Manutenção</h5>

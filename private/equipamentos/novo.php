@@ -8,9 +8,11 @@ try {
         MYSQL_USERNAME, MYSQL_PASSWORD
     );
     $ligacao->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $categorias = $ligacao->query("SELECT codigo, nome FROM Categoria ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
+    $categorias    = $ligacao->query("SELECT codigo, nome FROM Categoria ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
+    $localizacoes  = $ligacao->query("SELECT codigo, edificio, piso, servico, sala FROM Localizacao WHERE ativo = 1 ORDER BY edificio, piso, servico")->fetchAll(PDO::FETCH_OBJ);
 } catch (PDOException) {
-    $categorias = [];
+    $categorias   = [];
+    $localizacoes = [];
 }
 $ligacao = null;
 
@@ -31,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $estado              = trim($_POST['estado']              ?? '');
     $criticidade         = trim($_POST['criticidade']         ?? '');
     $observacoes         = trim($_POST['observacoes']         ?? '');
+    $codigoLocalizacao   = trim($_POST['codigoLocalizacao']   ?? '') ?: null;
     $garantiaInicio      = trim($_POST['garantiaInicio']      ?? '');
     $garantiaFim         = trim($_POST['garantiaFim']         ?? '');
     $contratoManutencao  = trim($_POST['contratoManutencao']  ?? '');
@@ -93,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   dataAquisicao, custoAquisicao, tipoEntrada, estado, criticidade, observacoes, codigoCategoria, codigoLocalizacao)
                  VALUES
                  (:codigoInterno, :designacao, :marca, :modelo, :fabricante, :numeroSerie, :anoFabrico,
-                  :dataAquisicao, :custoAquisicao, :tipoEntrada, :estado, :criticidade, :observacoes, :codigoCategoria, NULL)"
+                  :dataAquisicao, :custoAquisicao, :tipoEntrada, :estado, :criticidade, :observacoes, :codigoCategoria, :codigoLocalizacao)"
             );
             $stmt->execute([
                 ':codigoInterno'   => $codigoInterno,
@@ -109,7 +112,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':estado'          => $estado,
                 ':criticidade'     => $criticidade,
                 ':observacoes'     => $observacoes ?: null,
-                ':codigoCategoria' => (int)$codigoCategoria,
+                ':codigoCategoria'   => (int)$codigoCategoria,
+                ':codigoLocalizacao' => $codigoLocalizacao ? (int)$codigoLocalizacao : null,
             ]);
 
             $idEquipamento = $ligacao->lastInsertId();
@@ -260,6 +264,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="col-md-12">
                             <label class="form-label fw-bold">Observações Gerais</label>
                             <textarea name="observacoes" class="form-control" rows="2" placeholder="Notas adicionais sobre o equipamento..."><?= htmlspecialchars($_POST['observacoes'] ?? '') ?></textarea>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Localização</label>
+                            <select name="codigoLocalizacao" class="form-select">
+                                <option value="">— Sem localização atribuída —</option>
+                                <?php foreach ($localizacoes as $loc): ?>
+                                <option value="<?= $loc->codigo ?>" <?= ($_POST['codigoLocalizacao'] ?? '') == $loc->codigo ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($loc->edificio) ?><?= $loc->piso ? ' · ' . htmlspecialchars($loc->piso) : '' ?> — <?= htmlspecialchars($loc->servico) ?><?= $loc->sala ? ' · ' . htmlspecialchars($loc->sala) : '' ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
 
                         <h5 class="fw-bold mt-4 pt-2 mb-3" style="color: #1e1b4b;"><i class="fa-solid fa-file-signature"></i> Garantia e Contrato de Manutenção</h5>
