@@ -46,11 +46,13 @@ $inativos   = count(array_filter($resultados, fn($eq) => $eq->estado === 'inativ
                         <h1 class="h2 fw-bold" style="color: #1e1b4b;">Inventário de Dispositivos Médicos</h1>
                         <p class="text-muted">Inserção, listagem, consulta e atualização do inventário tecnológico hospitalar.</p>
                     </div>
+                    <?php if (($_SESSION['perfil'] ?? '') !== 'profissional de saude'): ?>
                     <div>
                         <a href="novo.php" class="btn text-white fw-bold shadow-sm d-inline-flex align-items-center" style="background-color: #1e1b4b;">
                             <i class="fa-solid fa-plus"></i> &ensp;Inserir Equipamento
                         </a>
                     </div>
+                    <?php endif; ?>
                 </div>
 
                 <div class="row g-3 mb-4">
@@ -171,10 +173,12 @@ $inativos   = count(array_filter($resultados, fn($eq) => $eq->estado === 'inativ
                                         <td><span class="badge bg-<?= $corCriticidade ?> rounded-pill"><?= $eq->criticidade ?></span></td>
                                         <td class="text-center">
                                             <div class="btn-group shadow-sm">
-                                                <a href="detalhes.php?id_equipamento=<?= aes_encrypt($eq->codigo) ?>" class="btn btn-sm btn-outline-secondary" title="Consultar Ficha Detalhada"><i class="fa-solid fa-eye text-primary"></i></a>
-                                                <a href="editar.php?id_equipamento=<?= aes_encrypt($eq->codigo) ?>" class="btn btn-sm btn-outline-secondary" title="Editar dados do equipamento"><i class="fa-solid fa-pen-to-square text-secondary"></i></a>
+                                                <a href="detalhes.php?id_equipamento=<?= aes_encrypt($eq->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Consultar Ficha Detalhada"><i class="fa-solid fa-eye text-primary"></i></a>
+                                                <?php if (($_SESSION['perfil'] ?? '') !== 'profissional de saude'): ?>
+                                                <a href="editar.php?id_equipamento=<?= aes_encrypt($eq->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar dados do equipamento"><i class="fa-solid fa-pen-to-square text-secondary"></i></a>
+                                                <?php endif; ?>
                                                 <?php if (($_SESSION['perfil'] ?? '') === 'admin'): ?>
-                                                <a href="apagar.php?id_equipamento=<?= aes_encrypt($eq->codigo) ?>" class="btn btn-sm btn-outline-secondary" title="Remover ou arquivar"><i class="fa-solid fa-box-archive text-danger"></i></a>
+                                                <a href="apagar.php?id_equipamento=<?= aes_encrypt($eq->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Desativar equipamento"><i class="fa-solid fa-box-archive text-danger"></i></a>
                                                 <?php endif; ?>
                                             </div>
                                         </td>
@@ -192,6 +196,20 @@ $inativos   = count(array_filter($resultados, fn($eq) => $eq->estado === 'inativ
             </main>
         </div>
     </div>
+<?php if (!empty($_SESSION['toast'])): ?>
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+    <div id="toastMensagem" class="toast align-items-center text-bg-<?= $_SESSION['toast']['tipo'] ?> border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body fw-semibold">
+                <i class="fa-solid fa-circle-check me-2"></i> <?= htmlspecialchars($_SESSION['toast']['mensagem']) ?>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+        </div>
+    </div>
+</div>
+<?php unset($_SESSION['toast']); ?>
+<?php endif; ?>
+
 <script>
     // tradução para português
     $(document).ready(function() {
@@ -243,6 +261,17 @@ $inativos   = count(array_filter($resultados, fn($eq) => $eq->estado === 'inativ
             var val = this.value;
             tabela.column(4).search(val ? '^' + val + '$' : '', true, false).draw();
         });
+
+        // tooltips
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) {
+            new bootstrap.Tooltip(el);
+        });
+
+        // toast
+        var toastEl = document.getElementById('toastMensagem');
+        if (toastEl) {
+            new bootstrap.Toast(toastEl, { delay: 4000 }).show();
+        }
     })
 </script>
 <?php include '../includes/footer.php'; ?>

@@ -46,6 +46,15 @@ function redirect_if_not_admin()
     }
 }
 
+function redirect_if_readonly()
+{
+    redirect_if_not_logged();
+    if (($_SESSION['perfil'] ?? '') === 'profissional de saude') {
+        header("Location: " . BASE_URL . "/private/dashboard/dashboard.php");
+        exit;
+    }
+}
+
 function aes_encrypt($value) {
     return bin2hex(openssl_encrypt(
         $value,

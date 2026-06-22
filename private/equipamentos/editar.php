@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/funcoes.php';
-redirect_if_not_logged();
+redirect_if_readonly();
 require_once __DIR__ . '/../includes/validacoes.php';
 
 if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'POST'])) {
@@ -119,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $ligacao->commit();
+            $_SESSION['toast'] = ['tipo' => 'success', 'mensagem' => 'Equipamento atualizado com sucesso.'];
             header('Location: lista.php');
             exit;
         } catch (PDOException) {

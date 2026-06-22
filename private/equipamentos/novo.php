@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/funcoes.php';
-redirect_if_not_logged();
+redirect_if_readonly();
 
 try {
     $ligacao = new PDO(
@@ -132,6 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             $ligacao->commit();
+            $_SESSION['toast'] = ['tipo' => 'success', 'mensagem' => 'Equipamento inserido com sucesso.'];
             header('Location: lista.php');
             exit;
         } catch (PDOException) {
