@@ -1,75 +1,147 @@
+<?php require_once __DIR__ . '/../includes/funcoes.php';
+redirect_if_not_logged(); ?>
 <?php include '../includes/header.php'; ?>
 <?php include '../includes/nav.php'; ?>
 
-    <div class="container-fluid">
-        <div class="row">
-            
-            <?php include '../includes/sidebar.php'; ?>
+<?php
+$ligacao = ligar_bd();
+$erro = '';
+$resultados = [];
 
-            <main class="col-md-9 col-lg-10 px-md-4 pt-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <div>
-                        <h1 class="h2 fw-bold" style="color: #1e1b4b;">Módulo de Documentação</h1>
-                        <p class="text-muted">Associação de manuais técnicos, certificados e apólices aos ativos biomédicos.</p>
-                    </div>
-                    <div>
-                        <a href="novo.php" class="btn text-white fw-bold shadow-sm" style="background-color: #1e1b4b;">
-                            <i class="fa-solid fa-plus"></i> &ensp;Associar Documento
-                        </a>
-                    </div>
+if (!$ligacao) {
+    $erro = "Erro na ligação à base de dados.";
+} else {
+    try {
+        $resultados = $ligacao->query(
+            "SELECT d.*, e.codigoInterno, e.designacao, f.nome AS nomeFornecedor
+             FROM Documentacao d
+             JOIN Equipamento e ON d.codigoEquipamento = e.codigo
+             LEFT JOIN Fornecedor f ON d.codigoFornecedor = f.codigo
+             ORDER BY d.dataDocumento DESC"
+        )->fetchAll(PDO::FETCH_OBJ);
+    } catch (PDOException $err) {
+        $erro = "Erro ao carregar documentação.";
+    }
+    $ligacao = null;
+}
+?>
+
+<div class="container-fluid">
+    <div class="row">
+        <?php include '../includes/sidebar.php'; ?>
+
+        <main class="col-md-9 col-lg-10 px-md-4 pt-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <div>
+                    <h1 class="h2 fw-bold" style="color: #1e1b4b;">Módulo de Documentação</h1>
+                    <p class="text-muted">Associação de manuais técnicos, certificados e apólices aos ativos biomédicos.</p>
                 </div>
-
-                <div class="p-3 bg-white border rounded shadow-sm mb-4">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped table-hover align-middle mb-0">
-                            <thead class="table-dark small uppercase">
-                                <tr>
-                                    <th>Nome do Documento / Tipo</th>
-                                    <th>Ficheiro</th>
-                                    <th>Equipamento Associado</th>
-                                    <th>Fornecedor</th>
-                                    <th class="text-center">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <div class="fw-bold text-dark">Manual Técnico de Operação Dräger</div>
-                                        <span class="badge bg-secondary-subtle text-secondary small">Manual Técnico</span>
-                                    </td>
-                                    <td>
-                                        <code class="text-danger small fw-semibold">
-                                            <i class="fa-regular fa-file-pdf"></i> manual_ventilador_v1.pdf
-                                        </code>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-dark">#EQ-0042</span>
-                                        <div class="small fw-bold text-muted">Ventilador Volumétrico</div>
-                                    </td>
-                                    <td>
-                                        <div class="small text-dark fw-semibold">Dräger Portugal Lda.</div>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="btn-group shadow-sm">
-                                            <a href="detalhes.php" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Consultar">
-                                                <i class="fa-solid fa-eye text-primary"></i>
-                                            </a>
-                                            <a href="editar.php" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Editar">
-                                                <i class="fa-solid fa-pen-to-square text-secondary"></i>
-                                            </a>
-                                            <a href="apagar.php" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Remover">
-                                                <i class="fa-solid fa-box-archive text-danger"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <?php if (($_SESSION['perfil'] ?? '') !== 'profissional de saude'): ?>
+                <div>
+                    <a href="novo.php" class="btn text-white fw-bold shadow-sm d-inline-flex align-items-center" style="background-color: #1e1b4b;">
+                        <i class="fa-solid fa-plus"></i> &ensp;Associar Documento
+                    </a>
                 </div>
-            </main>
+                <?php endif; ?>
+            </div>
 
+            <?php if (!empty($erro)): ?>
+                <div class="alert alert-danger mb-3"><i class="fa-solid fa-circle-exclamation me-2"></i><?= htmlspecialchars($erro) ?></div>
+            <?php endif; ?>
+
+            <div class="p-3 bg-white border rounded shadow-sm mb-4">
+                <div class="table-responsive">
+                    <table id="tabela-documentacao" class="table table-bordered table-striped table-hover align-middle mb-0">
+                        <thead class="table-dark small">
+                            <tr>
+                                <th>Nome / Tipo</th>
+                                <th>Equipamento</th>
+                                <th>Data</th>
+                                <th>Validade</th>
+                                <th class="text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($resultados as $doc): ?>
+                            <?php $expirado = $doc->dataValidade && $doc->dataValidade < date('Y-m-d'); ?>
+                            <tr>
+                                <td>
+                                    <div class="fw-bold text-dark"><?= htmlspecialchars($doc->nome) ?></div>
+                                    <span class="badge bg-secondary-subtle text-secondary small"><?= htmlspecialchars($doc->tipo) ?></span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-dark font-monospace me-1"><?= htmlspecialchars($doc->codigoInterno) ?></span>
+                                    <small class="fw-semibold"><?= htmlspecialchars($doc->designacao) ?></small>
+                                </td>
+                                <td class="small"><?= date('d/m/Y', strtotime($doc->dataDocumento)) ?></td>
+                                <td class="small">
+                                    <?php if ($doc->dataValidade): ?>
+                                        <span class="<?= $expirado ? 'text-danger fw-bold' : '' ?>">
+                                            <?= date('d/m/Y', strtotime($doc->dataValidade)) ?>
+                                            <?= $expirado ? ' <i class="fa-solid fa-triangle-exclamation"></i>' : '' ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="text-muted">—</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group shadow-sm">
+                                        <a href="detalhes.php?id=<?= aes_encrypt($doc->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalhes"><i class="fa-solid fa-eye text-primary"></i></a>
+                                        <?php if (($_SESSION['perfil'] ?? '') !== 'profissional de saude'): ?>
+                                        <a href="editar.php?id=<?= aes_encrypt($doc->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar"><i class="fa-solid fa-pen-to-square text-secondary"></i></a>
+                                        <?php endif; ?>
+                                        <?php if (($_SESSION['perfil'] ?? '') === 'admin'): ?>
+                                        <a href="apagar.php?id=<?= aes_encrypt($doc->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar"><i class="fa-solid fa-trash text-danger"></i></a>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<?php if (!empty($_SESSION['toast'])): ?>
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+    <div id="toastMensagem" class="toast align-items-center text-bg-<?= $_SESSION['toast']['tipo'] ?> border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body fw-semibold">
+                <i class="fa-solid fa-circle-check me-2"></i> <?= htmlspecialchars($_SESSION['toast']['mensagem']) ?>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
         </div>
     </div>
-    
+</div>
+<?php unset($_SESSION['toast']); ?>
+<?php endif; ?>
+
+<script>
+$(document).ready(function() {
+    $('#tabela-documentacao').DataTable({
+        dom: 'lrtip',
+        pageLength: 10,
+        pagingType: "full_numbers",
+        language: {
+            emptyTable: "Não existe documentação registada.",
+            info: "Mostrando _START_ até _END_ de _TOTAL_ registos",
+            infoEmpty: "Mostrando 0 até 0 de 0 registos",
+            infoFiltered: "(Filtrando _MAX_ total de registos)",
+            lengthMenu: "Mostrando _MENU_ registos por página.",
+            zeroRecords: "Nenhum registo encontrado.",
+            paginate: { first: "Primeira", last: "Última", next: "Seguinte", previous: "Anterior" }
+        }
+    });
+
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) {
+        new bootstrap.Tooltip(el);
+    });
+
+    var toastEl = document.getElementById('toastMensagem');
+    if (toastEl) new bootstrap.Toast(toastEl, { delay: 4000 }).show();
+});
+</script>
 <?php include '../includes/footer.php'; ?>

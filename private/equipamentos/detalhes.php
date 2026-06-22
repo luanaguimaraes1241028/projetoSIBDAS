@@ -20,7 +20,7 @@ try {
     $stmt = $ligacao->prepare(
         "SELECT e.*,
                 c.nome AS nomeCategoria,
-                l.servico AS nomeLocalizacao,
+                l.edificio, l.piso, l.servico AS nomeLocalizacao, l.sala,
                 g.codigo AS codigoGarantia, g.dataInicio, g.dataFim,
                 g.tipoContrato, g.entidadeResponsavel, g.periodicidade,
                 g.observacoes AS observacoesGarantia
@@ -33,6 +33,24 @@ try {
     );
     $stmt->execute([':id' => $id]);
     $equipamento = $stmt->fetch(PDO::FETCH_OBJ);
+
+    $stmtForn = $ligacao->prepare(
+        "SELECT f.codigo, f.nome, f.tipoFornecedor, f.telefone, f.email, f.pessoaContacto
+         FROM EquipamentoFornecedor ef
+         JOIN Fornecedor f ON ef.codigoFornecedor = f.codigo
+         WHERE ef.codigoEquipamento = :id"
+    );
+    $stmtForn->execute([':id' => $id]);
+    $fornecedores = $stmtForn->fetchAll(PDO::FETCH_OBJ);
+
+    $stmtDoc = $ligacao->prepare(
+        "SELECT d.codigo, d.nome, d.tipo, d.dataDocumento, d.dataValidade, d.ficheiro
+         FROM Documentacao d
+         WHERE d.codigoEquipamento = :id
+         ORDER BY d.dataDocumento DESC"
+    );
+    $stmtDoc->execute([':id' => $id]);
+    $documentos = $stmtDoc->fetchAll(PDO::FETCH_OBJ);
 } catch (PDOException $err) {
     header('Location: lista.php');
     exit;
@@ -95,6 +113,16 @@ $corCriticidade = match($equipamento->criticidade) {
                         <li class="nav-item" role="presentation">
                             <button class="nav-link fw-bold py-2 px-3" id="localizacao-tab" data-bs-toggle="tab" data-bs-target="#localizacao" type="button" role="tab">
                                 <i class="fa-solid fa-location-dot"></i> Localização
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold py-2 px-3" id="fornecedor-tab" data-bs-toggle="tab" data-bs-target="#fornecedor" type="button" role="tab">
+                                <i class="fa-solid fa-truck-field"></i> Fornecedores
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold py-2 px-3" id="documentacao-tab" data-bs-toggle="tab" data-bs-target="#documentacao" type="button" role="tab">
+                                <i class="fa-solid fa-folder-open"></i> Documentação
                             </button>
                         </li>
                     </ul>
@@ -171,12 +199,90 @@ $corCriticidade = match($equipamento->criticidade) {
                         </div>
 
                         <div class="tab-pane" id="localizacao" role="tabpanel">
+                            <?php if ($equipamento->nomeLocalizacao): ?>
                             <div class="row g-4 text-dark">
-                                <div class="col-md-12 border-bottom pb-3">
+                                <div class="col-md-6 border-bottom pb-3">
+                                    <small class="text-muted small text-uppercase fw-bold d-block">Edifício</small>
+                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->edificio ?? '—') ?></div>
+                                </div>
+                                <div class="col-md-6 border-bottom pb-3">
+                                    <small class="text-muted small text-uppercase fw-bold d-block">Piso</small>
+                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->piso ?? '—') ?></div>
+                                </div>
+                                <div class="col-md-6 border-bottom pb-3">
                                     <small class="text-muted small text-uppercase fw-bold d-block">Serviço / Departamento</small>
-                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->nomeLocalizacao ?? '—') ?></div>
+                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->nomeLocalizacao) ?></div>
+                                </div>
+                                <div class="col-md-6 border-bottom pb-3">
+                                    <small class="text-muted small text-uppercase fw-bold d-block">Sala / Gabinete</small>
+                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->sala ?? '—') ?></div>
                                 </div>
                             </div>
+                            <?php else: ?>
+                            <p class="text-muted">Sem localização atribuída a este equipamento.</p>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="tab-pane" id="fornecedor" role="tabpanel">
+                            <?php if (count($fornecedores) === 0): ?>
+                                <p class="text-muted">Nenhum fornecedor associado a este equipamento.</p>
+                            <?php else: ?>
+                                <ul class="list-group">
+                                <?php foreach ($fornecedores as $f): ?>
+                                <?php $corTipo = match($f->tipoFornecedor) {
+                                    'fabricante'          => 'primary',
+                                    'distribuidor'        => 'info',
+                                    'assistencia tecnica' => 'warning',
+                                    'consumiveis'         => 'secondary',
+                                    default               => 'secondary'
+                                }; ?>
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div class="fw-bold"><?= htmlspecialchars($f->nome) ?></div>
+                                            <?php if ($f->pessoaContacto): ?>
+                                            <small class="text-muted"><i class="fa-solid fa-user me-1"></i><?= htmlspecialchars($f->pessoaContacto) ?></small>
+                                            <?php endif; ?>
+                                            <?php if ($f->telefone): ?>
+                                            <small class="text-muted ms-3"><i class="fa-solid fa-phone me-1"></i><?= htmlspecialchars($f->telefone) ?></small>
+                                            <?php endif; ?>
+                                            <?php if ($f->email): ?>
+                                            <small class="text-muted ms-3"><i class="fa-solid fa-envelope me-1"></i><?= htmlspecialchars($f->email) ?></small>
+                                            <?php endif; ?>
+                                        </div>
+                                        <span class="badge bg-<?= $corTipo ?>"><?= htmlspecialchars($f->tipoFornecedor) ?></span>
+                                    </div>
+                                </li>
+                                <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="tab-pane" id="documentacao" role="tabpanel">
+                            <?php if (count($documentos) === 0): ?>
+                                <p class="text-muted">Nenhum documento associado a este equipamento.</p>
+                            <?php else: ?>
+                                <ul class="list-group">
+                                <?php foreach ($documentos as $doc): ?>
+                                <?php $expirado = $doc->dataValidade && $doc->dataValidade < date('Y-m-d'); ?>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-bold"><?= htmlspecialchars($doc->nome) ?></div>
+                                        <small class="text-muted"><?= htmlspecialchars($doc->tipo) ?></small>
+                                        <small class="text-muted ms-3"><i class="fa-regular fa-calendar me-1"></i><?= date('d/m/Y', strtotime($doc->dataDocumento)) ?></small>
+                                        <?php if ($doc->ficheiro): ?>
+                                        <small class="text-muted ms-3"><i class="fa-regular fa-file-pdf text-danger me-1"></i><?= htmlspecialchars($doc->ficheiro) ?></small>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php if ($doc->dataValidade): ?>
+                                    <span class="badge bg-<?= $expirado ? 'danger' : 'success' ?>">
+                                        <?= $expirado ? 'Expirado' : 'Válido até ' . date('d/m/Y', strtotime($doc->dataValidade)) ?>
+                                    </span>
+                                    <?php endif; ?>
+                                </li>
+                                <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
                         </div>
 
                         <div class="tab-pane" id="garantia" role="tabpanel">
