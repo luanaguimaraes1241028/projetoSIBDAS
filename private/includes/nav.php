@@ -17,7 +17,7 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow">
                         <li>
-                            <a class="dropdown-item" href="#">
+                            <a class="dropdown-item" href="/sibdas/1241028/medcore/private/alterar-password.php">
                                 <i class="fa-solid fa-key me-2"></i> Alterar password
                             </a>
                         </li>

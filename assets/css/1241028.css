@@ -148,6 +148,37 @@ body {
     font-weight: bold;
 }
 
+/* responsividade */
+@media (max-width: 768px) {
+    .bng-navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px 5%;
+        gap: 12px;
+    }
+
+    .container-navegacao {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .container-navegacao a {
+        margin: 0;
+        font-size: 0.95em;
+    }
+
+    .nav-cliente {
+        width: 100%;
+    }
+
+    .nav-cliente a {
+        display: block;
+        text-align: center;
+    }
+}
+
 /* formulário de contacto */
 #contacto {
     background-color: #f1f5f9; /* Fundo ligeiramente diferente */
