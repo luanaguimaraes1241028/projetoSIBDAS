@@ -76,6 +76,20 @@ function aes_decrypt($value) {
     );
 }
 
+function registar_log(string $tipo, string $descricao): void {
+    start_session();
+    $codigoUtilizador = $_SESSION['codigo_utilizador'] ?? null;
+    try {
+        $lig = ligar_bd();
+        if ($lig) {
+            $stmt = $lig->prepare(
+                "INSERT INTO Log (tipo, descricao, codigoUtilizador) VALUES (:tipo, :descricao, :user)"
+            );
+            $stmt->execute([':tipo' => $tipo, ':descricao' => $descricao, ':user' => $codigoUtilizador]);
+        }
+    } catch (Exception $e) {}
+}
+
 function logout_and_redirect()
 {
     start_session();

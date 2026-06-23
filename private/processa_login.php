@@ -37,18 +37,21 @@ if (!$ligacao) {
     exit;
 }
 
-$stmt = $ligacao->prepare("SELECT password, perfil FROM Utilizador WHERE email = :email LIMIT 1");
+$stmt = $ligacao->prepare("SELECT codigo, password, perfil FROM Utilizador WHERE email = :email LIMIT 1");
 $stmt->execute([':email' => $username]);
 $utilizador = $stmt->fetch(PDO::FETCH_OBJ);
 $ligacao = null;
 
 if (!$utilizador || !password_verify($password, $utilizador->password)) {
+    registar_log('login_falha', 'Tentativa falhada: ' . $username);
     $_SESSION['server_error'] = 'Login inválido';
     header('Location: ../public/login.php');
     exit;
 }
 
-$_SESSION['utilizador'] = $username;
-$_SESSION['perfil'] = $utilizador->perfil;
+$_SESSION['utilizador']        = $username;
+$_SESSION['perfil']            = $utilizador->perfil;
+$_SESSION['codigo_utilizador'] = $utilizador->codigo;
+registar_log('login_sucesso', 'Sessão iniciada: ' . $username);
 header('Location: dashboard/dashboard.php');
 exit;

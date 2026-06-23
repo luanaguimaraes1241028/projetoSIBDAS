@@ -52,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':codigoFornecedor'  => $codigoFornecedor,
             ]);
             $ligacao = null;
+            registar_log('documento_criado', 'Documento criado: ' . $nome);
             $_SESSION['toast'] = ['tipo' => 'success', 'mensagem' => 'Documento registado com sucesso.'];
             header('Location: lista.php');
             exit;

@@ -74,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':id'                => $id,
             ]);
             $ligacao = null;
+            registar_log('documento_editado', 'Documento editado: #' . $id);
             $_SESSION['toast'] = ['tipo' => 'success', 'mensagem' => 'Documento atualizado com sucesso.'];
             header('Location: lista.php');
             exit;

@@ -21,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
                 $stmt->execute([':edificio' => $edificio, ':piso' => $piso, ':servico' => $servico, ':sala' => $sala]);
                 $ligacao = null;
+                registar_log('localizacao_criada', 'Localização criada: ' . $edificio . ' — ' . $servico);
                 $_SESSION['toast'] = ['tipo' => 'success', 'mensagem' => 'Localização registada com sucesso.'];
                 header('Location: lista.php');
                 exit;

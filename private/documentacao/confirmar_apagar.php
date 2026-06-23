@@ -20,6 +20,7 @@ if (!$ligacao) { header('Location: lista.php'); exit; }
 try {
     $stmt = $ligacao->prepare("UPDATE Documentacao SET ativo = 0 WHERE codigo = :id");
     $stmt->execute([':id' => $id]);
+    registar_log('documento_arquivado', 'Documento arquivado: #' . $id);
     $_SESSION['toast'] = ['tipo' => 'warning', 'mensagem' => 'Documento arquivado com sucesso.'];
 } catch (PDOException $err) {
     $_SESSION['toast'] = ['tipo' => 'danger', 'mensagem' => 'Erro ao arquivar o documento.'];

@@ -30,6 +30,7 @@ try {
 }
 
 $ligacao = null;
+registar_log('equipamento_desativado', 'Equipamento desativado: #' . $id);
 $_SESSION['toast'] = ['tipo' => 'warning', 'mensagem' => 'Equipamento desativado com sucesso.'];
 header('Location: lista.php');
 exit;

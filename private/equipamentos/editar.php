@@ -136,6 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $ligacao->commit();
+            registar_log('equipamento_editado', 'Equipamento editado: #' . $idEquipamento);
             $_SESSION['toast'] = ['tipo' => 'success', 'mensagem' => 'Equipamento atualizado com sucesso.'];
             header('Location: lista.php');
             exit;

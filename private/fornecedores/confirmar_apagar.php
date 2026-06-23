@@ -23,6 +23,7 @@ if (!$ligacao) {
 try {
     $stmt = $ligacao->prepare("UPDATE Fornecedor SET ativo = 0 WHERE codigo = :id");
     $stmt->execute([':id' => $id]);
+    registar_log('fornecedor_arquivado', 'Fornecedor arquivado: #' . $id);
     $_SESSION['toast'] = ['tipo' => 'warning', 'mensagem' => 'Fornecedor arquivado com sucesso.'];
 } catch (PDOException $err) {
     $_SESSION['toast'] = ['tipo' => 'danger', 'mensagem' => 'Erro ao arquivar o fornecedor.'];

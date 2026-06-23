@@ -23,6 +23,7 @@ if (!$ligacao) {
 try {
     $stmt = $ligacao->prepare("UPDATE Localizacao SET ativo = 0 WHERE codigo = :id");
     $stmt->execute([':id' => $id]);
+    registar_log('localizacao_arquivada', 'Localização arquivada: #' . $id);
     $_SESSION['toast'] = ['tipo' => 'warning', 'mensagem' => 'Localização arquivada com sucesso.'];
 } catch (PDOException $e) {
     $_SESSION['toast'] = ['tipo' => 'danger', 'mensagem' => 'Erro ao arquivar a localização.'];

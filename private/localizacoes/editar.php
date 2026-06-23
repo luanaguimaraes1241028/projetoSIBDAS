@@ -39,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
             $stmtUpd->execute([':edificio' => $edificio, ':piso' => $piso, ':servico' => $servico, ':sala' => $sala, ':id' => $id]);
             $ligacao = null;
+            registar_log('localizacao_editada', 'Localização editada: #' . $id);
             $_SESSION['toast'] = ['tipo' => 'success', 'mensagem' => 'Localização atualizada com sucesso.'];
             header('Location: lista.php');
             exit;

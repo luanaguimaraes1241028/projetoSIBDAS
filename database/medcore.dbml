@@ -149,6 +149,20 @@ Ref fkGarantiaFornecedor_Fornecedor: Garantia.codigoFornecedor > Fornecedor.codi
 
 Ref fkConteudoUtilizador_Utilizador: ConteudoPublico.codigoUtilizador > Utilizador.codigo
 
+Table Log {
+  codigo int [not null, increment]
+  tipo varchar(50) [not null]
+  descricao varchar(255) [not null]
+  dataHora datetime [not null, default: `CURRENT_TIMESTAMP`]
+  codigoUtilizador int
+
+  indexes {
+    (codigo) [pk, name: 'pkLogcodigo']
+  }
+}
+
+Ref fkLogUtilizador_Utilizador: Log.codigoUtilizador > Utilizador.codigo
+
 Table MensagemContacto {
   codigo int [not null, increment]
   nome varchar(100) [not null]

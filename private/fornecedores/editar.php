@@ -64,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             $ligacao = null;
+            registar_log('fornecedor_editado', 'Fornecedor editado: #' . $id);
             $_SESSION['toast'] = ['tipo' => 'success', 'mensagem' => 'Fornecedor atualizado com sucesso.'];
             header('Location: lista.php');
             exit;

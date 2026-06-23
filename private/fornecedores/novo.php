@@ -20,10 +20,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erro = "O nome da empresa é obrigatório.";
     } elseif (!in_array($tipoFornecedor, $tiposValidos)) {
         $erro = "Tipo de fornecedor inválido.";
-    } elseif (!$ligacao) {
-        $erro = "Erro na ligação à base de dados.";
     } else {
-        try {
+        $ligacao = ligar_bd();
+        if (!$ligacao) {
+            $erro = "Erro na ligação à base de dados.";
+        } else try {
             $stmt = $ligacao->prepare(
                 "INSERT INTO Fornecedor (nome, nif, telefone, email, morada, website, pessoaContacto, telefonePessoa, tipoFornecedor, observacoes)
                  VALUES (:nome, :nif, :telefone, :email, :morada, :website, :pessoaContacto, :telefonePessoa, :tipoFornecedor, :observacoes)"
@@ -41,15 +42,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':observacoes'    => $observacoes,
             ]);
             $ligacao = null;
+            registar_log('fornecedor_criado', 'Fornecedor criado: ' . $nome);
             $_SESSION['toast'] = ['tipo' => 'success', 'mensagem' => 'Fornecedor registado com sucesso.'];
             header('Location: lista.php');
             exit;
         } catch (PDOException $err2) {
+            $ligacao = null;
             $erro = "Erro ao guardar o fornecedor.";
         }
     }
 }
-$ligacao = null;
+
 ?>
 <?php include '../includes/header.php'; ?>
 <?php include '../includes/nav.php'; ?>
