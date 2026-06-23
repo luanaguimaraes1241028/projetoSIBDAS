@@ -38,13 +38,23 @@ if (!$ligacao) {
                     <h1 class="h2 fw-bold" style="color: #1e1b4b;">Gestão de Fornecedores</h1>
                     <p class="text-muted">Registo e associação de entidades, fabricantes e empresas de assistência técnica.</p>
                 </div>
-                <?php if (($_SESSION['perfil'] ?? '') !== 'profissional de saude'): ?>
-                <div>
+                <div class="d-flex gap-2 align-items-center">
+                    <?php if (($_SESSION['perfil'] ?? '') !== 'profissional de saude'): ?>
                     <a href="novo.php" class="btn text-white fw-bold shadow-sm d-inline-flex align-items-center" style="background-color: #1e1b4b;">
                         <i class="fa-solid fa-plus"></i> &ensp;Registar Fornecedor
                     </a>
+                    <?php endif; ?>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-download"></i> Exportar
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="exportar-csv.php"><i class="fa-solid fa-file-csv text-success me-2"></i>CSV</a></li>
+                            <li><a class="dropdown-item" href="exportar-json.php"><i class="fa-solid fa-file-code text-primary me-2"></i>JSON</a></li>
+                            <li><a class="dropdown-item" href="exportar-pdf.php" target="_blank"><i class="fa-solid fa-file-pdf text-danger me-2"></i>PDF</a></li>
+                        </ul>
+                    </div>
                 </div>
-                <?php endif; ?>
             </div>
 
             <?php if (!empty($erro)): ?>
