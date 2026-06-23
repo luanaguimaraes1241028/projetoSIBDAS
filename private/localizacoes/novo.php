@@ -1,19 +1,22 @@
 <?php require_once __DIR__ . '/../includes/funcoes.php';
 redirect_if_readonly();
 
-$erro = '';
+$erros = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $edificio = trim($_POST['edificio'] ?? '');
     $piso     = trim($_POST['piso'] ?? '') ?: null;
     $servico  = trim($_POST['servico'] ?? '');
     $sala     = trim($_POST['sala'] ?? '') ?: null;
 
-    if (!$edificio || !$servico) {
-        $erro = "Edifício e Serviço são obrigatórios.";
-    } else {
+    if (strlen($edificio) < 2)
+        $erros[] = 'O nome do edifício é obrigatório e deve ter pelo menos 2 caracteres.';
+    if (strlen($servico) < 2)
+        $erros[] = 'O serviço/departamento é obrigatório e deve ter pelo menos 2 caracteres.';
+
+    if (empty($erros)) {
         $ligacao = ligar_bd();
         if (!$ligacao) {
-            $erro = "Erro na ligação à base de dados.";
+            $erros[] = 'Erro na ligação à base de dados.';
         } else {
             try {
                 $stmt = $ligacao->prepare(
@@ -26,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: lista.php');
                 exit;
             } catch (PDOException $e) {
-                $erro = "Erro ao guardar a localização.";
+                $erros[] = 'Erro ao guardar a localização. Por favor tente novamente.';
                 $ligacao = null;
             }
         }
@@ -46,8 +49,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </h2>
                 <hr>
 
-                <?php if ($erro): ?>
-                    <div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation me-2"></i><?= htmlspecialchars($erro) ?></div>
+                <?php if (!empty($erros)): ?>
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            <?php foreach ($erros as $erro): ?>
+                            <li><?= htmlspecialchars($erro) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
                 <?php endif; ?>
 
                 <form method="post" class="row g-3">

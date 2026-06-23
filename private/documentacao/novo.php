@@ -18,7 +18,7 @@ $tiposLabel   = [
     'relatorio tecnico'           => 'Relatório Técnico',
 ];
 
-$erro = '';
+$erros = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nome              = trim($_POST['nome'] ?? '');
     $tipo              = $_POST['tipo'] ?? '';
@@ -28,15 +28,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $codigoEquipamento = (int)($_POST['codigoEquipamento'] ?? 0);
     $codigoFornecedor  = (int)($_POST['codigoFornecedor'] ?? 0) ?: null;
 
-    if (!$nome) {
-        $erro = "O nome do documento é obrigatório.";
-    } elseif (!in_array($tipo, $tiposValidos)) {
-        $erro = "Tipo de documento inválido.";
-    } elseif (!$dataDocumento) {
-        $erro = "A data do documento é obrigatória.";
-    } elseif (!$codigoEquipamento) {
-        $erro = "Selecione o equipamento associado.";
-    } else {
+    if (strlen($nome) < 2)
+        $erros[] = 'O nome do documento é obrigatório e deve ter pelo menos 2 caracteres.';
+    if (!in_array($tipo, $tiposValidos))
+        $erros[] = 'Selecione um tipo de documento válido.';
+    if (empty($dataDocumento))
+        $erros[] = 'A data do documento é obrigatória.';
+    if (!$codigoEquipamento)
+        $erros[] = 'Selecione o equipamento associado.';
+    if ($dataValidade !== null && !empty($dataDocumento) && $dataValidade < $dataDocumento)
+        $erros[] = 'A data de validade não pode ser anterior à data do documento.';
+
+    if (empty($erros)) {
         try {
             $stmt = $ligacao->prepare(
                 "INSERT INTO Documentacao (nome, tipo, dataDocumento, dataValidade, ficheiro, codigoEquipamento, codigoFornecedor)
@@ -57,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: lista.php');
             exit;
         } catch (PDOException $err2) {
-            $erro = "Erro ao guardar o documento.";
+            $erros[] = 'Erro ao guardar o documento. Por favor tente novamente.';
         }
     }
 }
@@ -76,8 +79,14 @@ $ligacao = null;
                 </h2>
                 <hr>
 
-                <?php if ($erro): ?>
-                    <div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation me-2"></i><?= htmlspecialchars($erro) ?></div>
+                <?php if (!empty($erros)): ?>
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            <?php foreach ($erros as $erro): ?>
+                            <li><?= htmlspecialchars($erro) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
                 <?php endif; ?>
 
                 <form method="post" class="row g-3">

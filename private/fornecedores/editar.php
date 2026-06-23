@@ -13,7 +13,7 @@ if (!$ligacao) { header('Location: lista.php'); exit; }
 
 $tiposValidos = ['fabricante', 'distribuidor', 'assistencia tecnica', 'consumiveis'];
 $f = null;
-$erro = '';
+$erros = [];
 
 try {
     $stmt = $ligacao->prepare("SELECT * FROM Fornecedor WHERE codigo = :id AND ativo = 1");
@@ -37,11 +37,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tipoFornecedor = $_POST['tipoFornecedor'] ?? '';
     $observacoes    = trim($_POST['observacoes'] ?? '') ?: null;
 
-    if (!$nome) {
-        $erro = "O nome da empresa é obrigatório.";
-    } elseif (!in_array($tipoFornecedor, $tiposValidos)) {
-        $erro = "Tipo de fornecedor inválido.";
-    } else {
+    if (strlen($nome) < 2)
+        $erros[] = 'O nome da empresa é obrigatório e deve ter pelo menos 2 caracteres.';
+    if (!in_array($tipoFornecedor, $tiposValidos))
+        $erros[] = 'Selecione um tipo de fornecedor válido.';
+    if ($nif !== null && !preg_match('/^[0-9]{9}$/', $nif))
+        $erros[] = 'O NIF deve ter exatamente 9 dígitos numéricos.';
+    if ($email !== null && !filter_var($email, FILTER_VALIDATE_EMAIL))
+        $erros[] = 'O email introduzido não é válido.';
+    if ($telefone !== null && !preg_match('/^[0-9]{9}$/', $telefone))
+        $erros[] = 'O contacto telefónico deve ter exatamente 9 dígitos.';
+    if ($telefonePessoa !== null && !preg_match('/^[0-9]{9}$/', $telefonePessoa))
+        $erros[] = 'O telefone direto do contacto deve ter exatamente 9 dígitos.';
+
+    if (empty($erros)) {
         try {
             $stmt = $ligacao->prepare(
                 "UPDATE Fornecedor SET nome = :nome, nif = :nif, telefone = :telefone, email = :email,
@@ -69,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: lista.php');
             exit;
         } catch (PDOException $err2) {
-            $erro = "Erro ao atualizar o fornecedor.";
+            $erros[] = 'Erro ao atualizar o fornecedor. Por favor tente novamente.';
         }
     }
 }
@@ -88,8 +97,14 @@ $ligacao = null;
                 </h2>
                 <hr>
 
-                <?php if ($erro): ?>
-                    <div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation me-2"></i><?= htmlspecialchars($erro) ?></div>
+                <?php if (!empty($erros)): ?>
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            <?php foreach ($erros as $erro): ?>
+                            <li><?= htmlspecialchars($erro) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
                 <?php endif; ?>
 
                 <form method="post" class="row g-3">
