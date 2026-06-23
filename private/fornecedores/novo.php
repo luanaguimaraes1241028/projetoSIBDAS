@@ -3,16 +3,6 @@ redirect_if_readonly();
 
 $tiposValidos = ['fabricante', 'distribuidor', 'assistencia tecnica', 'consumiveis'];
 
-$ligacao = ligar_bd();
-$equipamentos = [];
-if ($ligacao) {
-    try {
-        $equipamentos = $ligacao->query(
-            "SELECT codigo, codigoInterno, designacao, marca FROM Equipamento WHERE estado != 'abatido' ORDER BY codigoInterno"
-        )->fetchAll(PDO::FETCH_OBJ);
-    } catch (PDOException $e) {}
-}
-
 $erro = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nome           = trim($_POST['nome'] ?? '');
@@ -25,7 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $telefonePessoa = trim($_POST['telefonePessoa'] ?? '') ?: null;
     $tipoFornecedor = $_POST['tipoFornecedor'] ?? '';
     $observacoes    = trim($_POST['observacoes'] ?? '') ?: null;
-    $eqSelecionados = $_POST['equipamentos'] ?? [];
 
     if (!$nome) {
         $erro = "O nome da empresa é obrigatório.";
@@ -51,19 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':tipoFornecedor' => $tipoFornecedor,
                 ':observacoes'    => $observacoes,
             ]);
-            $novoId = $ligacao->lastInsertId();
-
-            if (!empty($eqSelecionados)) {
-                $stmtAssoc = $ligacao->prepare(
-                    "INSERT IGNORE INTO EquipamentoFornecedor (codigoEquipamento, codigoFornecedor) VALUES (:eq, :forn)"
-                );
-                foreach ($eqSelecionados as $eqId) {
-                    if (ctype_digit((string) $eqId)) {
-                        $stmtAssoc->execute([':eq' => $eqId, ':forn' => $novoId]);
-                    }
-                }
-            }
-
             $ligacao = null;
             $_SESSION['toast'] = ['tipo' => 'success', 'mensagem' => 'Fornecedor registado com sucesso.'];
             header('Location: lista.php');
@@ -142,32 +118,6 @@ $ligacao = null;
                     <div class="col-12">
                         <label class="form-label fw-bold">Observações</label>
                         <textarea name="observacoes" class="form-control" rows="2" placeholder="Notas adicionais..."><?= htmlspecialchars($_POST['observacoes'] ?? '') ?></textarea>
-                    </div>
-
-                    <h5 class="fw-bold text-primary mt-4"><i class="fa-solid fa-stethoscope"></i> Equipamentos Associados</h5>
-                    <div class="col-12">
-                        <p class="text-muted small mb-2">Seleciona os equipamentos que este fornecedor fornece ou presta assistência. (Opcional)</p>
-                        <?php if (empty($equipamentos)): ?>
-                            <p class="text-muted fst-italic">Nenhum equipamento disponível.</p>
-                        <?php else: ?>
-                        <div class="border rounded p-3" style="max-height: 220px; overflow-y: auto;">
-                            <?php
-                            $eqPost = $_POST['equipamentos'] ?? [];
-                            foreach ($equipamentos as $eq): ?>
-                            <div class="form-check mb-1">
-                                <input class="form-check-input" type="checkbox" name="equipamentos[]"
-                                    id="eq<?= $eq->codigo ?>"
-                                    value="<?= $eq->codigo ?>"
-                                    <?= in_array((string) $eq->codigo, array_map('strval', $eqPost)) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="eq<?= $eq->codigo ?>">
-                                    <span class="badge bg-dark font-monospace me-1"><?= htmlspecialchars($eq->codigoInterno) ?></span>
-                                    <?= htmlspecialchars($eq->designacao) ?>
-                                    <small class="text-muted">— <?= htmlspecialchars($eq->marca) ?></small>
-                                </label>
-                            </div>
-                            <?php endforeach; ?>
-                        </div>
-                        <?php endif; ?>
                     </div>
 
                     <div class="col-12 d-flex gap-2 mt-4">

@@ -26,13 +26,13 @@ $doc = null;
 $erro = '';
 
 try {
-    $stmt = $ligacao->prepare("SELECT * FROM Documentacao WHERE codigo = :id");
+    $stmt = $ligacao->prepare("SELECT * FROM Documentacao WHERE codigo = :id AND ativo = 1");
     $stmt->execute([':id' => $id]);
     $doc = $stmt->fetch(PDO::FETCH_OBJ);
     if (!$doc) { header('Location: lista.php'); exit; }
 
     $equipamentos = $ligacao->query("SELECT codigo, codigoInterno, designacao FROM Equipamento ORDER BY codigoInterno")->fetchAll(PDO::FETCH_OBJ);
-    $fornecedores = $ligacao->query("SELECT codigo, nome FROM Fornecedor ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
+    $fornecedores = $ligacao->query("SELECT codigo, nome FROM Fornecedor WHERE ativo = 1 ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
 } catch (PDOException $err2) {
     header('Location: lista.php');
     exit;

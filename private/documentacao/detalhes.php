@@ -21,7 +21,7 @@ if (!$ligacao) {
              FROM Documentacao d
              JOIN Equipamento e ON d.codigoEquipamento = e.codigo
              LEFT JOIN Fornecedor f ON d.codigoFornecedor = f.codigo
-             WHERE d.codigo = :id"
+             WHERE d.codigo = :id AND d.ativo = 1"
         );
         $stmt->execute([':id' => $id]);
         $doc = $stmt->fetch(PDO::FETCH_OBJ);

@@ -5,7 +5,7 @@ $ligacao = ligar_bd();
 if (!$ligacao) { header('Location: lista.php'); exit; }
 
 $equipamentos = $ligacao->query("SELECT codigo, codigoInterno, designacao FROM Equipamento ORDER BY codigoInterno")->fetchAll(PDO::FETCH_OBJ);
-$fornecedores = $ligacao->query("SELECT codigo, nome FROM Fornecedor ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
+$fornecedores = $ligacao->query("SELECT codigo, nome FROM Fornecedor WHERE ativo = 1 ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
 
 $tiposValidos = ['manual de utilizador', 'manual de servico', 'certificado de calibracao', 'contrato de manutencao', 'fatura ou guia de aquisicao', 'declaracao de conformidade', 'relatorio tecnico'];
 $tiposLabel   = [

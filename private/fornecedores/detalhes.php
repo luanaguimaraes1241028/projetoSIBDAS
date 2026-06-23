@@ -17,7 +17,7 @@ if (!$ligacao) {
     $erro = "Erro na ligação à base de dados.";
 } else {
     try {
-        $stmt = $ligacao->prepare("SELECT * FROM Fornecedor WHERE codigo = :id");
+        $stmt = $ligacao->prepare("SELECT * FROM Fornecedor WHERE codigo = :id AND ativo = 1");
         $stmt->execute([':id' => $id]);
         $f = $stmt->fetch(PDO::FETCH_OBJ);
         if (!$f) { header('Location: lista.php'); exit; }

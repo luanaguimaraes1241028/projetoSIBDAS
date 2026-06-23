@@ -21,11 +21,11 @@ if (!$ligacao) {
 }
 
 try {
-    $stmt = $ligacao->prepare("DELETE FROM Fornecedor WHERE codigo = :id");
+    $stmt = $ligacao->prepare("UPDATE Fornecedor SET ativo = 0 WHERE codigo = :id");
     $stmt->execute([':id' => $id]);
-    $_SESSION['toast'] = ['tipo' => 'warning', 'mensagem' => 'Fornecedor eliminado com sucesso.'];
+    $_SESSION['toast'] = ['tipo' => 'warning', 'mensagem' => 'Fornecedor arquivado com sucesso.'];
 } catch (PDOException $err) {
-    $_SESSION['toast'] = ['tipo' => 'danger', 'mensagem' => 'Erro ao eliminar o fornecedor.'];
+    $_SESSION['toast'] = ['tipo' => 'danger', 'mensagem' => 'Erro ao arquivar o fornecedor.'];
 }
 $ligacao = null;
 header('Location: lista.php');

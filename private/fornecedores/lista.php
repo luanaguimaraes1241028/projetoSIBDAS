@@ -6,15 +6,21 @@ redirect_if_not_logged(); ?>
 <?php
 $ligacao = ligar_bd();
 $erro = '';
-$resultados = [];
+$ativos = [];
+$arquivados = [];
 
 if (!$ligacao) {
     $erro = "Erro na ligação à base de dados.";
 } else {
     try {
-        $resultados = $ligacao->query(
+        $todos = $ligacao->query(
             "SELECT * FROM Fornecedor ORDER BY nome"
         )->fetchAll(PDO::FETCH_OBJ);
+
+        foreach ($todos as $f) {
+            if ($f->ativo) $ativos[] = $f;
+            else           $arquivados[] = $f;
+        }
     } catch (PDOException $err) {
         $erro = "Erro ao carregar fornecedores.";
     }
@@ -58,7 +64,7 @@ if (!$ligacao) {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($resultados as $f): ?>
+                            <?php foreach ($ativos as $f): ?>
                             <?php $corTipo = match($f->tipoFornecedor) {
                                 'fabricante'          => 'primary',
                                 'distribuidor'        => 'info',
@@ -90,7 +96,7 @@ if (!$ligacao) {
                                         <a href="editar.php?id=<?= aes_encrypt($f->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar"><i class="fa-solid fa-pen-to-square text-secondary"></i></a>
                                         <?php endif; ?>
                                         <?php if (($_SESSION['perfil'] ?? '') === 'admin'): ?>
-                                        <a href="apagar.php?id=<?= aes_encrypt($f->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar"><i class="fa-solid fa-trash text-danger"></i></a>
+                                        <a href="apagar.php?id=<?= aes_encrypt($f->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Arquivar"><i class="fa-solid fa-box-archive text-danger"></i></a>
                                         <?php endif; ?>
                                     </div>
                                 </td>
@@ -100,6 +106,35 @@ if (!$ligacao) {
                     </table>
                 </div>
             </div>
+
+            <?php if (!empty($arquivados)): ?>
+            <h5 class="fw-bold text-muted mt-2 mb-3"><i class="fa-solid fa-box-archive me-2"></i>Fornecedores Arquivados</h5>
+            <div class="p-3 border rounded mb-4" style="background-color: #f8f9fa; opacity: 0.8;">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle mb-0 small">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Empresa / NIF</th>
+                                <th>Tipo</th>
+                                <th class="text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($arquivados as $f): ?>
+                            <tr class="text-muted">
+                                <td>
+                                    <div class="fw-semibold text-decoration-line-through"><?= htmlspecialchars($f->nome) ?></div>
+                                    <?php if ($f->nif): ?><small>NIF: <?= htmlspecialchars($f->nif) ?></small><?php endif; ?>
+                                </td>
+                                <td><?= htmlspecialchars($f->tipoFornecedor) ?></td>
+                                <td class="text-center"><span class="badge bg-secondary">Arquivado</span></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <?php endif; ?>
         </main>
     </div>
 </div>

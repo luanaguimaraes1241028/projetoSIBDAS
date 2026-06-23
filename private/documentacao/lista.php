@@ -6,19 +6,25 @@ redirect_if_not_logged(); ?>
 <?php
 $ligacao = ligar_bd();
 $erro = '';
-$resultados = [];
+$ativos = [];
+$arquivados = [];
 
 if (!$ligacao) {
     $erro = "Erro na ligação à base de dados.";
 } else {
     try {
-        $resultados = $ligacao->query(
+        $todos = $ligacao->query(
             "SELECT d.*, e.codigoInterno, e.designacao, f.nome AS nomeFornecedor
              FROM Documentacao d
              JOIN Equipamento e ON d.codigoEquipamento = e.codigo
              LEFT JOIN Fornecedor f ON d.codigoFornecedor = f.codigo
              ORDER BY d.dataDocumento DESC"
         )->fetchAll(PDO::FETCH_OBJ);
+
+        foreach ($todos as $doc) {
+            if ($doc->ativo) $ativos[] = $doc;
+            else             $arquivados[] = $doc;
+        }
     } catch (PDOException $err) {
         $erro = "Erro ao carregar documentação.";
     }
@@ -62,7 +68,7 @@ if (!$ligacao) {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($resultados as $doc): ?>
+                            <?php foreach ($ativos as $doc): ?>
                             <?php $expirado = $doc->dataValidade && $doc->dataValidade < date('Y-m-d'); ?>
                             <tr>
                                 <td>
@@ -91,7 +97,7 @@ if (!$ligacao) {
                                         <a href="editar.php?id=<?= aes_encrypt($doc->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar"><i class="fa-solid fa-pen-to-square text-secondary"></i></a>
                                         <?php endif; ?>
                                         <?php if (($_SESSION['perfil'] ?? '') === 'admin'): ?>
-                                        <a href="apagar.php?id=<?= aes_encrypt($doc->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar"><i class="fa-solid fa-trash text-danger"></i></a>
+                                        <a href="apagar.php?id=<?= aes_encrypt($doc->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Arquivar"><i class="fa-solid fa-box-archive text-danger"></i></a>
                                         <?php endif; ?>
                                     </div>
                                 </td>
@@ -101,6 +107,40 @@ if (!$ligacao) {
                     </table>
                 </div>
             </div>
+
+            <?php if (!empty($arquivados)): ?>
+            <h5 class="fw-bold text-muted mt-2 mb-3"><i class="fa-solid fa-box-archive me-2"></i>Documentação Arquivada</h5>
+            <div class="p-3 border rounded mb-4" style="background-color: #f8f9fa; opacity: 0.8;">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle mb-0 small">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Nome / Tipo</th>
+                                <th>Equipamento</th>
+                                <th>Data</th>
+                                <th class="text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($arquivados as $doc): ?>
+                            <tr class="text-muted">
+                                <td>
+                                    <div class="fw-semibold text-decoration-line-through"><?= htmlspecialchars($doc->nome) ?></div>
+                                    <small><?= htmlspecialchars($doc->tipo) ?></small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-dark font-monospace me-1"><?= htmlspecialchars($doc->codigoInterno) ?></span>
+                                    <?= htmlspecialchars($doc->designacao) ?>
+                                </td>
+                                <td><?= date('d/m/Y', strtotime($doc->dataDocumento)) ?></td>
+                                <td class="text-center"><span class="badge bg-secondary">Arquivado</span></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <?php endif; ?>
         </main>
     </div>
 </div>

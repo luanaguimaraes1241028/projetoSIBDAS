@@ -70,6 +70,7 @@ CREATE TABLE Fornecedor (
     tipoFornecedor  VARCHAR(30)  NOT NULL
         CHECK (LOWER(tipoFornecedor) IN ('fabricante', 'distribuidor', 'assistencia tecnica', 'consumiveis')),
     observacoes     TEXT,
+    ativo           TINYINT(1)   NOT NULL DEFAULT 1,
     CONSTRAINT pkFornecedorcodigo PRIMARY KEY (codigo)
 );
 
@@ -146,6 +147,7 @@ CREATE TABLE Documentacao (
     dataDocumento     DATE         NOT NULL,
     dataValidade      DATE,
     ficheiro          VARCHAR(255),
+    ativo             TINYINT(1)   NOT NULL DEFAULT 1,
     codigoEquipamento INT          NOT NULL,
     codigoFornecedor  INT,
     CONSTRAINT pkDocumentacaocodigo      PRIMARY KEY (codigo),

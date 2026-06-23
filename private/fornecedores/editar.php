@@ -13,25 +13,13 @@ if (!$ligacao) { header('Location: lista.php'); exit; }
 
 $tiposValidos = ['fabricante', 'distribuidor', 'assistencia tecnica', 'consumiveis'];
 $f = null;
-$equipamentos = [];
-$associados = [];
 $erro = '';
 
 try {
-    $stmt = $ligacao->prepare("SELECT * FROM Fornecedor WHERE codigo = :id");
+    $stmt = $ligacao->prepare("SELECT * FROM Fornecedor WHERE codigo = :id AND ativo = 1");
     $stmt->execute([':id' => $id]);
     $f = $stmt->fetch(PDO::FETCH_OBJ);
     if (!$f) { header('Location: lista.php'); exit; }
-
-    $equipamentos = $ligacao->query(
-        "SELECT codigo, codigoInterno, designacao, marca FROM Equipamento WHERE estado != 'abatido' ORDER BY codigoInterno"
-    )->fetchAll(PDO::FETCH_OBJ);
-
-    $stmtAssoc = $ligacao->prepare(
-        "SELECT codigoEquipamento FROM EquipamentoFornecedor WHERE codigoFornecedor = :id"
-    );
-    $stmtAssoc->execute([':id' => $id]);
-    $associados = array_column($stmtAssoc->fetchAll(PDO::FETCH_OBJ), 'codigoEquipamento');
 } catch (PDOException $err2) {
     header('Location: lista.php');
     exit;
@@ -48,7 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $telefonePessoa = trim($_POST['telefonePessoa'] ?? '') ?: null;
     $tipoFornecedor = $_POST['tipoFornecedor'] ?? '';
     $observacoes    = trim($_POST['observacoes'] ?? '') ?: null;
-    $eqSelecionados = $_POST['equipamentos'] ?? [];
 
     if (!$nome) {
         $erro = "O nome da empresa é obrigatório.";
@@ -76,20 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':id'             => $id,
             ]);
 
-            $ligacao->prepare("DELETE FROM EquipamentoFornecedor WHERE codigoFornecedor = :id")
-                    ->execute([':id' => $id]);
-
-            if (!empty($eqSelecionados)) {
-                $stmtAssoc = $ligacao->prepare(
-                    "INSERT IGNORE INTO EquipamentoFornecedor (codigoEquipamento, codigoFornecedor) VALUES (:eq, :forn)"
-                );
-                foreach ($eqSelecionados as $eqId) {
-                    if (ctype_digit((string) $eqId)) {
-                        $stmtAssoc->execute([':eq' => $eqId, ':forn' => $id]);
-                    }
-                }
-            }
-
             $ligacao = null;
             $_SESSION['toast'] = ['tipo' => 'success', 'mensagem' => 'Fornecedor atualizado com sucesso.'];
             header('Location: lista.php');
@@ -98,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $erro = "Erro ao atualizar o fornecedor.";
         }
     }
-    $associados = array_map('strval', $eqSelecionados);
 }
 $ligacao = null;
 ?>
@@ -170,30 +142,6 @@ $ligacao = null;
                     <div class="col-12">
                         <label class="form-label fw-bold">Observações</label>
                         <textarea name="observacoes" class="form-control" rows="2"><?= htmlspecialchars($_POST['observacoes'] ?? $f->observacoes ?? '') ?></textarea>
-                    </div>
-
-                    <h5 class="fw-bold text-primary mt-4"><i class="fa-solid fa-stethoscope"></i> Equipamentos Associados</h5>
-                    <div class="col-12">
-                        <p class="text-muted small mb-2">Marca os equipamentos que este fornecedor fornece ou presta assistência. (Opcional)</p>
-                        <?php if (empty($equipamentos)): ?>
-                            <p class="text-muted fst-italic">Nenhum equipamento disponível.</p>
-                        <?php else: ?>
-                        <div class="border rounded p-3" style="max-height: 220px; overflow-y: auto;">
-                            <?php foreach ($equipamentos as $eq): ?>
-                            <div class="form-check mb-1">
-                                <input class="form-check-input" type="checkbox" name="equipamentos[]"
-                                    id="eq<?= $eq->codigo ?>"
-                                    value="<?= $eq->codigo ?>"
-                                    <?= in_array((string) $eq->codigo, array_map('strval', $associados)) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="eq<?= $eq->codigo ?>">
-                                    <span class="badge bg-dark font-monospace me-1"><?= htmlspecialchars($eq->codigoInterno) ?></span>
-                                    <?= htmlspecialchars($eq->designacao) ?>
-                                    <small class="text-muted">— <?= htmlspecialchars($eq->marca) ?></small>
-                                </label>
-                            </div>
-                            <?php endforeach; ?>
-                        </div>
-                        <?php endif; ?>
                     </div>
 
                     <div class="col-12 d-flex gap-2 mt-4">

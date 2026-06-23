@@ -10,9 +10,11 @@ try {
     $ligacao->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $categorias    = $ligacao->query("SELECT codigo, nome FROM Categoria ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
     $localizacoes  = $ligacao->query("SELECT codigo, edificio, piso, servico, sala FROM Localizacao WHERE ativo = 1 ORDER BY edificio, piso, servico")->fetchAll(PDO::FETCH_OBJ);
+    $fornecedores  = $ligacao->query("SELECT codigo, nome, tipoFornecedor FROM Fornecedor WHERE ativo = 1 ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
 } catch (PDOException) {
     $categorias   = [];
     $localizacoes = [];
+    $fornecedores = [];
 }
 $ligacao = null;
 
@@ -34,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $criticidade         = trim($_POST['criticidade']         ?? '');
     $observacoes         = trim($_POST['observacoes']         ?? '');
     $codigoLocalizacao   = trim($_POST['codigoLocalizacao']   ?? '') ?: null;
+    $fornSelecionados    = $_POST['fornecedores'] ?? [];
     $garantiaInicio      = trim($_POST['garantiaInicio']      ?? '');
     $garantiaFim         = trim($_POST['garantiaFim']         ?? '');
     $contratoManutencao  = trim($_POST['contratoManutencao']  ?? '');
@@ -134,6 +137,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':observacoes'         => $observacoesContrato  ?: null,
                 ':codigoEquipamento'   => $idEquipamento,
             ]);
+
+            if (!empty($fornSelecionados)) {
+                $stmtForn = $ligacao->prepare(
+                    "INSERT IGNORE INTO EquipamentoFornecedor (codigoEquipamento, codigoFornecedor) VALUES (:eq, :forn)"
+                );
+                foreach ($fornSelecionados as $fornId) {
+                    if (ctype_digit((string) $fornId)) {
+                        $stmtForn->execute([':eq' => $idEquipamento, ':forn' => $fornId]);
+                    }
+                }
+            }
 
             $ligacao->commit();
             $_SESSION['toast'] = ['tipo' => 'success', 'mensagem' => 'Equipamento inserido com sucesso.'];
@@ -276,6 +290,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </option>
                                 <?php endforeach; ?>
                             </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Fornecedores Associados</label>
+                            <p class="text-muted small mb-2">Seleciona os fornecedores que fornecem ou prestam assistência a este equipamento.</p>
+                            <?php if (empty($fornecedores)): ?>
+                                <p class="text-muted fst-italic">Nenhum fornecedor disponível.</p>
+                            <?php else: ?>
+                            <div class="border rounded p-3" style="max-height: 220px; overflow-y: auto;">
+                                <?php
+                                $fornPost = $_POST['fornecedores'] ?? [];
+                                foreach ($fornecedores as $forn): ?>
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input" type="checkbox" name="fornecedores[]"
+                                        id="forn<?= $forn->codigo ?>"
+                                        value="<?= $forn->codigo ?>"
+                                        <?= in_array((string) $forn->codigo, array_map('strval', $fornPost)) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="forn<?= $forn->codigo ?>">
+                                        <span class="fw-semibold"><?= htmlspecialchars($forn->nome) ?></span>
+                                        <small class="text-muted ms-1">— <?= htmlspecialchars($forn->tipoFornecedor) ?></small>
+                                    </label>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <?php endif; ?>
                         </div>
 
                         <h5 class="fw-bold mt-4 pt-2 mb-3" style="color: #1e1b4b;"><i class="fa-solid fa-file-signature"></i> Garantia e Contrato de Manutenção</h5>

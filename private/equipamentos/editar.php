@@ -121,6 +121,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
             }
 
+            $fornSelecionados = $_POST['fornecedores'] ?? [];
+            $ligacao->prepare("DELETE FROM EquipamentoFornecedor WHERE codigoEquipamento = :id")
+                    ->execute([':id' => (int)$idEquipamento]);
+            if (!empty($fornSelecionados)) {
+                $stmtForn = $ligacao->prepare(
+                    "INSERT IGNORE INTO EquipamentoFornecedor (codigoEquipamento, codigoFornecedor) VALUES (:eq, :forn)"
+                );
+                foreach ($fornSelecionados as $fornId) {
+                    if (ctype_digit((string) $fornId)) {
+                        $stmtForn->execute([':eq' => (int)$idEquipamento, ':forn' => $fornId]);
+                    }
+                }
+            }
+
             $ligacao->commit();
             $_SESSION['toast'] = ['tipo' => 'success', 'mensagem' => 'Equipamento atualizado com sucesso.'];
             header('Location: lista.php');
@@ -165,11 +179,18 @@ try {
 
     $categorias   = $ligacao->query("SELECT codigo, nome FROM Categoria ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
     $localizacoes = $ligacao->query("SELECT codigo, edificio, piso, servico, sala FROM Localizacao WHERE ativo = 1 ORDER BY edificio, piso, servico")->fetchAll(PDO::FETCH_OBJ);
+    $fornecedores = $ligacao->query("SELECT codigo, nome, tipoFornecedor FROM Fornecedor WHERE ativo = 1 ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
+
+    $stmtFornAssoc = $ligacao->prepare("SELECT codigoFornecedor FROM EquipamentoFornecedor WHERE codigoEquipamento = :id");
+    $stmtFornAssoc->execute([':id' => $idEquipamento]);
+    $fornAssociados = array_column($stmtFornAssoc->fetchAll(PDO::FETCH_OBJ), 'codigoFornecedor');
 } catch (PDOException) {
     $erros[] = 'Erro na ligação à base de dados.';
     $equipamento  = null;
     $categorias   = [];
     $localizacoes = [];
+    $fornecedores = [];
+    $fornAssociados = [];
 }
 $ligacao = null;
 ?>
@@ -302,6 +323,31 @@ $ligacao = null;
                                 </option>
                                 <?php endforeach; ?>
                             </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Fornecedores Associados</label>
+                            <p class="text-muted small mb-2">Seleciona os fornecedores que fornecem ou prestam assistência a este equipamento.</p>
+                            <?php if (empty($fornecedores)): ?>
+                                <p class="text-muted fst-italic">Nenhum fornecedor disponível.</p>
+                            <?php else: ?>
+                            <div class="border rounded p-3" style="max-height: 220px; overflow-y: auto;">
+                                <?php
+                                $fornAtual = $_POST['fornecedores'] ?? $fornAssociados;
+                                foreach ($fornecedores as $forn): ?>
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input" type="checkbox" name="fornecedores[]"
+                                        id="forn<?= $forn->codigo ?>"
+                                        value="<?= $forn->codigo ?>"
+                                        <?= in_array((string) $forn->codigo, array_map('strval', $fornAtual)) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="forn<?= $forn->codigo ?>">
+                                        <span class="fw-semibold"><?= htmlspecialchars($forn->nome) ?></span>
+                                        <small class="text-muted ms-1">— <?= htmlspecialchars($forn->tipoFornecedor) ?></small>
+                                    </label>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <?php endif; ?>
                         </div>
 
                         <h5 class="fw-bold mt-4 pt-2 mb-3" style="color: #1e1b4b;"><i class="fa-solid fa-file-signature"></i> Garantia e Contrato de Manutenção</h5>

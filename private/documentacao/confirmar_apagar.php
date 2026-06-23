@@ -18,14 +18,12 @@ $ligacao = ligar_bd();
 if (!$ligacao) { header('Location: lista.php'); exit; }
 
 try {
-    $stmt = $ligacao->prepare("DELETE FROM Documentacao WHERE codigo = :id");
+    $stmt = $ligacao->prepare("UPDATE Documentacao SET ativo = 0 WHERE codigo = :id");
     $stmt->execute([':id' => $id]);
+    $_SESSION['toast'] = ['tipo' => 'warning', 'mensagem' => 'Documento arquivado com sucesso.'];
 } catch (PDOException $err) {
-    header('Location: lista.php');
-    exit;
+    $_SESSION['toast'] = ['tipo' => 'danger', 'mensagem' => 'Erro ao arquivar o documento.'];
 }
-
 $ligacao = null;
-$_SESSION['toast'] = ['tipo' => 'warning', 'mensagem' => 'Documento eliminado com sucesso.'];
 header('Location: lista.php');
 exit;
