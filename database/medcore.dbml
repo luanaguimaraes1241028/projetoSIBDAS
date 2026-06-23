@@ -3,7 +3,7 @@ Table Utilizador {
   nome varchar(100) [not null]
   email varchar(100) [not null]
   password varchar(255) [not null]
-  perfil varchar(20) [not null, default: 'tecnico', check: `LOWER(perfil) IN ('admin', 'tecnico')`]
+  perfil varchar(25) [not null, default: 'tecnico', check: `LOWER(perfil) IN ('admin', 'tecnico', 'profissional de saude')`]
 
   indexes {
     (codigo) [pk, name: 'pkUtilizadorcodigo']
@@ -28,6 +28,7 @@ Table Localizacao {
   piso varchar(10)
   servico varchar(100) [not null]
   sala varchar(50)
+  ativo tinyint(1) [not null, default: 1]
 
   indexes {
     (codigo) [pk, name: 'pkLocalizacaocodigo']
@@ -46,6 +47,7 @@ Table Fornecedor {
   telefonePessoa varchar(20)
   tipoFornecedor varchar(30) [not null, check: `LOWER(tipoFornecedor) IN ('fabricante', 'distribuidor', 'assistencia tecnica', 'consumiveis')`]
   observacoes text
+  ativo tinyint(1) [not null, default: 1]
 
   indexes {
     (codigo) [pk, name: 'pkFornecedorcodigo']
@@ -68,7 +70,7 @@ Table Equipamento {
   criticidade varchar(20) [not null, check: `LOWER(criticidade) IN ('baixa', 'media', 'alta', 'suporte de vida')`]
   observacoes text
   codigoCategoria int [not null]
-  codigoLocalizacao int [not null]
+  codigoLocalizacao int
 
   indexes {
     (codigo) [pk, name: 'pkEquipamentocodigo']
@@ -93,6 +95,7 @@ Table Documentacao {
   dataDocumento date [not null]
   dataValidade date
   ficheiro varchar(255)
+  ativo tinyint(1) [not null, default: 1]
   codigoEquipamento int [not null]
   codigoFornecedor int
 
@@ -145,3 +148,16 @@ Ref fkGarantiaEquipamento_Equipamento: Garantia.codigoEquipamento > Equipamento.
 Ref fkGarantiaFornecedor_Fornecedor: Garantia.codigoFornecedor > Fornecedor.codigo
 
 Ref fkConteudoUtilizador_Utilizador: ConteudoPublico.codigoUtilizador > Utilizador.codigo
+
+Table MensagemContacto {
+  codigo int [not null, increment]
+  nome varchar(100) [not null]
+  email varchar(100) [not null]
+  mensagem text [not null]
+  dataEnvio datetime [not null, default: `CURRENT_TIMESTAMP`]
+  lida tinyint(1) [not null, default: 0]
+
+  indexes {
+    (codigo) [pk, name: 'pkMensagemContactocodigo']
+  }
+}

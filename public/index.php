@@ -106,7 +106,13 @@ function cpnl(string $key, string $default = ''): string {
         <h2>Contacto</h2>
         <p>Entre em contacto connosco para tirar as suas dúvidas ou solicitar uma demonstração da plataforma.</p>
 
-        <form id="contactForm">
+        <?php if (($_GET['enviado'] ?? '') === '1'): ?>
+        <p style="color: #16a34a; font-weight: 600; margin-bottom: 16px;">✓ Mensagem enviada com sucesso! Entraremos em contacto brevemente.</p>
+        <?php elseif (($_GET['erro'] ?? '') === '1'): ?>
+        <p style="color: #dc2626; font-weight: 600; margin-bottom: 16px;">✗ Erro ao enviar a mensagem. Verifique os campos e tente novamente.</p>
+        <?php endif; ?>
+
+        <form id="contactForm" method="post" action="/sibdas/1241028/medcore/public/processar_contacto.php">
             <label for="nome">Nome:</label>
             <input type="text" id="nome" name="nome" placeholder="Ex: Centro Hospitalar do Porto" required>
 

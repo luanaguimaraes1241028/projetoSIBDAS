@@ -30,6 +30,24 @@
                                 </a>
                             </li>
                             <?php if (($_SESSION['perfil'] ?? '') === 'admin'): ?>
+                            <?php
+                            $naoLidas = 0;
+                            try {
+                                $ligSidebar = ligar_bd();
+                                if ($ligSidebar) {
+                                    $naoLidas = (int) $ligSidebar->query("SELECT COUNT(*) FROM MensagemContacto WHERE lida = 0")->fetchColumn();
+                                    $ligSidebar = null;
+                                }
+                            } catch (Exception $e) {}
+                            ?>
+                            <li class="nav-item">
+                                <a class="nav-link py-3 px-4 fw-bold <?php echo strpos($uri, '/mensagens/') !== false ? 'active text-primary bg-light border-start border-4 border-primary' : 'text-secondary'; ?>" href="/sibdas/1241028/medcore/private/mensagens/lista.php">
+                                    <i class="fa-solid fa-envelope"></i> &ensp; Mensagens
+                                    <?php if ($naoLidas > 0): ?>
+                                    <span class="badge bg-danger ms-1"><?= $naoLidas ?></span>
+                                    <?php endif; ?>
+                                </a>
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link py-3 px-4 fw-bold <?php echo strpos($uri, '/gestao-public') !== false ? 'active text-primary bg-light border-start border-4 border-primary' : 'text-secondary'; ?>" href="/sibdas/1241028/medcore/private/gestao-public.php">
                                     <i class="fa-solid fa-globe"></i> &ensp; Gestão de Conteúdos
