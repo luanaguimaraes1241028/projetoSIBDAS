@@ -18,6 +18,7 @@ if ($ligacao) {
     $stmt = $ligacao->prepare("UPDATE MensagemContacto SET lida = 1 WHERE codigo = :id");
     $stmt->execute([':id' => $id]);
     $ligacao = null;
+    registar_log('mensagem_lida', 'Mensagem de contacto marcada como lida: #' . $id);
 }
 
 header('Location: lista.php?lida=1');

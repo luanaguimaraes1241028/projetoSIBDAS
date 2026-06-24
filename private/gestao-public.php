@@ -10,6 +10,9 @@ $chaves = [
     'sobre_titulo1', 'sobre_conteudo1',
     'sobre_titulo2', 'sobre_conteudo2',
     'sobre_titulo3', 'sobre_conteudo3',
+    'solucao_titulo1', 'solucao_conteudo1',
+    'solucao_titulo2', 'solucao_conteudo2',
+    'solucao_titulo3', 'solucao_conteudo3',
     'contacto_morada', 'contacto_horarios', 'contacto_email', 'contacto_telefone',
 ];
 
@@ -34,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':user'  => $codigoUser,
             ]);
         }
+        registar_log('conteudo_publicado', 'Área pública atualizada pelo utilizador.');
         $sucesso = 'Conteúdo publicado com sucesso.';
     } catch (PDOException) {
         $erro = 'Erro ao guardar as alterações.';
@@ -41,7 +45,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $rows = $ligacao->query("SELECT chave, valor FROM ConteudoPublico")->fetchAll(PDO::FETCH_KEY_PAIR);
-$c    = array_merge(array_fill_keys($chaves, ''), $rows);
+$defaults = [
+    'solucao_titulo1'   => 'Controlo de Ativos',
+    'solucao_conteudo1' => 'Centralize o registo completo do parque tecnológico hospitalar, com rastreio de estado, localização, garantias e contratos de manutenção.',
+    'solucao_titulo2'   => 'Arquivo Técnico e Contratos',
+    'solucao_conteudo2' => 'Aloque manuais, certificados de calibração e apólices diretamente a cada equipamento, com alertas de validade e acesso imediato à documentação técnica.',
+    'solucao_titulo3'   => 'Rastreabilidade Posicional',
+    'solucao_conteudo3' => 'Mapeie a infraestrutura hospitalar com precisão, associando cada equipamento ao edifício, piso e serviço onde se encontra em tempo real.',
+];
+$c = array_merge(array_fill_keys($chaves, ''), $defaults, $rows);
 $ligacao = null;
 ?>
 <?php include 'includes/header.php'; ?>
@@ -110,6 +122,28 @@ $ligacao = null;
                         <input type="text" name="sobre_titulo3" class="form-control" value="<?= htmlspecialchars($c['sobre_titulo3']) ?>" required>
                         <label class="form-label fw-bold mt-2 text-muted small">Conteúdo</label>
                         <textarea name="sobre_conteudo3" class="form-control" rows="4" required><?= htmlspecialchars($c['sobre_conteudo3']) ?></textarea>
+                    </div>
+
+                    <div class="col-12 mt-3">
+                        <h5 class="fw-bold text-primary border-bottom pb-2"><i class="fa-solid fa-list-check"></i> Soluções</h5>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Título 1</label>
+                        <input type="text" name="solucao_titulo1" class="form-control" value="<?= htmlspecialchars($c['solucao_titulo1']) ?>" required>
+                        <label class="form-label fw-bold mt-2 text-muted small">Conteúdo</label>
+                        <textarea name="solucao_conteudo1" class="form-control" rows="4" required><?= htmlspecialchars($c['solucao_conteudo1']) ?></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Título 2</label>
+                        <input type="text" name="solucao_titulo2" class="form-control" value="<?= htmlspecialchars($c['solucao_titulo2']) ?>" required>
+                        <label class="form-label fw-bold mt-2 text-muted small">Conteúdo</label>
+                        <textarea name="solucao_conteudo2" class="form-control" rows="4" required><?= htmlspecialchars($c['solucao_conteudo2']) ?></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Título 3</label>
+                        <input type="text" name="solucao_titulo3" class="form-control" value="<?= htmlspecialchars($c['solucao_titulo3']) ?>" required>
+                        <label class="form-label fw-bold mt-2 text-muted small">Conteúdo</label>
+                        <textarea name="solucao_conteudo3" class="form-control" rows="4" required><?= htmlspecialchars($c['solucao_conteudo3']) ?></textarea>
                     </div>
 
                     <div class="col-12 mt-3">

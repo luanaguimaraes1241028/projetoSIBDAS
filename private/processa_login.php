@@ -3,7 +3,7 @@ require_once 'includes/funcoes.php';
 start_session();
 
 if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-    header('Location: ../public/login.php');
+    header('Location: ../public/login.php', true, 303);
     return;
 }
 
@@ -26,14 +26,14 @@ if (strlen($password) < 6 || strlen($password) > 12) {
 
 if (!empty($validation_errors)) {
     $_SESSION['validation_errors'] = $validation_errors;
-    header('Location: ../public/login.php');
+    header('Location: ../public/login.php', true, 303);
     return;
 }
 
 $ligacao = ligar_bd();
 if (!$ligacao) {
     $_SESSION['server_error'] = 'Erro ao ligar à base de dados.';
-    header('Location: ../public/login.php');
+    header('Location: ../public/login.php', true, 303);
     exit;
 }
 
@@ -45,7 +45,7 @@ $ligacao = null;
 if (!$utilizador || !password_verify($password, $utilizador->password)) {
     registar_log('login_falha', 'Tentativa falhada: ' . $username);
     $_SESSION['server_error'] = 'Login inválido';
-    header('Location: ../public/login.php');
+    header('Location: ../public/login.php', true, 303);
     exit;
 }
 

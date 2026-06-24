@@ -85,20 +85,20 @@ function cpnl(string $key, string $default = ''): string {
     <section class="container-texto-generico" id="solucoes">
         <article>
             <i class="fa-solid fa-heart-pulse fa-3x" style="color: #4f46e5; margin-bottom: 15px;"></i>
-            <h2>Controlo de Ativos</h2>
-            <p>Centralize o registo completo do parque tecnológico...</p>
+            <h2><?= cp('solucao_titulo1', 'Controlo de Ativos') ?></h2>
+            <p><?= cpnl('solucao_conteudo1', 'Centralize o registo completo do parque tecnológico hospitalar, com rastreio de estado, localização, garantias e contratos de manutenção.') ?></p>
         </article>
 
         <article>
             <i class="fa-solid fa-folder-open fa-3x" style="color: #4f46e5; margin-bottom: 15px;"></i>
-            <h2>Arquivo Técnico e Contratos</h2>
-            <p>Aloque manuais, certificados e apólices diretamente...</p>
+            <h2><?= cp('solucao_titulo2', 'Arquivo Técnico e Contratos') ?></h2>
+            <p><?= cpnl('solucao_conteudo2', 'Aloque manuais, certificados de calibração e apólices diretamente a cada equipamento, com alertas de validade e acesso imediato à documentação técnica.') ?></p>
         </article>
 
         <article>
             <i class="fa-solid fa-hospital fa-3x" style="color: #4f46e5; margin-bottom: 15px;"></i>
-            <h2>Rastreabilidade Posicional</h2>
-            <p>Mapeie a infraestrutura hospitalar com precisão...</p>
+            <h2><?= cp('solucao_titulo3', 'Rastreabilidade Posicional') ?></h2>
+            <p><?= cpnl('solucao_conteudo3', 'Mapeie a infraestrutura hospitalar com precisão, associando cada equipamento ao edifício, piso e serviço onde se encontra em tempo real.') ?></p>
         </article>
     </section>
 
