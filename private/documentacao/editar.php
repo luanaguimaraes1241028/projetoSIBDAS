@@ -1,16 +1,23 @@
 <?php require_once __DIR__ . '/../includes/funcoes.php';
+
+// Segurança: Garante que utilizadores com permissões apenas de leitura não acedem a este script
 redirect_if_readonly();
 
+// Captura e valida o identificador cifrado passado via URL (GET)
 $id_cifrado = $_GET['id'] ?? '';
 $id = aes_decrypt($id_cifrado);
+
+// Se a desencriptação falhar ou o ID não for puramente numérico, interrompe e redireciona
 if ($id === false || !ctype_digit((string) $id)) {
     header('Location: lista.php');
     exit;
 }
 
+// Estabelece a ligação à base de dados através do driver PDO
 $ligacao = ligar_bd();
 if (!$ligacao) { header('Location: lista.php'); exit; }
 
+// Listas brancas (Whitelists) para validação de integridade dos dados no servidor
 $tiposValidos = ['manual de utilizador', 'manual de servico', 'certificado de calibracao', 'contrato de manutencao', 'fatura ou guia de aquisicao', 'declaracao de conformidade', 'relatorio tecnico'];
 $tiposLabel   = [
     'manual de utilizador'        => 'Manual de Utilizador',
@@ -26,11 +33,15 @@ $doc = null;
 $erros = [];
 
 try {
+    // Procura o documento original ativo para preencher os valores iniciais do formulário
     $stmt = $ligacao->prepare("SELECT * FROM Documentacao WHERE codigo = :id AND ativo = 1");
     $stmt->execute([':id' => $id]);
     $doc = $stmt->fetch(PDO::FETCH_OBJ);
+    
+    // Se o documento não existir ou já estiver arquivado, barra o acesso
     if (!$doc) { header('Location: lista.php'); exit; }
 
+    // Carrega as listas que vão alimentar os blocos de seleção (<select>) no HTML
     $equipamentos = $ligacao->query("SELECT codigo, codigoInterno, designacao FROM Equipamento ORDER BY codigoInterno")->fetchAll(PDO::FETCH_OBJ);
     $fornecedores = $ligacao->query("SELECT codigo, nome FROM Fornecedor WHERE ativo = 1 ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
 } catch (PDOException $err2) {
@@ -38,26 +49,36 @@ try {
     exit;
 }
 
+// --- PROCESSAMENTO DO FORMULÁRIO (MÉTODO POST) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Captura e limpa os espaços em branco indesejados dos inputs de texto
     $nome              = trim($_POST['nome'] ?? '');
     $tipo              = $_POST['tipo'] ?? '';
     $dataDocumento     = $_POST['dataDocumento'] ?? '';
-    $dataValidade      = trim($_POST['dataValidade'] ?? '') ?: null;
+    $dataValidade      = trim($_POST['dataValidade'] ?? '') ?: null; // Converte string vazia em NULL para a BD
     $ficheiro          = trim($_POST['ficheiro'] ?? '') ?: null;
     $codigoEquipamento = (int)($_POST['codigoEquipamento'] ?? 0);
     $codigoFornecedor  = (int)($_POST['codigoFornecedor'] ?? 0) ?: null;
 
+    // --- VALIDAÇÕES DE REGRAS DE NEGÓCIO NO SERVIDOR ---
     if (strlen($nome) < 2)
         $erros[] = 'O nome do documento é obrigatório e deve ter pelo menos 2 caracteres.';
+    
+    // Impede a inserção de valores adulterados fora do Enum definido
     if (!in_array($tipo, $tiposValidos))
         $erros[] = 'Selecione um tipo de documento válido.';
+        
     if (empty($dataDocumento))
         $erros[] = 'A data do documento é obrigatória.';
+        
     if (!$codigoEquipamento)
         $erros[] = 'Selecione o equipamento associado.';
+        
+    // Validação lógica de consistência temporal das datas
     if ($dataValidade !== null && !empty($dataDocumento) && $dataValidade < $dataDocumento)
         $erros[] = 'A data de validade não pode ser anterior à data do documento.';
 
+    // Se passou todas as validações, avança para a atualização na base de dados
     if (empty($erros)) {
         try {
             $stmt = $ligacao->prepare(
@@ -76,8 +97,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':codigoFornecedor'  => $codigoFornecedor,
                 ':id'                => $id,
             ]);
+            
+            // Termina a ligação antes de efetuar o redirecionamento
             $ligacao = null;
+            
+            // Regista a atividade técnica na tabela de auditoria
             registar_log('documento_editado', 'Documento editado: #' . $id);
+            
+            // Define a mensagem flash de sucesso que será lida na página seguinte
             $_SESSION['toast'] = ['tipo' => 'success', 'mensagem' => 'Documento atualizado com sucesso.'];
             header('Location: lista.php');
             exit;
@@ -86,6 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+// Garante o fecho da ligação no cenário de erro ou quando o método é GET
 $ligacao = null;
 ?>
 <?php include '../includes/header.php'; ?>

@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/funcoes.php';
-redirect_if_not_admin();
+redirect_if_not_admin(); // só admins podem iniciar o processo de abate
 
 $id_cifrado = $_GET['id_equipamento'] ?? '';
 $id = aes_decrypt($id_cifrado);
@@ -17,6 +17,7 @@ try {
     );
     $ligacao->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    // só busca o essencial para mostrar no ecrã de confirmação
     $stmt = $ligacao->prepare(
         "SELECT codigo, codigoInterno, designacao, numeroSerie
          FROM Equipamento

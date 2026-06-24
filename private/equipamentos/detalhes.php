@@ -1,84 +1,164 @@
 <?php
 require_once __DIR__ . '/../includes/funcoes.php';
-redirect_if_not_logged();
-
-$id_cifrado = $_GET['id_equipamento'] ?? '';
-$id = aes_decrypt($id_cifrado);
-if ($id === false || !ctype_digit((string) $id)) {
-    header('Location: lista.php');
-    exit;
-}
+redirect_if_readonly();
 
 try {
     $ligacao = new PDO(
         "mysql:host=" . MYSQL_HOST . ";port=" . MYSQL_PORT . ";dbname=" . MYSQL_DATABASE . ";charset=utf8",
-        MYSQL_USERNAME,
-        MYSQL_PASSWORD
+        MYSQL_USERNAME, MYSQL_PASSWORD
     );
     $ligacao->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    $stmt = $ligacao->prepare(
-        "SELECT e.*,
-                c.nome AS nomeCategoria,
-                l.edificio, l.piso, l.servico AS nomeLocalizacao, l.sala,
-                g.codigo AS codigoGarantia, g.dataInicio, g.dataFim,
-                g.tipoContrato, g.entidadeResponsavel, g.periodicidade,
-                g.observacoes AS observacoesGarantia
-         FROM Equipamento e
-         LEFT JOIN Categoria c ON e.codigoCategoria = c.codigo
-         LEFT JOIN Localizacao l ON e.codigoLocalizacao = l.codigo
-         LEFT JOIN Garantia g ON g.codigoEquipamento = e.codigo
-         WHERE e.codigo = :id
-         LIMIT 1"
-    );
-    $stmt->execute([':id' => $id]);
-    $equipamento = $stmt->fetch(PDO::FETCH_OBJ);
-
-    $stmtForn = $ligacao->prepare(
-        "SELECT f.codigo, f.nome, f.tipoFornecedor, f.telefone, f.email, f.pessoaContacto
-         FROM EquipamentoFornecedor ef
-         JOIN Fornecedor f ON ef.codigoFornecedor = f.codigo
-         WHERE ef.codigoEquipamento = :id"
-    );
-    $stmtForn->execute([':id' => $id]);
-    $fornecedores = $stmtForn->fetchAll(PDO::FETCH_OBJ);
-
-    $stmtDoc = $ligacao->prepare(
-        "SELECT d.codigo, d.nome, d.tipo, d.dataDocumento, d.dataValidade, d.ficheiro
-         FROM Documentacao d
-         WHERE d.codigoEquipamento = :id
-         ORDER BY d.dataDocumento DESC"
-    );
-    $stmtDoc->execute([':id' => $id]);
-    $documentos = $stmtDoc->fetchAll(PDO::FETCH_OBJ);
-} catch (PDOException $err) {
-    header('Location: lista.php');
-    exit;
-}
-
-if (!$equipamento) {
-    header('Location: lista.php');
-    exit;
+    $categorias    = $ligacao->query("SELECT codigo, nome FROM Categoria ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
+    $localizacoes  = $ligacao->query("SELECT codigo, edificio, piso, servico, sala FROM Localizacao WHERE ativo = 1 ORDER BY edificio, piso, servico")->fetchAll(PDO::FETCH_OBJ);
+    $fornecedores  = $ligacao->query("SELECT codigo, nome, tipoFornecedor FROM Fornecedor WHERE ativo = 1 ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
+} catch (PDOException) {
+    $categorias   = [];
+    $localizacoes = [];
+    $fornecedores = [];
 }
 $ligacao = null;
 
-$corEstado = match($equipamento->estado) {
-    'ativo'         => 'success',
-    'em manutencao' => 'warning',
-    'inativo'       => 'danger',
-    'em calibracao' => 'info',
-    'em quarentena' => 'secondary',
-    'abatido'       => 'dark',
-    default         => 'secondary'
-};
+$erros = [];
 
-$corCriticidade = match($equipamento->criticidade) {
-    'baixa'           => 'success',
-    'media'           => 'warning',
-    'alta'            => 'danger',
-    'suporte de vida' => 'dark',
-    default           => 'secondary'
-};
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $codigoInterno       = trim($_POST['codigoInterno']       ?? '');
+    $designacao          = trim($_POST['designacao']          ?? '');
+    $codigoCategoria     = trim($_POST['codigoCategoria']     ?? '');
+    $marca               = trim($_POST['marca']               ?? '');
+    $modelo              = trim($_POST['modelo']              ?? '');
+    $numeroSerie         = trim($_POST['numeroSerie']         ?? '');
+    $fabricante          = trim($_POST['fabricante']          ?? '');
+    $anoFabrico          = trim($_POST['anoFabrico']          ?? '');
+    $dataAquisicao       = trim($_POST['dataAquisicao']       ?? '');
+    $custoAquisicao      = trim($_POST['custoAquisicao']      ?? '');
+    $tipoEntrada         = trim($_POST['tipoEntrada']         ?? '');
+    $estado              = trim($_POST['estado']              ?? '');
+    $criticidade         = trim($_POST['criticidade']         ?? '');
+    $observacoes         = trim($_POST['observacoes']         ?? '');
+    $codigoLocalizacao   = trim($_POST['codigoLocalizacao']   ?? '') ?: null;
+    $fornSelecionados    = $_POST['fornecedores'] ?? [];
+    $garantiaInicio      = trim($_POST['garantiaInicio']      ?? '');
+    $garantiaFim         = trim($_POST['garantiaFim']         ?? '');
+    $contratoManutencao  = trim($_POST['contratoManutencao']  ?? '');
+    $tipoContrato        = trim($_POST['tipoContrato']        ?? '');
+    $entidadeResponsavel = trim($_POST['entidadeResponsavel'] ?? '');
+    $periodicidade       = trim($_POST['periodicidade']       ?? '');
+    $observacoesContrato = trim($_POST['observacoesContrato'] ?? '');
+
+    if (empty($codigoInterno))
+        $erros[] = 'O código interno é obrigatório.';
+    if (empty($designacao))
+        $erros[] = 'A designação é obrigatória.';
+    if (empty($codigoCategoria) || !ctype_digit($codigoCategoria))
+        $erros[] = 'Selecione uma categoria válida.';
+    if (empty($marca))
+        $erros[] = 'A marca é obrigatória.';
+    if (empty($modelo))
+        $erros[] = 'O modelo é obrigatório.';
+    if (empty($numeroSerie))
+        $erros[] = 'O número de série é obrigatório.';
+    if (!empty($anoFabrico) && (!preg_match('/^\d{4}$/', $anoFabrico) || (int)$anoFabrico < 1900 || (int)$anoFabrico > (int)date('Y')))
+        $erros[] = 'O ano de fabrico deve ser um valor entre 1900 e ' . date('Y') . '.';
+    if (empty($dataAquisicao))
+        $erros[] = 'A data de aquisição é obrigatória.';
+    if (!empty($custoAquisicao) && (!is_numeric($custoAquisicao) || (float)$custoAquisicao < 0))
+        $erros[] = 'O custo de aquisição deve ser um valor numérico positivo.';
+    if (empty($tipoEntrada))
+        $erros[] = 'O tipo de entrada é obrigatório.';
+    if (empty($estado))
+        $erros[] = 'O estado atual é obrigatório.';
+    if (empty($criticidade))
+        $erros[] = 'A criticidade é obrigatória.';
+    if (!empty($garantiaInicio) && !empty($garantiaFim) && $garantiaFim <= $garantiaInicio)
+        $erros[] = 'A data de fim da garantia deve ser posterior à data de início.';
+
+    if (empty($erros)) {
+        $codigoInterno = strtoupper($codigoInterno);
+        $designacao    = ucwords(strtolower($designacao));
+        $marca         = ucwords(strtolower($marca));
+        $fabricante    = ucwords(strtolower($fabricante));
+        $temContrato   = ($contratoManutencao === 'sim') ? 1 : 0;
+
+        try {
+            $ligacao = new PDO(
+                "mysql:host=" . MYSQL_HOST . ";port=" . MYSQL_PORT . ";dbname=" . MYSQL_DATABASE . ";charset=utf8",
+                MYSQL_USERNAME, MYSQL_PASSWORD
+            );
+            $ligacao->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            // transação garante atomicidade: equipamento + garantia + fornecedores inseridos em conjunto ou nenhum
+            $ligacao->beginTransaction();
+
+            $stmt = $ligacao->prepare(
+                "INSERT INTO Equipamento
+                 (codigoInterno, designacao, marca, modelo, fabricante, numeroSerie, anoFabrico,
+                  dataAquisicao, custoAquisicao, tipoEntrada, estado, criticidade, observacoes, codigoCategoria, codigoLocalizacao)
+                 VALUES
+                 (:codigoInterno, :designacao, :marca, :modelo, :fabricante, :numeroSerie, :anoFabrico,
+                  :dataAquisicao, :custoAquisicao, :tipoEntrada, :estado, :criticidade, :observacoes, :codigoCategoria, :codigoLocalizacao)"
+            );
+            $stmt->execute([
+                ':codigoInterno'   => $codigoInterno,
+                ':designacao'      => $designacao,
+                ':marca'           => $marca,
+                ':modelo'          => $modelo,
+                ':fabricante'      => $fabricante ?: null,
+                ':numeroSerie'     => $numeroSerie,
+                ':anoFabrico'      => $anoFabrico !== '' ? (int)$anoFabrico : null,
+                ':dataAquisicao'   => $dataAquisicao,
+                ':custoAquisicao'  => $custoAquisicao !== '' ? (float)$custoAquisicao : null,
+                ':tipoEntrada'     => $tipoEntrada,
+                ':estado'          => $estado,
+                ':criticidade'     => $criticidade,
+                ':observacoes'     => $observacoes ?: null,
+                ':codigoCategoria'   => (int)$codigoCategoria,
+                ':codigoLocalizacao' => $codigoLocalizacao ? (int)$codigoLocalizacao : null,
+            ]);
+
+            $idEquipamento = $ligacao->lastInsertId();
+
+            // garantia é opcional: só insere se ambas as datas estiverem preenchidas
+            if ($garantiaInicio && $garantiaFim) {
+                $stmt2 = $ligacao->prepare(
+                    "INSERT INTO Garantia
+                     (dataInicio, dataFim, temContrato, tipoContrato, entidadeResponsavel, periodicidade, observacoes, codigoEquipamento)
+                     VALUES
+                     (:dataInicio, :dataFim, :temContrato, :tipoContrato, :entidadeResponsavel, :periodicidade, :observacoes, :codigoEquipamento)"
+                );
+                $stmt2->execute([
+                    ':dataInicio'          => $garantiaInicio,
+                    ':dataFim'             => $garantiaFim,
+                    ':temContrato'         => $temContrato,
+                    ':tipoContrato'        => $tipoContrato        ?: null,
+                    ':entidadeResponsavel' => $entidadeResponsavel ?: null,
+                    ':periodicidade'       => $periodicidade       ?: null,
+                    ':observacoes'         => $observacoesContrato  ?: null,
+                    ':codigoEquipamento'   => $idEquipamento,
+                ]);
+            }
+
+            if (!empty($fornSelecionados)) {
+                // INSERT IGNORE evita duplicados se o utilizador submeter o mesmo fornecedor duas vezes
+                $stmtForn = $ligacao->prepare(
+                    "INSERT IGNORE INTO EquipamentoFornecedor (codigoEquipamento, codigoFornecedor) VALUES (:eq, :forn)"
+                );
+                foreach ($fornSelecionados as $fornId) {
+                    if (ctype_digit((string) $fornId)) {
+                        $stmtForn->execute([':eq' => $idEquipamento, ':forn' => $fornId]);
+                    }
+                }
+            }
+
+            $ligacao->commit();
+            registar_log('equipamento_criado', 'Equipamento criado: ' . $codigoInterno);
+            $_SESSION['toast'] = ['tipo' => 'success', 'mensagem' => 'Equipamento inserido com sucesso.'];
+            header('Location: lista.php');
+            exit;
+        } catch (PDOException) {
+            if (isset($ligacao) && $ligacao->inTransaction()) $ligacao->rollBack();
+            $erros[] = 'Erro ao guardar o equipamento. Por favor tente novamente.';
+        }
+    }
+}
 ?>
 <?php include '../includes/header.php'; ?>
 <?php include '../includes/nav.php'; ?>
@@ -90,252 +170,218 @@ $corCriticidade = match($equipamento->criticidade) {
 
             <main class="col-md-9 col-lg-10 px-md-4 pt-4">
                 <div class="card shadow-sm border p-4 mx-auto my-4" style="max-width: 850px; background-color: #fff;">
+                    <h2 class="fw-bold mb-3" style="color: #1e1b4b;"><i class="fa-solid fa-square-plus"></i> Inserir Novo Equipamento</h2>
+                    <hr>
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h2 class="fw-bold mb-0" style="color: #1e1b4b;">
-                            <i class="fa-solid fa-circle-info"></i> Ficha do Equipamento
-                        </h2>
-                        <span class="badge bg-dark fs-6"><?= htmlspecialchars($equipamento->codigoInterno) ?></span>
+                    <?php if (!empty($erros)): ?>
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            <?php foreach ($erros as $erro): ?>
+                            <li><?= htmlspecialchars($erro) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
                     </div>
-                    <hr class="mt-1 mb-4">
+                    <?php endif; ?>
 
-                    <ul class="nav nav-tabs mb-4" id="equipamentoTab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active fw-bold py-2 px-3" id="geral-tab" data-bs-toggle="tab" data-bs-target="#geral" type="button" role="tab">
-                                <i class="fa-solid fa-sliders"></i> Dados Gerais
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link fw-bold py-2 px-3" id="garantia-tab" data-bs-toggle="tab" data-bs-target="#garantia" type="button" role="tab">
-                                <i class="fa-solid fa-shield-halved"></i> Garantia e Contrato
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link fw-bold py-2 px-3" id="localizacao-tab" data-bs-toggle="tab" data-bs-target="#localizacao" type="button" role="tab">
-                                <i class="fa-solid fa-location-dot"></i> Localização
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link fw-bold py-2 px-3" id="fornecedor-tab" data-bs-toggle="tab" data-bs-target="#fornecedor" type="button" role="tab">
-                                <i class="fa-solid fa-truck-field"></i> Fornecedores
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link fw-bold py-2 px-3" id="documentacao-tab" data-bs-toggle="tab" data-bs-target="#documentacao" type="button" role="tab">
-                                <i class="fa-solid fa-folder-open"></i> Documentação
-                            </button>
-                        </li>
-                    </ul>
+                    <form action="#" method="post" class="row g-3">
 
-                    <div class="tab-content p-2" id="equipamentoTabContent">
-
-                        <div class="tab-pane show active" id="geral" role="tabpanel">
-                            <div class="row g-4 text-dark">
-                                <div class="col-md-6 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Código Interno de Inventário</small>
-                                    <div class="fs-5 fw-bold text-dark"><?= htmlspecialchars($equipamento->codigoInterno) ?></div>
-                                </div>
-                                <div class="col-md-6 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Designação do Equipamento</small>
-                                    <div class="fs-5 text-dark fw-semibold"><?= htmlspecialchars($equipamento->designacao) ?></div>
-                                </div>
-                                <div class="col-md-4 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Categoria / Grupo</small>
-                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->nomeCategoria ?? '—') ?></div>
-                                </div>
-                                <div class="col-md-4 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Marca</small>
-                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->marca) ?></div>
-                                </div>
-                                <div class="col-md-4 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Modelo</small>
-                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->modelo) ?></div>
-                                </div>
-                                <div class="col-md-4 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Número de Série</small>
-                                    <div class="fs-6 font-monospace text-dark fw-semibold"><?= htmlspecialchars($equipamento->numeroSerie) ?></div>
-                                </div>
-                                <div class="col-md-4 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Fabricante</small>
-                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->fabricante) ?></div>
-                                </div>
-                                <div class="col-md-4 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Ano de Fabrico</small>
-                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->anoFabrico) ?></div>
-                                </div>
-                                <div class="col-md-4 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Data de Aquisição</small>
-                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->dataAquisicao) ?></div>
-                                </div>
-                                <div class="col-md-4 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Custo de Aquisição</small>
-                                    <div class="fs-6 text-dark fw-semibold"><?= number_format((float)$equipamento->custoAquisicao, 2, ',', '.') ?> €</div>
-                                </div>
-                                <div class="col-md-4 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Tipo de Entrada</small>
-                                    <div class="mt-1">
-                                        <span class="badge bg-dark px-2 py-1"><?= htmlspecialchars($equipamento->tipoEntrada) ?></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Estado Atual</small>
-                                    <div class="mt-1">
-                                        <span class="badge bg-<?= $corEstado ?> px-2"><?= htmlspecialchars($equipamento->estado) ?></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Criticidade</small>
-                                    <div class="mt-1">
-                                        <span class="badge bg-<?= $corCriticidade ?> rounded-pill"><?= htmlspecialchars($equipamento->criticidade) ?></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Observações Gerais</small>
-                                    <p class="mb-0 small text-muted bg-light p-2 rounded border mt-1">
-                                        <?= htmlspecialchars($equipamento->observacoes ?? '—') ?>
-                                    </p>
-                                </div>
-                            </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Código Interno de Inventário <span class="text-danger">*</span></label>
+                            <input type="text" name="codigoInterno" class="form-control" placeholder="Ex: EQ-0043"
+                                   value="<?= htmlspecialchars($_POST['codigoInterno'] ?? '') ?>" required>
                         </div>
-
-                        <div class="tab-pane" id="localizacao" role="tabpanel">
-                            <?php if ($equipamento->nomeLocalizacao): ?>
-                            <div class="row g-4 text-dark">
-                                <div class="col-md-6 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Edifício</small>
-                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->edificio ?? '—') ?></div>
-                                </div>
-                                <div class="col-md-6 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Piso</small>
-                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->piso ?? '—') ?></div>
-                                </div>
-                                <div class="col-md-6 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Serviço / Departamento</small>
-                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->nomeLocalizacao) ?></div>
-                                </div>
-                                <div class="col-md-6 border-bottom pb-3">
-                                    <small class="text-muted small text-uppercase fw-bold d-block">Sala / Gabinete</small>
-                                    <div class="fs-6 text-dark fw-semibold"><?= htmlspecialchars($equipamento->sala ?? '—') ?></div>
-                                </div>
-                            </div>
-                            <?php else: ?>
-                            <p class="text-muted">Sem localização atribuída a este equipamento.</p>
-                            <?php endif; ?>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Designação do Equipamento <span class="text-danger">*</span></label>
+                            <input type="text" name="designacao" class="form-control" placeholder="Ex: Ventilador Volumétrico"
+                                   value="<?= htmlspecialchars($_POST['designacao'] ?? '') ?>" required>
                         </div>
-
-                        <div class="tab-pane" id="fornecedor" role="tabpanel">
-                            <?php if (count($fornecedores) === 0): ?>
-                                <p class="text-muted">Nenhum fornecedor associado a este equipamento.</p>
-                            <?php else: ?>
-                                <ul class="list-group">
-                                <?php foreach ($fornecedores as $f): ?>
-                                <?php $corTipo = match($f->tipoFornecedor) {
-                                    'fabricante'          => 'primary',
-                                    'distribuidor'        => 'info',
-                                    'assistencia tecnica' => 'warning',
-                                    'consumiveis'         => 'secondary',
-                                    default               => 'secondary'
-                                }; ?>
-                                <li class="list-group-item">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <div class="fw-bold"><?= htmlspecialchars($f->nome) ?></div>
-                                            <?php if ($f->pessoaContacto): ?>
-                                            <small class="text-muted"><i class="fa-solid fa-user me-1"></i><?= htmlspecialchars($f->pessoaContacto) ?></small>
-                                            <?php endif; ?>
-                                            <?php if ($f->telefone): ?>
-                                            <small class="text-muted ms-3"><i class="fa-solid fa-phone me-1"></i><?= htmlspecialchars($f->telefone) ?></small>
-                                            <?php endif; ?>
-                                            <?php if ($f->email): ?>
-                                            <small class="text-muted ms-3"><i class="fa-solid fa-envelope me-1"></i><?= htmlspecialchars($f->email) ?></small>
-                                            <?php endif; ?>
-                                        </div>
-                                        <span class="badge bg-<?= $corTipo ?>"><?= htmlspecialchars($f->tipoFornecedor) ?></span>
-                                    </div>
-                                </li>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Categoria / Grupo <span class="text-danger">*</span></label>
+                            <select name="codigoCategoria" class="form-select" required>
+                                <option disabled value="" <?= empty($_POST['codigoCategoria']) ? 'selected' : '' ?>>Escolha uma opção...</option>
+                                <?php foreach ($categorias as $cat): ?>
+                                <option value="<?= $cat->codigo ?>" <?= ($_POST['codigoCategoria'] ?? '') == $cat->codigo ? 'selected' : '' ?>><?= htmlspecialchars($cat->nome) ?></option>
                                 <?php endforeach; ?>
-                                </ul>
-                            <?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Marca <span class="text-danger">*</span></label>
+                            <input type="text" name="marca" class="form-control" placeholder="Ex: Dräger"
+                                   value="<?= htmlspecialchars($_POST['marca'] ?? '') ?>" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Modelo <span class="text-danger">*</span></label>
+                            <input type="text" name="modelo" class="form-control" placeholder="Ex: Evita V500"
+                                   value="<?= htmlspecialchars($_POST['modelo'] ?? '') ?>" required>
                         </div>
 
-                        <div class="tab-pane" id="documentacao" role="tabpanel">
-                            <?php if (count($documentos) === 0): ?>
-                                <p class="text-muted">Nenhum documento associado a este equipamento.</p>
-                            <?php else: ?>
-                                <ul class="list-group">
-                                <?php foreach ($documentos as $doc): ?>
-                                <?php $expirado = $doc->dataValidade && $doc->dataValidade < date('Y-m-d'); ?>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div class="fw-bold"><?= htmlspecialchars($doc->nome) ?></div>
-                                        <small class="text-muted"><?= htmlspecialchars($doc->tipo) ?></small>
-                                        <small class="text-muted ms-3"><i class="fa-regular fa-calendar me-1"></i><?= date('d/m/Y', strtotime($doc->dataDocumento)) ?></small>
-                                        <?php if ($doc->ficheiro): ?>
-                                        <small class="text-muted ms-3"><i class="fa-regular fa-file-pdf text-danger me-1"></i><?= htmlspecialchars($doc->ficheiro) ?></small>
-                                        <?php endif; ?>
-                                    </div>
-                                    <?php if ($doc->dataValidade): ?>
-                                    <span class="badge bg-<?= $expirado ? 'danger' : 'success' ?>">
-                                        <?= $expirado ? 'Expirado' : 'Válido até ' . date('d/m/Y', strtotime($doc->dataValidade)) ?>
-                                    </span>
-                                    <?php endif; ?>
-                                </li>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Número de Série <span class="text-danger">*</span></label>
+                            <input type="text" name="numeroSerie" class="form-control" placeholder="Ex: SN-DRG-88321-X"
+                                   value="<?= htmlspecialchars($_POST['numeroSerie'] ?? '') ?>" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Fabricante</label>
+                            <input type="text" name="fabricante" class="form-control" placeholder="Ex: Dräger Medical GmbH"
+                                   value="<?= htmlspecialchars($_POST['fabricante'] ?? '') ?>">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Ano de Fabrico</label>
+                            <input type="number" name="anoFabrico" class="form-control" placeholder="Ex: <?= date('Y') ?>" min="1900" max="<?= date('Y') ?>"
+                                   value="<?= htmlspecialchars($_POST['anoFabrico'] ?? '') ?>">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Data de Aquisição <span class="text-danger">*</span></label>
+                            <input type="text" name="dataAquisicao" id="dataAquisicao" class="form-control" placeholder="AAAA-MM-DD"
+                                   value="<?= htmlspecialchars($_POST['dataAquisicao'] ?? '') ?>" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Custo de Aquisição (€)</label>
+                            <input type="number" name="custoAquisicao" step="0.01" class="form-control" placeholder="Ex: 24500.00"
+                                   value="<?= htmlspecialchars($_POST['custoAquisicao'] ?? '') ?>">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Tipo de Entrada <span class="text-danger">*</span></label>
+                            <select name="tipoEntrada" class="form-select" required>
+                                <option disabled value="" <?= empty($_POST['tipoEntrada']) ? 'selected' : '' ?>>Selecione...</option>
+                                <option value="compra"    <?= ($_POST['tipoEntrada'] ?? '') === 'compra'    ? 'selected' : '' ?>>Compra</option>
+                                <option value="doacao"    <?= ($_POST['tipoEntrada'] ?? '') === 'doacao'    ? 'selected' : '' ?>>Doação</option>
+                                <option value="aluguer"   <?= ($_POST['tipoEntrada'] ?? '') === 'aluguer'   ? 'selected' : '' ?>>Aluguer</option>
+                                <option value="emprestimo" <?= ($_POST['tipoEntrada'] ?? '') === 'emprestimo' ? 'selected' : '' ?>>Empréstimo</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Estado Atual <span class="text-danger">*</span></label>
+                            <select name="estado" class="form-select" required>
+                                <option disabled value="" <?= empty($_POST['estado']) ? 'selected' : '' ?>>Selecione...</option>
+                                <option value="ativo"          <?= ($_POST['estado'] ?? '') === 'ativo'          ? 'selected' : '' ?>>Ativo / Operacional</option>
+                                <option value="em manutencao"  <?= ($_POST['estado'] ?? '') === 'em manutencao'  ? 'selected' : '' ?>>Em Manutenção</option>
+                                <option value="em calibracao"  <?= ($_POST['estado'] ?? '') === 'em calibracao'  ? 'selected' : '' ?>>Em Calibração</option>
+                                <option value="em quarentena"  <?= ($_POST['estado'] ?? '') === 'em quarentena'  ? 'selected' : '' ?>>Em Quarentena</option>
+                                <option value="inativo"        <?= ($_POST['estado'] ?? '') === 'inativo'        ? 'selected' : '' ?>>Inativo</option>
+                                <option value="abatido"        <?= ($_POST['estado'] ?? '') === 'abatido'        ? 'selected' : '' ?>>Abatido</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Criticidade <span class="text-danger">*</span></label>
+                            <select name="criticidade" class="form-select" required>
+                                <option disabled value="" <?= empty($_POST['criticidade']) ? 'selected' : '' ?>>Selecione...</option>
+                                <option value="baixa"          <?= ($_POST['criticidade'] ?? '') === 'baixa'          ? 'selected' : '' ?>>Baixa</option>
+                                <option value="media"          <?= ($_POST['criticidade'] ?? '') === 'media'          ? 'selected' : '' ?>>Média</option>
+                                <option value="alta"           <?= ($_POST['criticidade'] ?? '') === 'alta'           ? 'selected' : '' ?>>Alta</option>
+                                <option value="suporte de vida" <?= ($_POST['criticidade'] ?? '') === 'suporte de vida' ? 'selected' : '' ?>>Suporte de Vida</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Observações Gerais</label>
+                            <textarea name="observacoes" class="form-control" rows="2" placeholder="Notas adicionais sobre o equipamento..."><?= htmlspecialchars($_POST['observacoes'] ?? '') ?></textarea>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Localização</label>
+                            <select name="codigoLocalizacao" class="form-select">
+                                <option value="">— Sem localização atribuída —</option>
+                                <?php foreach ($localizacoes as $loc): ?>
+                                <option value="<?= $loc->codigo ?>" <?= ($_POST['codigoLocalizacao'] ?? '') == $loc->codigo ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($loc->edificio) ?><?= $loc->piso ? ' · ' . htmlspecialchars($loc->piso) : '' ?> — <?= htmlspecialchars($loc->servico) ?><?= $loc->sala ? ' · ' . htmlspecialchars($loc->sala) : '' ?>
+                                </option>
                                 <?php endforeach; ?>
-                                </ul>
-                            <?php endif; ?>
+                            </select>
                         </div>
 
-                        <div class="tab-pane" id="garantia" role="tabpanel">
-                            <?php if ($equipamento->codigoGarantia): ?>
-                            <div class="card shadow-sm border border-success-subtle mb-2">
-                                <div class="card-header bg-success-subtle text-success fw-bold">
-                                    <i class="fa-solid fa-circle-check"></i> Informação de Garantia
-                                </div>
-                                <div class="card-body row g-3 text-dark">
-                                    <div class="col-md-4 border-bottom pb-2">
-                                        <small class="text-muted d-block text-uppercase small fw-bold">Início da Garantia</small>
-                                        <span><?= htmlspecialchars($equipamento->dataInicio ?? '—') ?></span>
-                                    </div>
-                                    <div class="col-md-4 border-bottom pb-2">
-                                        <small class="text-muted d-block text-uppercase small fw-bold">Fim da Garantia</small>
-                                        <span><?= htmlspecialchars($equipamento->dataFim ?? '—') ?></span>
-                                    </div>
-                                    <div class="col-md-4 border-bottom pb-2">
-                                        <small class="text-muted d-block text-uppercase small fw-bold">Tipo de Contrato</small>
-                                        <span><?= htmlspecialchars($equipamento->tipoContrato ?? '—') ?></span>
-                                    </div>
-                                    <div class="col-md-4 border-bottom pb-2">
-                                        <small class="text-muted d-block text-uppercase small fw-bold">Entidade Responsável</small>
-                                        <span class="fw-semibold"><?= htmlspecialchars($equipamento->entidadeResponsavel ?? '—') ?></span>
-                                    </div>
-                                    <div class="col-md-4 border-bottom pb-2">
-                                        <small class="text-muted d-block text-uppercase small fw-bold">Periodicidade de Revisão</small>
-                                        <span><?= htmlspecialchars($equipamento->periodicidade ?? '—') ?></span>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <small class="text-muted d-block text-uppercase small fw-bold">Observações</small>
-                                        <p class="mb-0 small text-muted bg-light p-2 rounded border mt-1"><?= htmlspecialchars($equipamento->observacoesGarantia ?? '—') ?></p>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Fornecedores Associated</label>
+                            <p class="text-muted small mb-2">Seleciona os fornecedores que fornecem ou prestam assistência a este equipamento.</p>
+                            <?php if (empty($fornecedores)): ?>
+                                <p class="text-muted fst-italic">Nenhum fornecedor disponível.</p>
                             <?php else: ?>
-                            <p class="text-muted">Sem informação de garantia registada.</p>
+                            <div class="border rounded p-3" style="max-height: 220px; overflow-y: auto;">
+                                <?php
+                                $fornPost = $_POST['fornecedores'] ?? [];
+                                foreach ($fornecedores as $forn): ?>
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input" type="checkbox" name="fornecedores[]"
+                                        id="forn<?= $forn->codigo ?>"
+                                        value="<?= $forn->codigo ?>"
+                                        <?= in_array((string) $forn->codigo, array_map('strval', $fornPost)) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="forn<?= $forn->codigo ?>">
+                                        <span class="fw-semibold"><?= htmlspecialchars($forn->nome) ?></span>
+                                        <small class="text-muted ms-1">— <?= htmlspecialchars($forn->tipoFornecedor) ?></small>
+                                    </label>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
                             <?php endif; ?>
                         </div>
 
-                    </div>
+                        <h5 class="fw-bold mt-4 pt-2 mb-3" style="color: #1e1b4b;"><i class="fa-solid fa-file-signature"></i> Garantia e Contrato de Manutenção</h5>
+                        <div class="row g-3 p-3 bg-light rounded border mx-0">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Data de Início da Garantia</label>
+                                <input type="text" name="garantiaInicio" id="garantiaInicio" class="form-control" placeholder="AAAA-MM-DD"
+                                       value="<?= htmlspecialchars($_POST['garantiaInicio'] ?? '') ?>">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Data de Fim da Garantia</label>
+                                <input type="text" name="garantiaFim" id="garantiaFim" class="form-control" placeholder="AAAA-MM-DD"
+                                       value="<?= htmlspecialchars($_POST['garantiaFim'] ?? '') ?>">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Contrato de Manutenção?</label>
+                                <select name="contratoManutencao" class="form-select">
+                                    <option value="nao" <?= ($_POST['contratoManutencao'] ?? 'nao') === 'nao' ? 'selected' : '' ?>>Não, apenas garantia base</option>
+                                    <option value="sim" <?= ($_POST['contratoManutencao'] ?? '') === 'sim' ? 'selected' : '' ?>>Sim, contrato ativo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Tipo de Contrato</label>
+                                <select name="tipoContrato" class="form-select">
+                                    <option value="" <?= empty($_POST['tipoContrato']) ? 'selected' : '' ?>>Escolha uma opção...</option>
+                                    <option value="Preventiva e Corretiva" <?= ($_POST['tipoContrato'] ?? '') === 'Preventiva e Corretiva' ? 'selected' : '' ?>>Manutenção Preventiva e Corretiva (Full Risk)</option>
+                                    <option value="Apenas Preventiva"      <?= ($_POST['tipoContrato'] ?? '') === 'Apenas Preventiva'      ? 'selected' : '' ?>>Apenas Manutenção Preventiva</option>
+                                    <option value="Suporte Técnico"        <?= ($_POST['tipoContrato'] ?? '') === 'Suporte Técnico'        ? 'selected' : '' ?>>Suporte Técnico Remoto / Calibração</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Entidade Responsável (Fornecedor)</label>
+                                <input type="text" name="entidadeResponsavel" class="form-control" placeholder="Ex: Dräger Portugal Lda."
+                                       value="<?= htmlspecialchars($_POST['entidadeResponsavel'] ?? '') ?>">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Periodicidade das Visitas</label>
+                                <select name="periodicidade" class="form-select">
+                                    <option value="" <?= empty($_POST['periodicidade']) ? 'selected' : '' ?>>Selecione o intervalo...</option>
+                                    <option value="trimestral" <?= ($_POST['periodicidade'] ?? '') === 'trimestral' ? 'selected' : '' ?>>Trimestral</option>
+                                    <option value="semestral"  <?= ($_POST['periodicidade'] ?? '') === 'semestral'  ? 'selected' : '' ?>>Semestral</option>
+                                    <option value="anual"      <?= ($_POST['periodicidade'] ?? '') === 'anual'      ? 'selected' : '' ?>>Anual</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Observações do Contrato</label>
+                                <textarea name="observacoesContrato" class="form-control" rows="2" placeholder="Ex: Inclui substituição de kits de juntas e calibração anual pneumática."><?= htmlspecialchars($_POST['observacoesContrato'] ?? '') ?></textarea>
+                            </div>
+                        </div>
 
-                    <div class="mt-4 pt-2 border-top d-flex gap-2">
-                        <a href="lista.php" class="btn btn-secondary px-4">
-                            <i class="fa-solid fa-arrow-left"></i> &ensp;Voltar à Lista
-                        </a>
-                        <a href="editar.php?id_equipamento=<?= urlencode($id_cifrado) ?>" class="btn btn-outline-primary px-4">
-                            <i class="fa-solid fa-pen-to-square"></i> &ensp;Editar
-                        </a>
-                    </div>
+                        <div class="col-12 d-flex gap-2 mt-4">
+                            <a href="lista.php" class="btn btn-secondary px-4"><i class="fa-solid fa-xmark"></i> Cancelar</a>
+                            <button type="submit" class="btn text-white px-4" style="background-color: #1e1b4b;"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                        </div>
+                    </form>
                 </div>
             </main>
 
         </div>
     </div>
+
+<script src="/sibdas/1241028/medcore/assets/flatpickr/flatpickr.js"></script>
+<script>
+    // flatpickr: date picker visual — Y-m-d coincide com o formato DATE do MySQL, não precisa de conversão no PHP
+    flatpickr("#dataAquisicao",  { dateFormat: "Y-m-d" });
+    flatpickr("#garantiaInicio", { dateFormat: "Y-m-d" });
+    flatpickr("#garantiaFim",    { dateFormat: "Y-m-d" });
+</script>
+
     <?php include '../includes/footer.php'; ?>

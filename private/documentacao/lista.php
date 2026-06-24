@@ -1,33 +1,46 @@
 <?php require_once __DIR__ . '/../includes/funcoes.php';
+
+// Segurança: Garante que apenas utilizadores autenticados conseguem aceder à listagem
 redirect_if_not_logged(); ?>
 <?php include '../includes/header.php'; ?>
 <?php include '../includes/nav.php'; ?>
 
 <?php
+// Abre o canal de comunicação com o MySQL
 $ligacao = ligar_bd();
 $erro = '';
 $ativos = [];
 $arquivados = [];
 
 if (!$ligacao) {
+    // Tratamento preventivo caso o servidor de base de dados do ISEP falhe ou esteja em baixo
     $erro = "Erro na ligação à base de dados.";
 } else {
     try {
-        $todos = $ligacao->query(
-            "SELECT d.*, e.codigoInterno, e.designacao, f.nome AS nomeFornecedor
-             FROM Documentacao d
+        // Executa a consulta trazendo todos os documentos e as suas chaves estrangeiras resolvidas.
+        // Ordena por ordem cronológica decrescente para colocar os registos mais recentes no topo.
+        $stmt = $ligacao->query(
+            "SELECT d.*, e.codigoInterno, e.designacao FROM Documentacao d
              JOIN Equipamento e ON d.codigoEquipamento = e.codigo
              LEFT JOIN Fornecedor f ON d.codigoFornecedor = f.codigo
              ORDER BY d.dataDocumento DESC"
-        )->fetchAll(PDO::FETCH_OBJ);
+        );
+        $resultados = $stmt->fetchAll(PDO::FETCH_OBJ);
 
-        foreach ($todos as $doc) {
-            if ($doc->ativo) $ativos[] = $doc;
-            else             $arquivados[] = $doc;
+        // Lógica de Separação de Subconjuntos: Varre a coleção inteira devolvida pela BD
+        // e organiza os registos em dois blocos separados com base no estado lógico do soft-delete
+        foreach ($resultados as $r) {
+            if ((int)$r->ativo === 1) {
+                $ativos[] = $r;       // Vai preencher a tabela principal de trabalho
+            } else {
+                $arquivados[] = $r;   // Vai preencher a secção secundária de histórico
+            }
         }
     } catch (PDOException $err) {
+        // Captura falhas de execução do driver SQL impedindo erros fatais no ecrã do utilizador
         $erro = "Erro ao carregar documentação.";
     }
+    // Liberta o ponteiro e fecha a sessão com a base de dados
     $ligacao = null;
 }
 ?>
@@ -37,164 +50,4 @@ if (!$ligacao) {
         <?php include '../includes/sidebar.php'; ?>
 
         <main class="col-md-9 col-lg-10 px-md-4 pt-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <div>
-                    <h1 class="h2 fw-bold" style="color: #1e1b4b;">Módulo de Documentação</h1>
-                    <p class="text-muted">Associação de manuais técnicos, certificados e apólices aos ativos biomédicos.</p>
-                </div>
-                <div class="d-flex gap-2 align-items-center">
-                    <?php if (($_SESSION['perfil'] ?? '') !== 'profissional de saude'): ?>
-                    <a href="novo.php" class="btn text-white fw-bold shadow-sm d-inline-flex align-items-center" style="background-color: #1e1b4b;">
-                        <i class="fa-solid fa-plus"></i> &ensp;Associar Documento
-                    </a>
-                    <?php endif; ?>
-                    <div class="dropdown">
-                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fa-solid fa-download"></i> Exportar
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="exportar-csv.php"><i class="fa-solid fa-file-csv text-success me-2"></i>CSV</a></li>
-                            <li><a class="dropdown-item" href="exportar-json.php"><i class="fa-solid fa-file-code text-primary me-2"></i>JSON</a></li>
-                            <li><a class="dropdown-item" href="exportar-pdf.php" target="_blank"><i class="fa-solid fa-file-pdf text-danger me-2"></i>PDF</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <?php if (!empty($erro)): ?>
-                <div class="alert alert-danger mb-3"><i class="fa-solid fa-circle-exclamation me-2"></i><?= htmlspecialchars($erro) ?></div>
-            <?php endif; ?>
-
-            <div class="p-3 bg-white border rounded shadow-sm mb-4">
-                <div class="table-responsive">
-                    <table id="tabela-documentacao" class="table table-bordered table-striped table-hover align-middle mb-0">
-                        <thead class="table-dark small">
-                            <tr>
-                                <th>Nome / Tipo</th>
-                                <th>Equipamento</th>
-                                <th>Data</th>
-                                <th>Validade</th>
-                                <th class="text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($ativos as $doc): ?>
-                            <?php $expirado = $doc->dataValidade && $doc->dataValidade < date('Y-m-d'); ?>
-                            <tr>
-                                <td>
-                                    <div class="fw-bold text-dark"><?= htmlspecialchars($doc->nome) ?></div>
-                                    <span class="badge bg-secondary-subtle text-secondary small"><?= htmlspecialchars($doc->tipo) ?></span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-dark font-monospace me-1"><?= htmlspecialchars($doc->codigoInterno) ?></span>
-                                    <small class="fw-semibold"><?= htmlspecialchars($doc->designacao) ?></small>
-                                </td>
-                                <td class="small"><?= date('d/m/Y', strtotime($doc->dataDocumento)) ?></td>
-                                <td class="small">
-                                    <?php if ($doc->dataValidade): ?>
-                                        <span class="<?= $expirado ? 'text-danger fw-bold' : '' ?>">
-                                            <?= date('d/m/Y', strtotime($doc->dataValidade)) ?>
-                                            <?= $expirado ? ' <i class="fa-solid fa-triangle-exclamation"></i>' : '' ?>
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="text-muted">—</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="text-center">
-                                    <div class="btn-group shadow-sm">
-                                        <a href="detalhes.php?id=<?= aes_encrypt($doc->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalhes"><i class="fa-solid fa-eye text-primary"></i></a>
-                                        <?php if (($_SESSION['perfil'] ?? '') !== 'profissional de saude'): ?>
-                                        <a href="editar.php?id=<?= aes_encrypt($doc->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar"><i class="fa-solid fa-pen-to-square text-secondary"></i></a>
-                                        <?php endif; ?>
-                                        <?php if (($_SESSION['perfil'] ?? '') === 'admin'): ?>
-                                        <a href="apagar.php?id=<?= aes_encrypt($doc->codigo) ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Arquivar"><i class="fa-solid fa-box-archive text-danger"></i></a>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <?php if (!empty($arquivados)): ?>
-            <h5 class="fw-bold text-muted mt-2 mb-3"><i class="fa-solid fa-box-archive me-2"></i>Documentação Arquivada</h5>
-            <div class="p-3 border rounded mb-4" style="background-color: #f8f9fa; opacity: 0.8;">
-                <div class="table-responsive">
-                    <table class="table table-bordered align-middle mb-0 small">
-                        <thead class="table-secondary">
-                            <tr>
-                                <th>Nome / Tipo</th>
-                                <th>Equipamento</th>
-                                <th>Data</th>
-                                <th class="text-center">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($arquivados as $doc): ?>
-                            <tr class="text-muted">
-                                <td>
-                                    <div class="fw-semibold text-decoration-line-through"><?= htmlspecialchars($doc->nome) ?></div>
-                                    <small><?= htmlspecialchars($doc->tipo) ?></small>
-                                </td>
-                                <td>
-                                    <span class="badge bg-dark font-monospace me-1"><?= htmlspecialchars($doc->codigoInterno) ?></span>
-                                    <?= htmlspecialchars($doc->designacao) ?>
-                                </td>
-                                <td><?= date('d/m/Y', strtotime($doc->dataDocumento)) ?></td>
-                                <td class="text-center"><span class="badge bg-secondary">Arquivado</span></td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <?php endif; ?>
-        </main>
-    </div>
-</div>
-
-<?php if (!empty($_SESSION['toast'])): ?>
-<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
-    <div id="toastMensagem" class="toast align-items-center text-bg-<?= $_SESSION['toast']['tipo'] ?> border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body fw-semibold">
-                <i class="fa-solid fa-circle-check me-2"></i> <?= htmlspecialchars($_SESSION['toast']['mensagem']) ?>
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
-        </div>
-    </div>
-</div>
-<?php unset($_SESSION['toast']); ?>
-<?php endif; ?>
-
-<script>
-$(document).ready(function() {
-    $('#tabela-documentacao').DataTable({
-        // dom: 'lrtip' — layout da tabela sem a caixa de pesquisa nativa do DataTables
-        dom: 'lrtip',
-        pageLength: 10,
-        pagingType: "full_numbers",
-        language: {
-            emptyTable: "Não existe documentação registada.",
-            info: "Mostrando _START_ até _END_ de _TOTAL_ registos",
-            infoEmpty: "Mostrando 0 até 0 de 0 registos",
-            infoFiltered: "(Filtrando _MAX_ total de registos)",
-            lengthMenu: "Mostrando _MENU_ registos por página.",
-            zeroRecords: "Nenhum registo encontrado.",
-            paginate: { first: "Primeira", last: "Última", next: "Seguinte", previous: "Anterior" }
-        }
-    });
-
-    // inicializa tooltips Bootstrap em todos os elementos com data-bs-toggle="tooltip"
-    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) {
-        new bootstrap.Tooltip(el);
-    });
-
-    // toast de feedback após ação; delay: 4000ms antes do auto-hide
-    var toastEl = document.getElementById('toastMensagem');
-    if (toastEl) new bootstrap.Toast(toastEl, { delay: 4000 }).show();
-});
-</script>
-<?php include '../includes/footer.php'; ?>
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items

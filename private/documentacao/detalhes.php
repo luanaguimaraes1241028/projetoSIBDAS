@@ -1,21 +1,35 @@
-<?php require_once __DIR__ . '/../includes/funcoes.php';
+<?php 
+// Inclui as funções globais e utilitários (criptografia, funções de BD, etc.)
+require_once __DIR__ . '/../includes/funcoes.php';
+
+// Segurança: impede o acesso se o utilizador não tiver uma sessão ativa no browser
 redirect_if_not_logged();
 
+// Captura o ID encriptado recebido via parâmetro GET na URL (?id=...)
 $id_cifrado = $_GET['id'] ?? '';
+
+// Desencripta o ID através do algoritmo AES-256-CBC do sistema
 $id = aes_decrypt($id_cifrado);
+
+// Validação rigorosa: se a chave falhar ou o ID resultante não contiver apenas dígitos numéricos,
+// aborta imediatamente a execução e redireciona para a lista geral
 if ($id === false || !ctype_digit((string) $id)) {
     header('Location: lista.php');
     exit;
 }
 
+// Inicializa as variáveis de controle do estado da página
 $ligacao = ligar_bd();
 $doc = null;
 $erro = '';
 
 if (!$ligacao) {
+    // Caso a função de conexão falhe, armazena a mensagem de erro para o utilizador
     $erro = "Erro na ligação à base de dados.";
 } else {
     try {
+        // Prepara a instrução SQL unindo três tabelas (Documentação, Equipamento e Fornecedor).
+        // O LEFT JOIN no Fornecedor assegura que o documento é exibido mesmo que não tenha fornecedor associado.
         $stmt = $ligacao->prepare(
             "SELECT d.*, e.codigoInterno, e.designacao, e.marca, f.nome AS nomeFornecedor
              FROM Documentacao d
@@ -23,15 +37,25 @@ if (!$ligacao) {
              LEFT JOIN Fornecedor f ON d.codigoFornecedor = f.codigo
              WHERE d.codigo = :id AND d.ativo = 1"
         );
+        
+        // Executa a consulta associando de forma segura o ID numérico decifrado
         $stmt->execute([':id' => $id]);
+        
+        // Recolhe o resultado como um objeto de propriedades dinâmicas (PDO::FETCH_OBJ)
         $doc = $stmt->fetch(PDO::FETCH_OBJ);
+        
+        // Se a consulta não retornar linhas (ex: documento inativo ou ID inexistente), redireciona por segurança
         if (!$doc) { header('Location: lista.php'); exit; }
+        
     } catch (PDOException $err) {
+        // Captura exceções do PDO e define uma mensagem amigável para mitigar quebras de ecrã
         $erro = "Erro ao carregar dados.";
     }
+    // Fecha o canal de comunicação com o MySQL
     $ligacao = null;
 }
 
+// Dicionário local para fazer o mapeamento do termo técnico da BD para o texto limpo da interface
 $tiposLabel = [
     'manual de utilizador'        => 'Manual de Utilizador',
     'manual de servico'           => 'Manual de Serviço',
@@ -49,11 +73,15 @@ $tiposLabel = [
     <div class="row">
         <?php include '../includes/sidebar.php'; ?>
         <main class="col-md-9 col-lg-10 px-md-4 pt-4">
+            
             <?php if ($erro): ?>
                 <div class="alert alert-danger m-4"><?= htmlspecialchars($erro) ?></div>
             <?php elseif ($doc): ?>
             <?php
+                // Lógica de Negócio: Compara a data de validade com o dia de hoje (gerado dinamicamente pelo servidor)
                 $expirado  = $doc->dataValidade && $doc->dataValidade < date('Y-m-d');
+                
+                // Fallback: se o tipo da BD não existir no dicionário, imprime o texto cru da BD
                 $labelTipo = $tiposLabel[$doc->tipo] ?? $doc->tipo;
             ?>
             <div class="card shadow-sm border p-4 mx-auto my-4" style="max-width: 800px;">
@@ -90,6 +118,7 @@ $tiposLabel = [
                         <label class="text-muted small d-block">Fornecedor Associado</label>
                         <span><?= $doc->nomeFornecedor ? htmlspecialchars($doc->nomeFornecedor) : '—' ?></span>
                     </div>
+                    
                     <?php if ($doc->ficheiro): ?>
                     <div class="col-12 border-bottom pb-2">
                         <label class="text-muted small d-block">Ficheiro</label>
@@ -105,6 +134,7 @@ $tiposLabel = [
                     <a href="lista.php" class="btn btn-secondary px-4">
                         <i class="fa-solid fa-arrow-left"></i> Voltar
                     </a>
+                    
                     <?php if (($_SESSION['perfil'] ?? '') !== 'profissional de saude'): ?>
                     <a href="editar.php?id=<?= urlencode($id_cifrado) ?>" class="btn text-white px-4" style="background-color: #1e1b4b;">
                         <i class="fa-solid fa-pen-to-square"></i> Editar

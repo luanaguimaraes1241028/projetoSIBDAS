@@ -12,6 +12,7 @@ try {
         MYSQL_PASSWORD
     );
     $ligacao->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // abatidos excluídos da listagem principal; aparecem numa secção separada no fundo
     $resultados = $ligacao->query(
         "SELECT e.*, l.servico AS nomeLocalizacao, c.nome AS nomeCategoria
          FROM Equipamento e
@@ -299,7 +300,7 @@ $inativos   = count(array_filter($resultados, fn($eq) => $eq->estado === 'inativ
             }
         });
 
-        // pesquisa de texto ligada ao input personalizado
+        // pesquisa e filtros ligados aos inputs acima da tabela em vez dos nativos do DataTables
         $('#pesquisa-texto').on('keyup', function() {
             tabela.search(this.value).draw();
         });

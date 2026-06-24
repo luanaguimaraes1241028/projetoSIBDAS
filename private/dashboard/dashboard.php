@@ -1,8 +1,14 @@
 <?php
+// Inclui o ficheiro base com as configurações de base de dados e sessões
 require_once '../includes/funcoes.php';
+
+// Proteção da página: se não estiver logado, manda o utilizador para o login
 redirect_if_not_logged();
 
+// Cores que vamos usar para pintar as barras do primeiro gráfico
 $cores = ['#4f46e5', '#06b6d4', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#f97316', '#14b8a6'];
+
+// Este array associa o texto que está na BD ao nome limpo e à cor certa para o gráfico de rosca
 $critMap = [
     'suporte de vida' => ['label' => 'Suporte de Vida', 'color' => '#ef4444'],
     'alta'            => ['label' => 'Alta',             'color' => '#f97316'],
@@ -11,23 +17,28 @@ $critMap = [
 ];
 
 try {
+    // Abre a ligação com a base de dados via PDO usando as nossas constantes globais
     $ligacao = new PDO(
         "mysql:host=" . MYSQL_HOST . ";port=" . MYSQL_PORT . ";dbname=" . MYSQL_DATABASE . ";charset=utf8",
         MYSQL_USERNAME, MYSQL_PASSWORD
     );
+    // Configura o PDO para lançar erros reais (exceções) se alguma query falhar
     $ligacao->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    // Faz as contagens dos equipamentos de forma rápida numa só query usando SUM como condição
     $counts = $ligacao->query(
         "SELECT COUNT(*) AS total, SUM(estado='ativo') AS ativos,
                 SUM(estado='em manutencao') AS manutencao, SUM(estado='inativo') AS inativos
          FROM Equipamento"
-    )->fetch(PDO::FETCH_OBJ);
+    )->fetch(PDO::FETCH_OBJ); // Guarda o resultado como um objeto para aceder com "->"
 
+    // Conta quantas garantias já passaram da data atual
     $garantiasExpiradas = (int) $ligacao->query(
         "SELECT COUNT(*) FROM Garantia WHERE dataFim < CURDATE()"
     )->fetchColumn();
 
-    // NOT EXISTS é mais eficiente que LEFT JOIN ... IS NULL para subconjuntos grandes
+    // Procura equipamentos que não têm nenhuma linha correspondente na tabela de documentação ativa
+    // O NOT EXISTS é usado aqui porque é muito mais rápido do que fazer LEFT JOIN numa tabela grande
     $semDocumentacao = (int) $ligacao->query(
         "SELECT COUNT(*) FROM Equipamento e
          WHERE NOT EXISTS (
@@ -36,12 +47,13 @@ try {
          )"
     )->fetchColumn();
 
-    // janela de 30 dias: ativa o alerta amarelo no painel de alertas
+    // Conta os equipamentos cuja garantia vai expirar nos próximos 30 dias (para o alerta amarelo)
     $garantiasAExpirar = (int) $ligacao->query(
         "SELECT COUNT(*) FROM Garantia
          WHERE dataFim >= CURDATE() AND dataFim <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)"
     )->fetchColumn();
 
+    // Descobre quais são os 8 serviços com mais equipamentos (e mete "Sem Localização" se for NULL)
     $rowsServico = $ligacao->query(
         "SELECT IFNULL(l.servico, 'Sem Localização') AS servico, COUNT(*) AS total
          FROM Equipamento e
@@ -51,7 +63,8 @@ try {
          LIMIT 8"
     )->fetchAll(PDO::FETCH_OBJ);
 
-    // FIELD() força a ordem de criticidade do mais crítico para o menos crítico
+    // Agrupa por criticidade e usa a função FIELD do SQL para garantir que os dados vêm ordenados
+    // por importância clínica (Suporte de Vida primeiro, Baixa em último) e não por ordem alfabética
     $rowsCrit = $ligacao->query(
         "SELECT criticidade, COUNT(*) AS total FROM Equipamento
          GROUP BY criticidade
@@ -59,6 +72,7 @@ try {
     )->fetchAll(PDO::FETCH_OBJ);
 
 } catch (PDOException) {
+    // Se a base de dados falhar, criamos valores vazios por segurança para a página não quebrar
     $counts             = (object)['total' => 0, 'ativos' => 0, 'manutencao' => 0, 'inativos' => 0];
     $garantiasExpiradas = 0;
     $semDocumentacao    = 0;
@@ -66,16 +80,25 @@ try {
     $rowsServico        = [];
     $rowsCrit           = [];
 }
+// Fecha a ligação à base de dados para libertar memória no servidor
 $ligacao = null;
 
+// --- Preparação dos dados para o Gráfico de Serviços ---
+// O array_map isola apenas os nomes dos serviços num array limpo para as barras
 $labelsServicos = array_map(fn($r) => $r->servico, $rowsServico);
+// Isola as quantidades de cada serviço e garante que são tratadas como números inteiros
 $dataServicos   = array_map(fn($r) => (int)$r->total, $rowsServico);
+// Corta o array de cores original para ficar exatamente do tamanho do número de serviços que temos
 $colorsServicos = array_slice($cores, 0, count($labelsServicos));
 
+// --- Preparação dos dados para o Gráfico de Criticidade ---
+// Vai buscar o nome bonito definido lá em cima no $critMap. Se não encontrar, usa a palavra da BD com a primeira letra maiúscula
 $labelsCrit = array_map(fn($r) => $critMap[$r->criticidade]['label'] ?? ucfirst($r->criticidade), $rowsCrit);
 $dataCrit   = array_map(fn($r) => (int)$r->total, $rowsCrit);
+// Associa a cor certa do $critMap a cada nível. Se falhar, mete um cinzento padrão (#6b7280)
 $colorsCrit = array_map(fn($r) => $critMap[$r->criticidade]['color'] ?? '#6b7280', $rowsCrit);
 
+// Variável booleana (true/false) que valida se existe algum tipo de problema a decorrer no hospital
 $temAlertas = $garantiasExpiradas > 0 || $semDocumentacao > 0 || $garantiasAExpirar > 0;
 ?>
 
@@ -133,21 +156,25 @@ $temAlertas = $garantiasExpiradas > 0 || $semDocumentacao > 0 || $garantiasAExpi
 
                 <div class="mb-4">
                     <h5 class="fw-bold mb-3"><i class="fa-solid fa-triangle-exclamation text-warning"></i> Alertas do Sistema</h5>
+                    
                     <?php if (!$temAlertas): ?>
                     <div class="alert alert-success shadow-sm py-2 px-3" role="alert">
                         <i class="fa-solid fa-circle-check me-1"></i> <strong>Sem alertas.</strong> O sistema está operacional.
                     </div>
                     <?php endif; ?>
+
                     <?php if ($garantiasExpiradas > 0): ?>
                     <div class="alert alert-danger shadow-sm py-2 px-3 mb-2" role="alert">
                         <strong>Garantia Expirada:</strong> <?= $garantiasExpiradas ?> equipamento<?= $garantiasExpiradas > 1 ? 's' : '' ?> necessita<?= $garantiasExpiradas > 1 ? 'm' : '' ?> de revisão de contrato.
                     </div>
                     <?php endif; ?>
+
                     <?php if ($semDocumentacao > 0): ?>
                     <div class="alert alert-danger shadow-sm py-2 px-3 mb-2" role="alert">
                         <strong>Falta Documentação:</strong> <?= $semDocumentacao ?> equipamento<?= $semDocumentacao > 1 ? 's' : '' ?> sem documentação associada.
                     </div>
                     <?php endif; ?>
+
                     <?php if ($garantiasAExpirar > 0): ?>
                     <div class="alert alert-warning shadow-sm py-2 px-3" role="alert">
                         <strong>Garantias a expirar (30 dias):</strong> <?= $garantiasAExpirar ?> dispositivo<?= $garantiasAExpirar > 1 ? 's' : '' ?> médico<?= $garantiasAExpirar > 1 ? 's' : '' ?> próximo<?= $garantiasAExpirar > 1 ? 's' : '' ?> do fim.
@@ -184,7 +211,8 @@ $temAlertas = $garantiasExpiradas > 0 || $semDocumentacao > 0 || $garantiasAExpi
     </div>
 
 <script>
-// PHP serializa os dados das queries para JSON; o Chart.js lê a partir deste objeto global
+// Passagem de testemunho do PHP para o JavaScript.
+// O json_encode converte os arrays nativos do PHP diretamente em objetos/arrays JSON interpretáveis pelo Chart.js no browser.
 window.dashboardData = {
     servicos: {
         labels: <?= json_encode($labelsServicos) ?>,

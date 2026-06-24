@@ -40,6 +40,7 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 $out = fopen('php://output', 'w'); // php://output escreve diretamente para o buffer sem criar ficheiro temporário
 fwrite($out, "\xEF\xBB\xBF"); // BOM UTF-8: necessário para o Excel abrir o CSV com caracteres portugueses corretamente
 
+// ';' em vez de ',' porque o Excel europeu usa ponto e vírgula por padrão
 fputcsv($out, [
     'Código Interno', 'Designação', 'Marca', 'Modelo', 'Nº de Série', 'Fabricante',
     'Categoria', 'Edifício', 'Piso', 'Serviço', 'Sala',

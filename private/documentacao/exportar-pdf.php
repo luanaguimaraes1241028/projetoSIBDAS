@@ -1,11 +1,17 @@
 <?php
+// Inclui o ficheiro core com as funções globais do ecossistema MedCore
 require_once '../includes/funcoes.php';
+
+// Medida de segurança: barra o acesso direto à página se o utilizador não tiver uma sessão ativa
 redirect_if_not_logged();
 
+// Inicia o canal de ligação à base de dados. Se falhar, aborta e regressa à lista principal
 $ligacao = ligar_bd();
 if (!$ligacao) { header('Location: lista.php'); exit; }
 
 try {
+    // Query 1: Extrai todos os documentos ativos ordenados de forma cronológica decrescente.
+    // Une a tabela de Equipamentos (INNER JOIN) e Fornecedores (LEFT JOIN para manter registos sem fornecedor).
     $rows = $ligacao->query(
         "SELECT d.nome, d.tipo, d.dataDocumento, d.dataValidade,
                 e.codigoInterno, e.designacao,
@@ -15,18 +21,24 @@ try {
          LEFT JOIN Fornecedor f ON d.codigoFornecedor = f.codigo
          WHERE d.ativo = 1
          ORDER BY d.dataDocumento DESC"
-    )->fetchAll(PDO::FETCH_OBJ); // FETCH_OBJ devolve objetos; acedidos com -> no template (ex: $doc->tipo)
+    )->fetchAll(PDO::FETCH_OBJ); // FETCH_OBJ converte as linhas em objetos PHP (acedidos com "->")
 
-    // fetchColumn() devolve o escalar direto — evita fetch() + acesso ao índice para queries de contagem
+    // Query 2: Recolhe a contagem total de registos ativos.
+    // O fetchColumn() extrai o escalar numérico direto, poupando a memória de criar um array associativo completo.
     $total = $ligacao->query("SELECT COUNT(*) FROM Documentacao WHERE ativo = 1")->fetchColumn();
-    // dataValidade < CURDATE(): comparação feita no servidor MySQL — mais eficiente que trazer todas as datas para PHP
+    
+    // Query 3: Filtra e conta quantos documentos ativos possuem data de validade preenchida e já expiraram.
+    // A comparação temporal (< CURDATE()) é efetuada no motor MySQL, sendo muito mais eficiente do que carregar e avaliar os dados no PHP.
     $expirados = $ligacao->query("SELECT COUNT(*) FROM Documentacao WHERE ativo = 1 AND dataValidade IS NOT NULL AND dataValidade < CURDATE()")->fetchColumn();
 } catch (PDOException $e) {
+    // Interceção de falhas críticas na BD: redireciona o utilizador de forma segura para não expor erros do MySQL
     header('Location: lista.php');
     exit;
 }
+// Corta a ligação com a base de dados
 $ligacao = null;
 
+// Insere uma linha no histórico de auditoria do hospital registando o volume de dados exportado
 registar_log('exportacao_pdf', 'Exportação de documentação em PDF — ' . count($rows) . ' registos');
 ?>
 <!DOCTYPE html>
@@ -77,7 +89,7 @@ registar_log('exportacao_pdf', 'Exportação de documentação em PDF — ' . co
 </div>
 <div class="summary">
     <div class="summary-box"><div class="num"><?= $total ?></div><div class="lbl">Documentos Ativos</div></div>
-    <?php /* caixa de expirados fica vermelha se houver algum, verde se zero — alerta visual no relatório */ ?>
+    
     <div class="summary-box"><div class="num" style="color:<?= $expirados > 0 ? '#dc3545' : '#198754' ?>;"><?= $expirados ?></div><div class="lbl">Expirados</div></div>
 </div>
 <div class="table-wrap">
@@ -94,7 +106,7 @@ registar_log('exportacao_pdf', 'Exportação de documentação em PDF — ' . co
         </thead>
         <tbody>
             <?php foreach ($rows as $doc):
-                // verificação PHP linha a linha: aplica classe CSS 'expirado' e símbolo ⚠ na célula de validade
+                // Lógica de Validação: Compara em tempo real se a validade do documento é inferior ao dia de hoje
                 $expirado = $doc->dataValidade && $doc->dataValidade < date('Y-m-d');
             ?>
             <tr>
@@ -106,8 +118,8 @@ registar_log('exportacao_pdf', 'Exportação de documentação em PDF — ' . co
                     <span style="font-family:monospace;font-size:9px;background:#1e1b4b;color:#fff;padding:1px 5px;border-radius:3px;"><?= htmlspecialchars($doc->codigoInterno) ?></span>
                     <?= htmlspecialchars($doc->designacao) ?>
                 </td>
-                <?php /* strtotime converte 'Y-m-d' da BD; date() reformata para 'd/m/Y' legível no relatório */ ?>
                 <td><?= date('d/m/Y', strtotime($doc->dataDocumento)) ?></td>
+                
                 <td class="<?= $expirado ? 'expirado' : '' ?>">
                     <?= $doc->dataValidade ? date('d/m/Y', strtotime($doc->dataValidade)) . ($expirado ? ' ⚠' : '') : '—' ?>
                 </td>
@@ -118,6 +130,7 @@ registar_log('exportacao_pdf', 'Exportação de documentação em PDF — ' . co
     </table>
 </div>
 <div class="footer-info">MedCore — Sistema de Gestão de Inventário Hospitalar &nbsp;|&nbsp; Relatório gerado em <?= date('d/m/Y H:i:s') ?></div>
+
 <button class="print-btn" onclick="window.print()">Imprimir / Guardar como PDF</button>
 </body>
 </html>

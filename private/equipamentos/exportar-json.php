@@ -32,6 +32,7 @@ $ligacao = null;
 
 registar_log('exportacao_json', 'Exportação de equipamentos em JSON — ' . count($rows) . ' registos');
 
+// envelope com metadados para quem consumir o ficheiro saber de onde vem e quando foi gerado
 $payload = [
     'sistema'      => 'MedCore — Inventário Hospitalar',
     'exportado_em' => date('Y-m-d H:i:s'),
