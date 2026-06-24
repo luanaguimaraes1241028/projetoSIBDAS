@@ -202,3 +202,39 @@ CREATE TABLE IF NOT EXISTS MensagemContacto (
 );
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ----------------------------
+-- Dados iniciais: Equipamentos
+-- ----------------------------
+INSERT INTO Equipamento (codigoInterno, designacao, marca, modelo, fabricante, numeroSerie, anoFabrico, dataAquisicao, custoAquisicao, tipoEntrada, estado, criticidade, observacoes, codigoCategoria, codigoLocalizacao) VALUES
+('EQ-0005', 'Desfibrilhador Externo Automático',   'Philips',         'HeartStart FRx',   'Philips Healthcare',      'SN-PHL-55321-D', 2021, '2022-03-15', 3200.00,   'compra', 'ativo',         'suporte de vida', NULL,                                   2, 1),
+('EQ-0006', 'Bomba De Infusão Volumétrica',         'Fresenius',       'Agilia VP',        'Fresenius Kabi',          'SN-FRK-22109-A', 2020, '2020-11-10', 4800.00,   'compra', 'ativo',         'alta',            NULL,                                   3, 2),
+('EQ-0007', 'Analisador De Gases Sanguíneos',       'Radiometer',      'ABL90 FLEX',       'Radiometer Medical',      'SN-RAD-11205-B', 2019, '2019-06-20', 28500.00,  'compra', 'ativo',         'alta',            NULL,                                   5, 5),
+('EQ-0008', 'Autoclave De Vapor',                   'Tuttnauer',       '3870EHA',          'Tuttnauer Europe',        'SN-TUT-33087-C', 2018, '2018-09-01', 12000.00,  'compra', 'ativo',         'media',           NULL,                                   6, 3),
+('EQ-0009', 'Aparelho De Raio-X Portátil',          'Siemens',         'Mobilett Mira',    'Siemens Healthineers',    'SN-SIE-44321-F', 2022, '2022-07-15', 85000.00,  'compra', 'ativo',         'alta',            NULL,                                   4, 4),
+('EQ-0010', 'Monitor De ECG 12 Derivações',         'Nihon Kohden',    'ECP-2350',         'Nihon Kohden Corp',       'SN-NKH-66132-A', 2021, '2021-04-20', 7500.00,   'compra', 'ativo',         'alta',            NULL,                                   1, 1),
+('EQ-0011', 'Ventilador De Transporte',             'Dräger',          'Oxylog 3000',      'Dräger Medical',          'SN-DRG-77421-Y', 2020, '2020-08-10', 22000.00,  'compra', 'ativo',         'suporte de vida', NULL,                                   2, 2),
+('EQ-0012', 'Bomba De Seringa',                     'B. Braun',        'Perfusor Space',   'B. Braun Melsungen',      'SN-BBR-88543-G', 2021, '2021-10-05', 3100.00,   'compra', 'ativo',         'alta',            NULL,                                   3, 2),
+('EQ-0013', 'Eletroencefalógrafo Digital',          'Natus',           'Quantum EEG',      'Natus Medical',           'SN-NAT-99012-H', 2019, '2019-12-15', 45000.00,  'compra', 'em manutencao', 'alta',            'Substituição de eléctrodos agendada.', 4, 2),
+('EQ-0014', 'Centrifugadora De Bancada',            'Eppendorf',       '5702 R',           'Eppendorf AG',            'SN-EPP-10321-I', 2020, '2020-03-25', 3800.00,   'compra', 'ativo',         'media',           NULL,                                   5, 5),
+('EQ-0015', 'Máquina De Anestesia',                 'Dräger',          'Fabius Plus',      'Dräger Medical',          'SN-DRG-11432-Z', 2022, '2022-05-30', 65000.00,  'compra', 'ativo',         'suporte de vida', NULL,                                   2, 3),
+('EQ-0016', 'Coluna De Laparoscopia',               'Karl Storz',      'AIDA Hub',         'Karl Storz GmbH',         'SN-KST-22543-J', 2021, '2021-09-15', 120000.00, 'compra', 'ativo',         'alta',            NULL,                                   3, 3),
+('EQ-0017', 'Nebulizador Ultrassónico',             'Omron',           'NE-U17',           'Omron Healthcare',        'SN-OMR-33654-K', 2023, '2023-01-20', 280.00,    'compra', 'ativo',         'baixa',           NULL,                                   3, 1),
+('EQ-0018', 'Eletrocardiógrafo Portátil',           'Schiller',        'AT-102',           'Schiller AG',             'SN-SCH-44765-L', 2022, '2022-11-10', 5200.00,   'compra', 'ativo',         'alta',            NULL,                                   1, 1),
+('EQ-0019', 'Aparelho De CPAP',                     'ResMed',          'AirSense 10',      'ResMed Corp',             'SN-RSM-55876-M', 2021, '2021-07-05', 1800.00,   'compra', 'ativo',         'alta',            NULL,                                   2, 2),
+('EQ-0020', 'Mesa Cirúrgica Elétrica',              'Maquet',          'Alphastar',        'Maquet GmbH',             'SN-MAQ-66987-N', 2019, '2019-11-20', 95000.00,  'compra', 'ativo',         'alta',            NULL,                                   3, 3),
+('EQ-0021', 'Monitor De Pressão Invasiva',          'Spacelabs',       '91369',            'Spacelabs Healthcare',    'SN-SPL-77098-O', 2020, '2020-06-15', 9500.00,   'compra', 'em calibracao', 'alta',            'Calibração semestral em curso.',       1, 2),
+('EQ-0022', 'Analisador Bioquímico',                'Beckman Coulter', 'AU480',            'Beckman Coulter Inc',     'SN-BCK-88209-P', 2018, '2018-04-10', 85000.00,  'compra', 'ativo',         'alta',            NULL,                                   5, 5),
+('EQ-0023', 'Cadeira De Reabilitação Motorizada',   'Permobil',        'M3 Corpus',        'Permobil AB',             'SN-PRM-99310-Q', 2023, '2023-03-15', 12500.00,  'compra', 'ativo',         'media',           NULL,                                   7, 1),
+('EQ-0024', 'Hemoglobinómetro Portátil',            'HemoCue',         'Hb 201+',          'HemoCue AB',              'SN-HMC-10421-R', 2022, '2022-09-20', 1200.00,   'compra', 'ativo',         'media',           NULL,                                   5, 5);
+
+INSERT INTO Garantia (dataInicio, dataFim, temContrato, tipoContrato, entidadeResponsavel, periodicidade, codigoEquipamento) VALUES
+('2022-03-15', '2025-03-15', 1, 'manutencao preventiva', 'Philips Healthcare Portugal',   'anual',     (SELECT codigo FROM Equipamento WHERE codigoInterno = 'EQ-0005')),
+('2020-11-10', '2023-11-10', 0, NULL,                    NULL,                            NULL,        (SELECT codigo FROM Equipamento WHERE codigoInterno = 'EQ-0006')),
+('2019-06-20', '2024-06-20', 1, 'manutencao preventiva', 'Radiometer Portugal',           'semestral', (SELECT codigo FROM Equipamento WHERE codigoInterno = 'EQ-0007')),
+('2018-09-01', '2023-09-01', 1, 'manutencao preventiva', 'Tuttnauer Service',             'anual',     (SELECT codigo FROM Equipamento WHERE codigoInterno = 'EQ-0008')),
+('2022-07-15', '2025-07-15', 1, 'manutencao preventiva', 'Siemens Healthineers Portugal', 'semestral', (SELECT codigo FROM Equipamento WHERE codigoInterno = 'EQ-0009')),
+('2022-05-30', '2027-05-30', 1, 'manutencao preventiva', 'Dräger Portugal',               'semestral', (SELECT codigo FROM Equipamento WHERE codigoInterno = 'EQ-0015')),
+('2021-09-15', '2026-09-15', 1, 'manutencao preventiva', 'Karl Storz Portugal',           'anual',     (SELECT codigo FROM Equipamento WHERE codigoInterno = 'EQ-0016')),
+('2022-11-10', '2025-11-10', 0, NULL,                    NULL,                            NULL,        (SELECT codigo FROM Equipamento WHERE codigoInterno = 'EQ-0018')),
+('2019-11-20', '2024-11-20', 1, 'manutencao preventiva', 'Maquet Service GmbH',           'anual',     (SELECT codigo FROM Equipamento WHERE codigoInterno = 'EQ-0020'));

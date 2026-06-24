@@ -16,13 +16,23 @@ try {
         "SELECT e.*, l.servico AS nomeLocalizacao, c.nome AS nomeCategoria
          FROM Equipamento e
          LEFT JOIN Localizacao l ON e.codigoLocalizacao = l.codigo
-         LEFT JOIN Categoria c ON e.codigoCategoria = c.codigo"
+         LEFT JOIN Categoria c ON e.codigoCategoria = c.codigo
+         WHERE e.estado != 'abatido'
+         ORDER BY e.codigoInterno"
+    )->fetchAll(PDO::FETCH_OBJ);
+    $abatidos = $ligacao->query(
+        "SELECT e.*, c.nome AS nomeCategoria
+         FROM Equipamento e
+         LEFT JOIN Categoria c ON e.codigoCategoria = c.codigo
+         WHERE e.estado = 'abatido'
+         ORDER BY e.codigoInterno"
     )->fetchAll(PDO::FETCH_OBJ);
     $categorias = $ligacao->query("SELECT nome FROM Categoria ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
     $erro = '';
 } catch (PDOException $err) {
     $erro = "Aconteceu um erro na ligação.";
     $resultados = [];
+    $abatidos   = [];
     $categorias = [];
 }
 $ligacao = null;
@@ -203,6 +213,41 @@ $inativos   = count(array_filter($resultados, fn($eq) => $eq->estado === 'inativ
                         <p class="mb-5">Total: <strong> <?= count($resultados) ?> </strong></p>
                     </div>
                 </div>
+            <?php if (!empty($abatidos)): ?>
+            <h5 class="fw-bold text-muted mt-2 mb-3 ms-4"><i class="fa-solid fa-box-archive me-2"></i>Equipamentos Abatidos</h5>
+            <div class="p-3 border rounded mb-4 ms-4 me-4" style="background-color: #f8f9fa; opacity: 0.8;">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle mb-0 small">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Cód. Inventário / Designação</th>
+                                <th>Marca / Modelo</th>
+                                <th>Número de Série</th>
+                                <th>Categoria</th>
+                                <th class="text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($abatidos as $eq): ?>
+                            <tr class="text-muted">
+                                <td>
+                                    <span class="badge bg-secondary font-monospace mb-1"><?= htmlspecialchars($eq->codigoInterno) ?></span>
+                                    <div class="fw-semibold text-decoration-line-through"><?= htmlspecialchars($eq->designacao) ?></div>
+                                </td>
+                                <td>
+                                    <div class="small"><?= htmlspecialchars($eq->marca) ?></div>
+                                    <div class="text-muted small"><?= htmlspecialchars($eq->modelo) ?></div>
+                                </td>
+                                <td><code class="text-secondary small"><?= htmlspecialchars($eq->numeroSerie) ?></code></td>
+                                <td><?= htmlspecialchars($eq->nomeCategoria) ?></td>
+                                <td class="text-center"><span class="badge bg-dark">Abatido</span></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <?php endif; ?>
             </main>
         </div>
     </div>
