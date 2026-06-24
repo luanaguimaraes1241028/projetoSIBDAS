@@ -43,5 +43,6 @@ header('Content-Type: application/json; charset=utf-8');
 header('Content-Disposition: attachment; filename="equipamentos_' . date('Ymd_His') . '.json"');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 
+// JSON_PRETTY_PRINT: indenta o output; JSON_UNESCAPED_UNICODE: mantém "ã/ç/é" legíveis; JSON_UNESCAPED_SLASHES: não escapa "/"
 echo json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 exit;

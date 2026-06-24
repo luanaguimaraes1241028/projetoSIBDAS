@@ -26,7 +26,7 @@ try {
     );
     $stmt->execute([':nome' => $nome, ':email' => $email, ':mensagem' => $mensagem]);
     $pdo = null;
-    header('Location: index.php?enviado=1#contacto');
+    header('Location: index.php?enviado=1#contacto'); // âncora #contacto mantém o utilizador na secção de contacto após submissão
 } catch (Exception $e) {
     header('Location: index.php?erro=1#contacto');
 }

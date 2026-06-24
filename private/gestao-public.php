@@ -25,6 +25,7 @@ $erro    = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        // ON DUPLICATE KEY UPDATE: upsert — cria o registo se não existir, atualiza se já existir (chave é UNIQUE)
         $stmt = $ligacao->prepare(
             "INSERT INTO ConteudoPublico (chave, valor, dataAtualizacao, codigoUtilizador)
              VALUES (:chave, :valor, CURDATE(), :user)
@@ -44,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$rows = $ligacao->query("SELECT chave, valor FROM ConteudoPublico")->fetchAll(PDO::FETCH_KEY_PAIR);
+$rows = $ligacao->query("SELECT chave, valor FROM ConteudoPublico")->fetchAll(PDO::FETCH_KEY_PAIR); // FETCH_KEY_PAIR devolve diretamente ['chave' => 'valor']
 $defaults = [
     'solucao_titulo1'   => 'Controlo de Ativos',
     'solucao_conteudo1' => 'Centralize o registo completo do parque tecnológico hospitalar, com rastreio de estado, localização, garantias e contratos de manutenção.',

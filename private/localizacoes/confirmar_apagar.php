@@ -21,6 +21,7 @@ if (!$ligacao) {
 }
 
 try {
+    // soft delete: ativo=0 arquiva a localização sem a eliminar — equipamentos já associados mantêm a referência
     $stmt = $ligacao->prepare("UPDATE Localizacao SET ativo = 0 WHERE codigo = :id");
     $stmt->execute([':id' => $id]);
     registar_log('localizacao_arquivada', 'Localização arquivada: #' . $id);

@@ -15,9 +15,11 @@ try {
          LEFT JOIN Fornecedor f ON d.codigoFornecedor = f.codigo
          WHERE d.ativo = 1
          ORDER BY d.dataDocumento DESC"
-    )->fetchAll(PDO::FETCH_OBJ);
+    )->fetchAll(PDO::FETCH_OBJ); // FETCH_OBJ devolve objetos; acedidos com -> no template (ex: $doc->tipo)
 
+    // fetchColumn() devolve o escalar direto — evita fetch() + acesso ao índice para queries de contagem
     $total = $ligacao->query("SELECT COUNT(*) FROM Documentacao WHERE ativo = 1")->fetchColumn();
+    // dataValidade < CURDATE(): comparação feita no servidor MySQL — mais eficiente que trazer todas as datas para PHP
     $expirados = $ligacao->query("SELECT COUNT(*) FROM Documentacao WHERE ativo = 1 AND dataValidade IS NOT NULL AND dataValidade < CURDATE()")->fetchColumn();
 } catch (PDOException $e) {
     header('Location: lista.php');
@@ -75,6 +77,7 @@ registar_log('exportacao_pdf', 'Exportação de documentação em PDF — ' . co
 </div>
 <div class="summary">
     <div class="summary-box"><div class="num"><?= $total ?></div><div class="lbl">Documentos Ativos</div></div>
+    <?php /* caixa de expirados fica vermelha se houver algum, verde se zero — alerta visual no relatório */ ?>
     <div class="summary-box"><div class="num" style="color:<?= $expirados > 0 ? '#dc3545' : '#198754' ?>;"><?= $expirados ?></div><div class="lbl">Expirados</div></div>
 </div>
 <div class="table-wrap">
@@ -91,6 +94,7 @@ registar_log('exportacao_pdf', 'Exportação de documentação em PDF — ' . co
         </thead>
         <tbody>
             <?php foreach ($rows as $doc):
+                // verificação PHP linha a linha: aplica classe CSS 'expirado' e símbolo ⚠ na célula de validade
                 $expirado = $doc->dataValidade && $doc->dataValidade < date('Y-m-d');
             ?>
             <tr>
@@ -102,6 +106,7 @@ registar_log('exportacao_pdf', 'Exportação de documentação em PDF — ' . co
                     <span style="font-family:monospace;font-size:9px;background:#1e1b4b;color:#fff;padding:1px 5px;border-radius:3px;"><?= htmlspecialchars($doc->codigoInterno) ?></span>
                     <?= htmlspecialchars($doc->designacao) ?>
                 </td>
+                <?php /* strtotime converte 'Y-m-d' da BD; date() reformata para 'd/m/Y' legível no relatório */ ?>
                 <td><?= date('d/m/Y', strtotime($doc->dataDocumento)) ?></td>
                 <td class="<?= $expirado ? 'expirado' : '' ?>">
                     <?= $doc->dataValidade ? date('d/m/Y', strtotime($doc->dataValidade)) . ($expirado ? ' ⚠' : '') : '—' ?>

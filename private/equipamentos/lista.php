@@ -266,10 +266,9 @@ $inativos   = count(array_filter($resultados, fn($eq) => $eq->estado === 'inativ
 <?php endif; ?>
 
 <script>
-    // tradução para português
     $(document).ready(function() {
-        // datatable
         var tabela = $('#tabela-equipamentos').DataTable({
+            // dom: 'lrtip' — define a estrutura da tabela: l=length, r=processing, t=table, i=info, p=pagination; remove a caixa de pesquisa nativa (substituída pelos inputs acima)
             dom: 'lrtip',
             pageLength: 5,
             pagingType: "full_numbers",
@@ -308,6 +307,7 @@ $inativos   = count(array_filter($resultados, fn($eq) => $eq->estado === 'inativ
         // filtro por categoria (coluna escondida index 7)
         $('#filtro-categoria').on('change', function() {
             var val = this.value;
+            // search('^val$', true, false): true=regex ativo, false=smart-search desligado; ^ e $ garantem correspondência exata (não parcial)
             tabela.column(7).search(val ? '^' + val + '$' : '', true, false).draw();
         });
 
@@ -317,12 +317,10 @@ $inativos   = count(array_filter($resultados, fn($eq) => $eq->estado === 'inativ
             tabela.column(4).search(val ? '^' + val + '$' : '', true, false).draw();
         });
 
-        // tooltips
         document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) {
             new bootstrap.Tooltip(el);
         });
 
-        // toast
         var toastEl = document.getElementById('toastMensagem');
         if (toastEl) {
             new bootstrap.Toast(toastEl, { delay: 4000 }).show();

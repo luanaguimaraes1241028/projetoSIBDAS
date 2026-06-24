@@ -18,6 +18,7 @@ $ligacao = ligar_bd();
 if (!$ligacao) { header('Location: lista.php'); exit; }
 
 try {
+    // soft delete: ativo=0 oculta o documento sem o eliminar fisicamente da base de dados
     $stmt = $ligacao->prepare("UPDATE Documentacao SET ativo = 0 WHERE codigo = :id");
     $stmt->execute([':id' => $id]);
     registar_log('documento_arquivado', 'Documento arquivado: #' . $id);

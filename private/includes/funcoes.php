@@ -46,6 +46,7 @@ function redirect_if_not_admin()
     }
 }
 
+// perfil "profissional de saude" tem acesso de leitura apenas; redireciona se tentar aceder a formulários de escrita
 function redirect_if_readonly()
 {
     redirect_if_not_logged();
@@ -55,6 +56,7 @@ function redirect_if_readonly()
     }
 }
 
+// ofusca IDs numéricos em parâmetros GET para impedir enumeração direta de registos na URL
 function aes_encrypt($value) {
     return bin2hex(openssl_encrypt(
         $value,
@@ -87,7 +89,7 @@ function registar_log(string $tipo, string $descricao): void {
             );
             $stmt->execute([':tipo' => $tipo, ':descricao' => $descricao, ':user' => $codigoUtilizador]);
         }
-    } catch (Exception $e) {}
+    } catch (Exception $e) {} // falha silenciosa: um erro no log nunca deve interromper o pedido principal
 }
 
 function logout_and_redirect()

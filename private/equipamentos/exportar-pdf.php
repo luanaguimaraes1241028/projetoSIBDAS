@@ -16,15 +16,16 @@ try {
          LEFT JOIN Categoria c ON c.codigo = e.codigoCategoria
          LEFT JOIN Localizacao l ON l.codigo = e.codigoLocalizacao
          ORDER BY e.codigoInterno"
-    )->fetchAll(PDO::FETCH_OBJ);
+    )->fetchAll(PDO::FETCH_OBJ); // FETCH_OBJ devolve objetos; acedidos com -> no template (ex: $eq->estado)
 
+    // SUM(estado = 'ativo'): expressão booleana MySQL — devolve 1 ou 0 por linha; SUM conta os verdadeiros
     $totais = $ligacao->query(
         "SELECT COUNT(*) AS total,
                 SUM(estado = 'ativo') AS ativos,
                 SUM(estado = 'em manutencao') AS manutencao,
                 SUM(estado = 'inativo') AS inativos
          FROM Equipamento"
-    )->fetch(PDO::FETCH_OBJ);
+    )->fetch(PDO::FETCH_OBJ); // fetch() devolve uma única linha (os totais agregados)
 } catch (PDOException $e) {
     header('Location: lista.php');
     exit;
@@ -33,6 +34,8 @@ $ligacao = null;
 
 registar_log('exportacao_pdf', 'Exportação de equipamentos em PDF — ' . count($rows) . ' registos');
 
+// PDF gerado via window.print() do browser — sem bibliotecas externas; CSS @media print controla o layout de impressão
+// mapas de cores: badge colorido identifica visualmente o estado e criticidade de cada equipamento
 $estadoCor = [
     'ativo'          => '#198754',
     'em manutencao'  => '#f59e0b',
@@ -125,6 +128,7 @@ $critCor = [
                 <td style="font-family:monospace;"><?= htmlspecialchars($eq->numeroSerie) ?></td>
                 <td><?= htmlspecialchars($eq->categoria) ?></td>
                 <td><?= htmlspecialchars($eq->servico) ?></td>
+                <?php /* ucfirst(): capitaliza a primeira letra do valor vindo da BD (ex: "ativo" → "Ativo") */ ?>
                 <td><span class="badge" style="background:<?= $estadoCor[$eq->estado] ?? '#6c757d' ?>;"><?= ucfirst($eq->estado) ?></span></td>
                 <td><span class="badge" style="background:<?= $critCor[$eq->criticidade] ?? '#6c757d' ?>;"><?= ucfirst($eq->criticidade) ?></span></td>
                 <td><?= htmlspecialchars($eq->dataAquisicao) ?></td>

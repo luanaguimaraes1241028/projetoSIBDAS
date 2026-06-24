@@ -85,6 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 MYSQL_USERNAME, MYSQL_PASSWORD
             );
             $ligacao->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            // transação garante atomicidade: equipamento + garantia + fornecedores inseridos em conjunto ou nenhum
             $ligacao->beginTransaction();
 
             $stmt = $ligacao->prepare(
@@ -115,6 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $idEquipamento = $ligacao->lastInsertId();
 
+            // garantia é opcional: só é inserida se ambas as datas forem fornecidas
             if ($garantiaInicio && $garantiaFim) {
                 $stmt2 = $ligacao->prepare(
                     "INSERT INTO Garantia
@@ -135,6 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if (!empty($fornSelecionados)) {
+                // INSERT IGNORE evita erro de chave duplicada se o utilizador submeter o mesmo fornecedor duas vezes
                 $stmtForn = $ligacao->prepare(
                     "INSERT IGNORE INTO EquipamentoFornecedor (codigoEquipamento, codigoFornecedor) VALUES (:eq, :forn)"
                 );
@@ -375,6 +378,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <script src="/sibdas/1241028/medcore/assets/flatpickr/flatpickr.js"></script>
 <script>
+    // flatpickr: date picker visual — Y-m-d coincide com o formato DATE do MySQL, não precisa de conversão no PHP
     flatpickr("#dataAquisicao",  { dateFormat: "Y-m-d" });
     flatpickr("#garantiaInicio", { dateFormat: "Y-m-d" });
     flatpickr("#garantiaFim",    { dateFormat: "Y-m-d" });

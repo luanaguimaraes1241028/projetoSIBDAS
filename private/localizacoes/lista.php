@@ -159,6 +159,7 @@ if (!$ligacao) {
 <script>
 $(document).ready(function() {
     $('#tabela-localizacoes').DataTable({
+        // dom: 'lrtip' — layout da tabela sem a caixa de pesquisa nativa do DataTables
         dom: 'lrtip',
         pageLength: 10,
         pagingType: "full_numbers",
@@ -173,10 +174,12 @@ $(document).ready(function() {
         }
     });
 
+    // inicializa tooltips Bootstrap em todos os elementos com data-bs-toggle="tooltip"
     document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) {
         new bootstrap.Tooltip(el);
     });
 
+    // toast de feedback após ação; delay: 4000ms antes do auto-hide
     var toastEl = document.getElementById('toastMensagem');
     if (toastEl) new bootstrap.Toast(toastEl, { delay: 4000 }).show();
 });

@@ -21,6 +21,7 @@ if (!$ligacao) {
 }
 
 try {
+    // soft delete: não elimina o registo — ativo=0 arquiva o fornecedor, preservando o histórico e FKs
     $stmt = $ligacao->prepare("UPDATE Fornecedor SET ativo = 0 WHERE codigo = :id");
     $stmt->execute([':id' => $id]);
     registar_log('fornecedor_arquivado', 'Fornecedor arquivado: #' . $id);

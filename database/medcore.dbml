@@ -84,7 +84,7 @@ Table EquipamentoFornecedor {
   codigoFornecedor int [not null]
 
   indexes {
-    (codigoEquipamento, codigoFornecedor) [pk, name: 'pkEquipamentoFornecedoredificiocodigoEquipamentocodigoFornecedor']
+    (codigoEquipamento, codigoFornecedor) [pk, name: 'pkEquipamentoFornecedor']
   }
 }
 

@@ -14,8 +14,9 @@ try {
          FROM Fornecedor
          WHERE ativo = 1
          ORDER BY nome"
-    )->fetchAll(PDO::FETCH_OBJ);
+    )->fetchAll(PDO::FETCH_OBJ); // FETCH_OBJ devolve objetos; acedidos com -> no template (ex: $f->nome)
 
+    // fetchColumn() devolve diretamente o valor escalar da primeira coluna, sem precisar de fetchAll
     $total = $ligacao->query("SELECT COUNT(*) FROM Fornecedor WHERE ativo = 1")->fetchColumn();
 } catch (PDOException $e) {
     header('Location: lista.php');
@@ -25,6 +26,8 @@ $ligacao = null;
 
 registar_log('exportacao_pdf', 'Exportação de fornecedores em PDF — ' . count($rows) . ' registos');
 
+// PDF gerado via window.print() do browser — sem bibliotecas externas; CSS @media print controla o layout de impressão
+// mapa de cores por tipo: badge colorido no PDF identifica visualmente a categoria do fornecedor
 $tipoCor = [
     'fabricante'          => '#0d6efd',
     'distribuidor'        => '#0dcaf0',
@@ -60,6 +63,7 @@ $tipoCor = [
         .footer-info { padding: 10px 30px; border-top: 1px solid #e0e0f0; font-size: 9px; color: #999; text-align: center; }
         @media print {
             .print-btn { display: none !important; }
+            /* print-color-adjust: exact força o browser a imprimir cores de fundo (por defeito são removidas) */
             thead tr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             tbody tr:nth-child(even) { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -101,8 +105,9 @@ $tipoCor = [
                     <span style="color:#666;font-size:9px;">NIF: <?= htmlspecialchars($f->nif) ?></span>
                 </td>
                 <td>
+                    <?php /* ?? '#6c757d': fallback cinzento se o tipo não estiver mapeado em $tipoCor */ ?>
                     <span class="badge" style="background:<?= $tipoCor[$f->tipoFornecedor] ?? '#6c757d' ?>;">
-                        <?= htmlspecialchars($f->tipoFornecedor) ?>
+                        <?= htmlspecialchars($f->tipoFornecedor) /* htmlspecialchars em todos os campos: previne XSS */ ?>
                     </span>
                 </td>
                 <td><?= htmlspecialchars($f->pessoaContacto) ?></td>

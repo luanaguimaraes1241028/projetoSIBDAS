@@ -15,8 +15,9 @@ try {
          WHERE l.ativo = 1
          GROUP BY l.codigo
          ORDER BY l.edificio, l.piso, l.servico"
-    )->fetchAll(PDO::FETCH_OBJ);
+    )->fetchAll(PDO::FETCH_OBJ); // FETCH_OBJ devolve objetos; acedidos com -> no template (ex: $loc->edificio)
 
+    // fetchColumn() devolve diretamente o valor escalar da primeira coluna, sem precisar de fetch()
     $total = $ligacao->query("SELECT COUNT(*) FROM Localizacao WHERE ativo = 1")->fetchColumn();
 } catch (PDOException $e) {
     header('Location: lista.php');
@@ -73,6 +74,7 @@ registar_log('exportacao_pdf', 'Exportação de localizações em PDF — ' . co
 </div>
 <div class="summary">
     <div class="summary-box"><div class="num"><?= $total ?></div><div class="lbl">Localizações Ativas</div></div>
+    <?php /* array_column extrai 'totalEquipamentos' de cada objeto (cast para array necessário); array_sum soma o total global */ ?>
     <div class="summary-box"><div class="num"><?= array_sum(array_column((array)$rows, 'totalEquipamentos')) ?></div><div class="lbl">Equipamentos Alocados</div></div>
 </div>
 <div class="table-wrap">
@@ -95,6 +97,7 @@ registar_log('exportacao_pdf', 'Exportação de localizações em PDF — ' . co
                 <td><?= htmlspecialchars($loc->servico) ?></td>
                 <td style="font-family:monospace;"><?= htmlspecialchars($loc->sala) ?></td>
                 <td style="text-align:center;">
+                    <?php /* badge cinzento se sem equipamentos: indica visualmente localização vazia */ ?>
                     <span class="badge" style="background:<?= $loc->totalEquipamentos > 0 ? '#1e1b4b' : '#adb5bd' ?>;">
                         <?= $loc->totalEquipamentos ?>
                     </span>

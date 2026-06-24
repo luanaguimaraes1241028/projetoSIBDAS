@@ -29,7 +29,7 @@ header('Content-Disposition: attachment; filename="localizacoes_' . date('Ymd_Hi
 header('Cache-Control: no-cache, no-store, must-revalidate');
 
 $out = fopen('php://output', 'w');
-fwrite($out, "\xEF\xBB\xBF");
+fwrite($out, "\xEF\xBB\xBF"); // BOM UTF-8: necessário para o Excel abrir o CSV com caracteres portugueses corretamente
 
 fputcsv($out, ['Edifício', 'Piso', 'Serviço / Departamento', 'Sala / Gabinete', 'Nº Equipamentos'], ';');
 

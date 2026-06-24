@@ -40,8 +40,9 @@ if (!$ligacao) {
 $stmt = $ligacao->prepare("SELECT codigo, password, perfil FROM Utilizador WHERE email = :email LIMIT 1");
 $stmt->execute([':email' => $username]);
 $utilizador = $stmt->fetch(PDO::FETCH_OBJ);
-$ligacao = null;
+$ligacao = null; // fechar ligação antes de escrever na sessão
 
+// password_verify faz comparação timing-safe contra o hash bcrypt armazenado
 if (!$utilizador || !password_verify($password, $utilizador->password)) {
     registar_log('login_falha', 'Tentativa falhada: ' . $username);
     $_SESSION['server_error'] = 'Login inválido';

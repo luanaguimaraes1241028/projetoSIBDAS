@@ -123,13 +123,16 @@ $ligacao = null;
 </div>
 
 <script>
+// 'show.bs.modal': evento Bootstrap disparado antes de o modal ficar visível — ideal para preencher conteúdo dinâmico
 document.getElementById('modalMensagem').addEventListener('show.bs.modal', function (e) {
+    // e.relatedTarget: o elemento que acionou o modal (o botão "Ver") — contém os dados nos atributos data-*
     const btn = e.relatedTarget;
     document.getElementById('modalNome').textContent        = btn.dataset.nome;
     document.getElementById('modalEmail').textContent       = btn.dataset.email;
     document.getElementById('modalData').textContent        = btn.dataset.data;
     document.getElementById('modalTextoMensagem').textContent = btn.dataset.mensagem;
     document.getElementById('modalId').value                = btn.dataset.id;
+    // dataset.lida vem como string '0' ou '1' — atributos HTML são sempre texto, nunca booleano nativo
     document.getElementById('formMarcarLida').style.display = btn.dataset.lida === '0' ? 'block' : 'none';
 });
 </script>

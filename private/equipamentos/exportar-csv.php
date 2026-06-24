@@ -37,8 +37,8 @@ header('Content-Type: text/csv; charset=utf-8');
 header('Content-Disposition: attachment; filename="equipamentos_' . date('Ymd_His') . '.csv"');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 
-$out = fopen('php://output', 'w');
-fwrite($out, "\xEF\xBB\xBF");
+$out = fopen('php://output', 'w'); // php://output escreve diretamente para o buffer sem criar ficheiro temporário
+fwrite($out, "\xEF\xBB\xBF"); // BOM UTF-8: necessário para o Excel abrir o CSV com caracteres portugueses corretamente
 
 fputcsv($out, [
     'Código Interno', 'Designação', 'Marca', 'Modelo', 'Nº de Série', 'Fabricante',

@@ -27,6 +27,7 @@ try {
         "SELECT COUNT(*) FROM Garantia WHERE dataFim < CURDATE()"
     )->fetchColumn();
 
+    // NOT EXISTS é mais eficiente que LEFT JOIN ... IS NULL para subconjuntos grandes
     $semDocumentacao = (int) $ligacao->query(
         "SELECT COUNT(*) FROM Equipamento e
          WHERE NOT EXISTS (
@@ -35,6 +36,7 @@ try {
          )"
     )->fetchColumn();
 
+    // janela de 30 dias: ativa o alerta amarelo no painel de alertas
     $garantiasAExpirar = (int) $ligacao->query(
         "SELECT COUNT(*) FROM Garantia
          WHERE dataFim >= CURDATE() AND dataFim <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)"
@@ -49,6 +51,7 @@ try {
          LIMIT 8"
     )->fetchAll(PDO::FETCH_OBJ);
 
+    // FIELD() força a ordem de criticidade do mais crítico para o menos crítico
     $rowsCrit = $ligacao->query(
         "SELECT criticidade, COUNT(*) AS total FROM Equipamento
          GROUP BY criticidade
@@ -181,6 +184,7 @@ $temAlertas = $garantiasExpiradas > 0 || $semDocumentacao > 0 || $garantiasAExpi
     </div>
 
 <script>
+// PHP serializa os dados das queries para JSON; o Chart.js lê a partir deste objeto global
 window.dashboardData = {
     servicos: {
         labels: <?= json_encode($labelsServicos) ?>,

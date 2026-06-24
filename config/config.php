@@ -11,6 +11,8 @@ define('MYSQL_DATABASE', 'db1241028');
 define('MYSQL_USERNAME', '1241028');
 define('MYSQL_PASSWORD', 'guimarães_028');
 
+// AES-256-CBC usado exclusivamente para ofuscar IDs em parâmetros GET (ex: ?id=abc...)
+// as passwords e dados sensíveis são protegidos por bcrypt e PDO prepared statements
 define('OPENSSL_METHOD', 'AES-256-CBC');
 define('OPENSSL_KEY',    'H0SDRQzIGqclX2kbYBk9xspdn9U5f3Wa');
 define('OPENSSL_IV',     'BzKAbjuREsHgnw56');

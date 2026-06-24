@@ -12,6 +12,8 @@ try {
 } catch (Exception $e) {
     $cp = [];
 }
+// cp(): lê conteúdo da BD com fallback e escapa HTML para output seguro
+// cpnl(): igual mas converte \n em <br> — usado em campos de texto multilinha (morada, horários)
 function cp(string $key, string $default = ''): string {
     global $cp;
     return htmlspecialchars($cp[$key] ?? $default);

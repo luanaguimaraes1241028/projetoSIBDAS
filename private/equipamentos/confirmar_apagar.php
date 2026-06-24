@@ -22,6 +22,7 @@ try {
     );
     $ligacao->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    // soft delete: não elimina o registo — muda o estado para 'abatido', ficando oculto na listagem principal
     $stmt = $ligacao->prepare("UPDATE Equipamento SET estado = 'abatido' WHERE codigo = :id");
     $stmt->execute([':id' => $id]);
 } catch (PDOException $err) {

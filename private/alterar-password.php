@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($passwordNova))
         $erros[] = 'A nova password é obrigatória.';
     if (strlen($passwordNova) < 6 || strlen($passwordNova) > 72)
-        $erros[] = 'A nova password deve ter entre 6 e 72 caracteres.';
+        $erros[] = 'A nova password deve ter entre 6 e 72 caracteres.'; // 72 é o limite máximo do bcrypt
     if ($passwordNova !== $passwordConfirm)
         $erros[] = 'A confirmação da password não coincide.';
     if ($passwordAtual === $passwordNova)

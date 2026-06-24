@@ -70,6 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 MYSQL_USERNAME, MYSQL_PASSWORD
             );
             $ligacao->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            // transação garante atomicidade: equipamento + garantia + fornecedores atualizados em conjunto ou nenhum
             $ligacao->beginTransaction();
 
             $stmt = $ligacao->prepare(
@@ -100,6 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':id'                => (int)$idEquipamento,
             ]);
 
+            // só atualiza garantia se já existir um registo (codigoGarantia vem do formulário via campo hidden)
             if ($codigoGarantia && $garantiaInicio && $garantiaFim) {
                 $stmt2 = $ligacao->prepare(
                     "UPDATE Garantia
@@ -120,6 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
             }
 
+            // estratégia delete-and-reinsert: apaga todas as associações e reinsere as selecionadas
             $fornSelecionados = $_POST['fornecedores'] ?? [];
             $ligacao->prepare("DELETE FROM EquipamentoFornecedor WHERE codigoEquipamento = :id")
                     ->execute([':id' => (int)$idEquipamento]);
@@ -181,6 +184,7 @@ try {
     $localizacoes = $ligacao->query("SELECT codigo, edificio, piso, servico, sala FROM Localizacao WHERE ativo = 1 ORDER BY edificio, piso, servico")->fetchAll(PDO::FETCH_OBJ);
     $fornecedores = $ligacao->query("SELECT codigo, nome, tipoFornecedor FROM Fornecedor WHERE ativo = 1 ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
 
+    // array_column extrai só os IDs dos fornecedores já associados para pré-selecionar as checkboxes no formulário
     $stmtFornAssoc = $ligacao->prepare("SELECT codigoFornecedor FROM EquipamentoFornecedor WHERE codigoEquipamento = :id");
     $stmtFornAssoc->execute([':id' => $idEquipamento]);
     $fornAssociados = array_column($stmtFornAssoc->fetchAll(PDO::FETCH_OBJ), 'codigoFornecedor');
@@ -412,6 +416,7 @@ $ligacao = null;
 
 <script src="/sibdas/1241028/medcore/assets/flatpickr/flatpickr.js"></script>
 <script>
+    // flatpickr: date picker visual — Y-m-d coincide com o formato DATE do MySQL, não precisa de conversão no PHP
     flatpickr("#dataAquisicao",  { dateFormat: "Y-m-d" });
     flatpickr("#garantiaInicio", { dateFormat: "Y-m-d" });
     flatpickr("#garantiaFim",    { dateFormat: "Y-m-d" });
