@@ -6,7 +6,7 @@ $tiposValidos = ['fabricante', 'distribuidor', 'assistencia tecnica', 'consumive
 $erros = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nome           = trim($_POST['nome'] ?? '');
-    $nif            = trim($_POST['nif'] ?? '') ?: null;
+    $nif            = trim($_POST['nif'] ?? '');
     $telefone       = trim($_POST['telefone'] ?? '') ?: null;
     $email          = trim($_POST['email'] ?? '') ?: null;
     $morada         = trim($_POST['morada'] ?? '') ?: null;
@@ -20,7 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erros[] = 'O nome da empresa é obrigatório e deve ter pelo menos 2 caracteres.';
     if (!in_array($tipoFornecedor, $tiposValidos))
         $erros[] = 'Selecione um tipo de fornecedor válido.';
-    if ($nif !== null && !preg_match('/^[0-9]{9}$/', $nif))
+    if (empty($nif))
+        $erros[] = 'O NIF é obrigatório.';
+    elseif (!preg_match('/^[0-9]{9}$/', $nif))
         $erros[] = 'O NIF deve ter exatamente 9 dígitos numéricos.';
     if ($email !== null && !filter_var($email, FILTER_VALIDATE_EMAIL))
         $erros[] = 'O email introduzido não é válido.';
@@ -91,8 +93,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="text" name="nome" class="form-control" placeholder="Ex: Dräger Portugal Lda." value="<?= htmlspecialchars($_POST['nome'] ?? '') ?>" required>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-bold">NIF</label>
-                        <input type="text" name="nif" class="form-control" placeholder="Ex: 500123456" value="<?= htmlspecialchars($_POST['nif'] ?? '') ?>">
+                        <label class="form-label fw-bold">NIF <span class="text-danger">*</span></label>
+                        <input type="text" name="nif" class="form-control" placeholder="Ex: 500123456" value="<?= htmlspecialchars($_POST['nif'] ?? '') ?>" required>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Tipo de Fornecedor <span class="text-danger">*</span></label>

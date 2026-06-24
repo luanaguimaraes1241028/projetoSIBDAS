@@ -14,7 +14,10 @@ if (!$ligacao) {
 } else {
     try {
         $todos = $ligacao->query(
-            "SELECT * FROM Fornecedor ORDER BY nome"
+            "SELECT f.*,
+                    (SELECT COUNT(*) FROM EquipamentoFornecedor ef WHERE ef.codigoFornecedor = f.codigo) AS total_equipamentos
+             FROM Fornecedor f
+             ORDER BY f.nome"
         )->fetchAll(PDO::FETCH_OBJ);
 
         foreach ($todos as $f) {
@@ -70,6 +73,7 @@ if (!$ligacao) {
                                 <th>Tipo</th>
                                 <th>Pessoa de Contacto</th>
                                 <th>Telefone / Email</th>
+                                <th class="text-center">Equipamentos</th>
                                 <th class="text-center">Ações</th>
                             </tr>
                         </thead>
@@ -98,6 +102,13 @@ if (!$ligacao) {
                                 <td>
                                     <?php if ($f->telefone): ?><div class="small"><i class="fa-solid fa-phone text-muted me-1"></i><?= htmlspecialchars($f->telefone) ?></div><?php endif; ?>
                                     <?php if ($f->email): ?><div class="small text-muted"><i class="fa-solid fa-envelope me-1"></i><?= htmlspecialchars($f->email) ?></div><?php endif; ?>
+                                </td>
+                                <td class="text-center">
+                                    <?php if ($f->total_equipamentos > 0): ?>
+                                        <span class="badge bg-primary"><?= $f->total_equipamentos ?></span>
+                                    <?php else: ?>
+                                        <span class="text-muted small">—</span>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group shadow-sm">

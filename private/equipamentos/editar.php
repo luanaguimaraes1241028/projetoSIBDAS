@@ -48,14 +48,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         validar_marca($marca),
         validar_modelo($modelo),
         validar_numero_serie($numeroSerie),
-        validar_fabricante($fabricante),
-        validar_ano($anoFabrico),
-        validar_data($dataAquisicao,  'A data de aquisição é obrigatória.'),
-        validar_custo($custoAquisicao),
-        validar_data($garantiaInicio, 'A data de início da garantia é obrigatória.'),
-        validar_data($garantiaFim,    'A data de fim da garantia é obrigatória.')
+        validar_data($dataAquisicao, 'A data de aquisição é obrigatória.')
     );
 
+    if (!empty($anoFabrico) && (!preg_match('/^\d{4}$/', $anoFabrico) || (int)$anoFabrico < 1900 || (int)$anoFabrico > (int)date('Y')))
+        $erros[] = 'O ano de fabrico deve ser um valor entre 1900 e ' . date('Y') . '.';
+    if (!empty($custoAquisicao) && (!is_numeric($custoAquisicao) || (float)$custoAquisicao < 0))
+        $erros[] = 'O custo de aquisição deve ser um valor numérico positivo.';
     if (!empty($garantiaInicio) && !empty($garantiaFim) && $garantiaFim <= $garantiaInicio)
         $erros[] = 'A data de fim da garantia deve ser posterior à data de início.';
 
@@ -88,11 +87,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':codigoCategoria' => (int)$codigoCategoria,
                 ':marca'           => $marca,
                 ':modelo'          => $modelo,
-                ':fabricante'      => $fabricante,
+                ':fabricante'      => $fabricante ?: null,
                 ':numeroSerie'     => $numeroSerie,
-                ':anoFabrico'      => (int)$anoFabrico,
+                ':anoFabrico'      => $anoFabrico !== '' ? (int)$anoFabrico : null,
                 ':dataAquisicao'   => $dataAquisicao,
-                ':custoAquisicao'  => (float)$custoAquisicao,
+                ':custoAquisicao'  => $custoAquisicao !== '' ? (float)$custoAquisicao : null,
                 ':tipoEntrada'     => $tipoEntrada,
                 ':estado'          => $estado,
                 ':criticidade'     => $criticidade,
@@ -101,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':id'                => (int)$idEquipamento,
             ]);
 
-            if ($codigoGarantia) {
+            if ($codigoGarantia && $garantiaInicio && $garantiaFim) {
                 $stmt2 = $ligacao->prepare(
                     "UPDATE Garantia
                      SET dataInicio = :dataInicio, dataFim = :dataFim, temContrato = :temContrato,
@@ -226,13 +225,13 @@ $ligacao = null;
                             <input type="text" class="form-control bg-light" value="<?= htmlspecialchars($equipamento->codigoInterno) ?>" readonly>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Designação do Equipamento</label>
+                            <label class="form-label fw-bold">Designação do Equipamento <span class="text-danger">*</span></label>
                             <input type="text" name="designacao" class="form-control"
-                                   value="<?= htmlspecialchars($equipamento->designacao) ?>">
+                                   value="<?= htmlspecialchars($equipamento->designacao) ?>" required>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">Categoria / Grupo</label>
-                            <select name="codigoCategoria" class="form-select">
+                            <label class="form-label fw-bold">Categoria / Grupo <span class="text-danger">*</span></label>
+                            <select name="codigoCategoria" class="form-select" required>
                                 <option disabled value="">Escolha uma opção...</option>
                                 <?php foreach ($categorias as $cat): ?>
                                 <option value="<?= $cat->codigo ?>" <?= $equipamento->codigoCategoria == $cat->codigo ? 'selected' : '' ?>><?= htmlspecialchars($cat->nome) ?></option>
@@ -240,20 +239,20 @@ $ligacao = null;
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">Marca</label>
+                            <label class="form-label fw-bold">Marca <span class="text-danger">*</span></label>
                             <input type="text" name="marca" class="form-control"
-                                   value="<?= htmlspecialchars($equipamento->marca) ?>">
+                                   value="<?= htmlspecialchars($equipamento->marca) ?>" required>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">Modelo</label>
+                            <label class="form-label fw-bold">Modelo <span class="text-danger">*</span></label>
                             <input type="text" name="modelo" class="form-control"
-                                   value="<?= htmlspecialchars($equipamento->modelo) ?>">
+                                   value="<?= htmlspecialchars($equipamento->modelo) ?>" required>
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">Número de Série</label>
+                            <label class="form-label fw-bold">Número de Série <span class="text-danger">*</span></label>
                             <input type="text" name="numeroSerie" class="form-control"
-                                   value="<?= htmlspecialchars($equipamento->numeroSerie) ?>">
+                                   value="<?= htmlspecialchars($equipamento->numeroSerie) ?>" required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Fabricante</label>
@@ -267,9 +266,9 @@ $ligacao = null;
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">Data de Aquisição</label>
+                            <label class="form-label fw-bold">Data de Aquisição <span class="text-danger">*</span></label>
                             <input type="text" name="dataAquisicao" id="dataAquisicao" class="form-control"
-                                   value="<?= htmlspecialchars($equipamento->dataAquisicao) ?>">
+                                   value="<?= htmlspecialchars($equipamento->dataAquisicao) ?>" required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Custo de Aquisição (€)</label>
@@ -277,7 +276,7 @@ $ligacao = null;
                                    value="<?= htmlspecialchars($equipamento->custoAquisicao) ?>">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">Tipo de Entrada</label>
+                            <label class="form-label fw-bold">Tipo de Entrada <span class="text-danger">*</span></label>
                             <select name="tipoEntrada" class="form-select">
                                 <option value="compra"     <?= $equipamento->tipoEntrada === 'compra'     ? 'selected' : '' ?>>Compra</option>
                                 <option value="doacao"     <?= $equipamento->tipoEntrada === 'doacao'     ? 'selected' : '' ?>>Doação</option>
@@ -287,7 +286,7 @@ $ligacao = null;
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Estado Atual</label>
+                            <label class="form-label fw-bold">Estado Atual <span class="text-danger">*</span></label>
                             <select name="estado" class="form-select">
                                 <option value="ativo"         <?= $equipamento->estado === 'ativo'         ? 'selected' : '' ?>>Ativo / Operacional</option>
                                 <option value="em manutencao" <?= $equipamento->estado === 'em manutencao' ? 'selected' : '' ?>>Em Manutenção</option>
@@ -298,7 +297,7 @@ $ligacao = null;
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Criticidade</label>
+                            <label class="form-label fw-bold">Criticidade <span class="text-danger">*</span></label>
                             <select name="criticidade" class="form-select">
                                 <option value="baixa"          <?= $equipamento->criticidade === 'baixa'          ? 'selected' : '' ?>>Baixa</option>
                                 <option value="media"          <?= $equipamento->criticidade === 'media'          ? 'selected' : '' ?>>Média</option>

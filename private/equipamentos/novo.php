@@ -57,13 +57,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erros[] = 'O modelo é obrigatório.';
     if (empty($numeroSerie))
         $erros[] = 'O número de série é obrigatório.';
-    if (empty($fabricante))
-        $erros[] = 'O fabricante é obrigatório.';
-    if (empty($anoFabrico) || !preg_match('/^\d{4}$/', $anoFabrico) || (int)$anoFabrico < 1900 || (int)$anoFabrico > (int)date('Y'))
+    if (!empty($anoFabrico) && (!preg_match('/^\d{4}$/', $anoFabrico) || (int)$anoFabrico < 1900 || (int)$anoFabrico > (int)date('Y')))
         $erros[] = 'O ano de fabrico deve ser um valor entre 1900 e ' . date('Y') . '.';
     if (empty($dataAquisicao))
         $erros[] = 'A data de aquisição é obrigatória.';
-    if (empty($custoAquisicao) || !is_numeric($custoAquisicao) || (float)$custoAquisicao < 0)
+    if (!empty($custoAquisicao) && (!is_numeric($custoAquisicao) || (float)$custoAquisicao < 0))
         $erros[] = 'O custo de aquisição deve ser um valor numérico positivo.';
     if (empty($tipoEntrada))
         $erros[] = 'O tipo de entrada é obrigatório.';
@@ -71,10 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erros[] = 'O estado atual é obrigatório.';
     if (empty($criticidade))
         $erros[] = 'A criticidade é obrigatória.';
-    if (empty($garantiaInicio))
-        $erros[] = 'A data de início da garantia é obrigatória.';
-    if (empty($garantiaFim))
-        $erros[] = 'A data de fim da garantia é obrigatória.';
     if (!empty($garantiaInicio) && !empty($garantiaFim) && $garantiaFim <= $garantiaInicio)
         $erros[] = 'A data de fim da garantia deve ser posterior à data de início.';
 
@@ -106,11 +100,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':designacao'      => $designacao,
                 ':marca'           => $marca,
                 ':modelo'          => $modelo,
-                ':fabricante'      => $fabricante,
+                ':fabricante'      => $fabricante ?: null,
                 ':numeroSerie'     => $numeroSerie,
-                ':anoFabrico'      => (int)$anoFabrico,
+                ':anoFabrico'      => $anoFabrico !== '' ? (int)$anoFabrico : null,
                 ':dataAquisicao'   => $dataAquisicao,
-                ':custoAquisicao'  => (float)$custoAquisicao,
+                ':custoAquisicao'  => $custoAquisicao !== '' ? (float)$custoAquisicao : null,
                 ':tipoEntrada'     => $tipoEntrada,
                 ':estado'          => $estado,
                 ':criticidade'     => $criticidade,
@@ -121,22 +115,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $idEquipamento = $ligacao->lastInsertId();
 
-            $stmt2 = $ligacao->prepare(
-                "INSERT INTO Garantia
-                 (dataInicio, dataFim, temContrato, tipoContrato, entidadeResponsavel, periodicidade, observacoes, codigoEquipamento)
-                 VALUES
-                 (:dataInicio, :dataFim, :temContrato, :tipoContrato, :entidadeResponsavel, :periodicidade, :observacoes, :codigoEquipamento)"
-            );
-            $stmt2->execute([
-                ':dataInicio'          => $garantiaInicio,
-                ':dataFim'             => $garantiaFim,
-                ':temContrato'         => $temContrato,
-                ':tipoContrato'        => $tipoContrato        ?: null,
-                ':entidadeResponsavel' => $entidadeResponsavel ?: null,
-                ':periodicidade'       => $periodicidade        ?: null,
-                ':observacoes'         => $observacoesContrato  ?: null,
-                ':codigoEquipamento'   => $idEquipamento,
-            ]);
+            if ($garantiaInicio && $garantiaFim) {
+                $stmt2 = $ligacao->prepare(
+                    "INSERT INTO Garantia
+                     (dataInicio, dataFim, temContrato, tipoContrato, entidadeResponsavel, periodicidade, observacoes, codigoEquipamento)
+                     VALUES
+                     (:dataInicio, :dataFim, :temContrato, :tipoContrato, :entidadeResponsavel, :periodicidade, :observacoes, :codigoEquipamento)"
+                );
+                $stmt2->execute([
+                    ':dataInicio'          => $garantiaInicio,
+                    ':dataFim'             => $garantiaFim,
+                    ':temContrato'         => $temContrato,
+                    ':tipoContrato'        => $tipoContrato        ?: null,
+                    ':entidadeResponsavel' => $entidadeResponsavel ?: null,
+                    ':periodicidade'       => $periodicidade        ?: null,
+                    ':observacoes'         => $observacoesContrato  ?: null,
+                    ':codigoEquipamento'   => $idEquipamento,
+                ]);
+            }
 
             if (!empty($fornSelecionados)) {
                 $stmtForn = $ligacao->prepare(
@@ -187,18 +183,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <form action="#" method="post" class="row g-3">
 
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Código Interno de Inventário</label>
+                            <label class="form-label fw-bold">Código Interno de Inventário <span class="text-danger">*</span></label>
                             <input type="text" name="codigoInterno" class="form-control" placeholder="Ex: EQ-0043"
-                                   value="<?= htmlspecialchars($_POST['codigoInterno'] ?? '') ?>">
+                                   value="<?= htmlspecialchars($_POST['codigoInterno'] ?? '') ?>" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Designação do Equipamento</label>
+                            <label class="form-label fw-bold">Designação do Equipamento <span class="text-danger">*</span></label>
                             <input type="text" name="designacao" class="form-control" placeholder="Ex: Ventilador Volumétrico"
-                                   value="<?= htmlspecialchars($_POST['designacao'] ?? '') ?>">
+                                   value="<?= htmlspecialchars($_POST['designacao'] ?? '') ?>" required>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">Categoria / Grupo</label>
-                            <select name="codigoCategoria" class="form-select">
+                            <label class="form-label fw-bold">Categoria / Grupo <span class="text-danger">*</span></label>
+                            <select name="codigoCategoria" class="form-select" required>
                                 <option disabled value="" <?= empty($_POST['codigoCategoria']) ? 'selected' : '' ?>>Escolha uma opção...</option>
                                 <?php foreach ($categorias as $cat): ?>
                                 <option value="<?= $cat->codigo ?>" <?= ($_POST['codigoCategoria'] ?? '') == $cat->codigo ? 'selected' : '' ?>><?= htmlspecialchars($cat->nome) ?></option>
@@ -206,20 +202,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">Marca</label>
+                            <label class="form-label fw-bold">Marca <span class="text-danger">*</span></label>
                             <input type="text" name="marca" class="form-control" placeholder="Ex: Dräger"
-                                   value="<?= htmlspecialchars($_POST['marca'] ?? '') ?>">
+                                   value="<?= htmlspecialchars($_POST['marca'] ?? '') ?>" required>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">Modelo</label>
+                            <label class="form-label fw-bold">Modelo <span class="text-danger">*</span></label>
                             <input type="text" name="modelo" class="form-control" placeholder="Ex: Evita V500"
-                                   value="<?= htmlspecialchars($_POST['modelo'] ?? '') ?>">
+                                   value="<?= htmlspecialchars($_POST['modelo'] ?? '') ?>" required>
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">Número de Série</label>
+                            <label class="form-label fw-bold">Número de Série <span class="text-danger">*</span></label>
                             <input type="text" name="numeroSerie" class="form-control" placeholder="Ex: SN-DRG-88321-X"
-                                   value="<?= htmlspecialchars($_POST['numeroSerie'] ?? '') ?>">
+                                   value="<?= htmlspecialchars($_POST['numeroSerie'] ?? '') ?>" required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Fabricante</label>
@@ -233,9 +229,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">Data de Aquisição</label>
+                            <label class="form-label fw-bold">Data de Aquisição <span class="text-danger">*</span></label>
                             <input type="text" name="dataAquisicao" id="dataAquisicao" class="form-control" placeholder="AAAA-MM-DD"
-                                   value="<?= htmlspecialchars($_POST['dataAquisicao'] ?? '') ?>">
+                                   value="<?= htmlspecialchars($_POST['dataAquisicao'] ?? '') ?>" required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Custo de Aquisição (€)</label>
@@ -243,8 +239,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    value="<?= htmlspecialchars($_POST['custoAquisicao'] ?? '') ?>">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">Tipo de Entrada</label>
-                            <select name="tipoEntrada" class="form-select">
+                            <label class="form-label fw-bold">Tipo de Entrada <span class="text-danger">*</span></label>
+                            <select name="tipoEntrada" class="form-select" required>
                                 <option disabled value="" <?= empty($_POST['tipoEntrada']) ? 'selected' : '' ?>>Selecione...</option>
                                 <option value="compra"    <?= ($_POST['tipoEntrada'] ?? '') === 'compra'    ? 'selected' : '' ?>>Compra</option>
                                 <option value="doacao"    <?= ($_POST['tipoEntrada'] ?? '') === 'doacao'    ? 'selected' : '' ?>>Doação</option>
@@ -254,8 +250,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Estado Atual</label>
-                            <select name="estado" class="form-select">
+                            <label class="form-label fw-bold">Estado Atual <span class="text-danger">*</span></label>
+                            <select name="estado" class="form-select" required>
                                 <option disabled value="" <?= empty($_POST['estado']) ? 'selected' : '' ?>>Selecione...</option>
                                 <option value="ativo"          <?= ($_POST['estado'] ?? '') === 'ativo'          ? 'selected' : '' ?>>Ativo / Operacional</option>
                                 <option value="em manutencao"  <?= ($_POST['estado'] ?? '') === 'em manutencao'  ? 'selected' : '' ?>>Em Manutenção</option>
@@ -266,8 +262,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Criticidade</label>
-                            <select name="criticidade" class="form-select">
+                            <label class="form-label fw-bold">Criticidade <span class="text-danger">*</span></label>
+                            <select name="criticidade" class="form-select" required>
                                 <option disabled value="" <?= empty($_POST['criticidade']) ? 'selected' : '' ?>>Selecione...</option>
                                 <option value="baixa"          <?= ($_POST['criticidade'] ?? '') === 'baixa'          ? 'selected' : '' ?>>Baixa</option>
                                 <option value="media"          <?= ($_POST['criticidade'] ?? '') === 'media'          ? 'selected' : '' ?>>Média</option>
